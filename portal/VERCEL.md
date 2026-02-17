@@ -4,14 +4,32 @@ The BLVCKSHELL portal is set up for **Vercel** as the production host.
 
 ---
 
-## 1. Connect the repo
+## 1. Set Root Directory (required)
 
-- In [Vercel](https://vercel.com), import the Git repository (e.g. `cconnickcc-blvckshell/Blvckshell-Prop`).
-- **Root Directory:** set to **`portal`** (the Next.js app lives in the `portal/` folder, not the repo root).
+The Next.js app and its `package.json` are in the **`portal`** folder. Vercel must use that folder as the project root.
+
+**Do this first:**
+
+1. In [Vercel](https://vercel.com), open your project.
+2. Go to **Settings** → **General**.
+3. Find **Root Directory**.
+4. Click **Edit** and enter exactly: **`portal`**
+   - Lowercase, no leading slash, no trailing slash, no `./`
+5. Click **Save**.
+6. Redeploy (or push a new commit).
+
+If Root Directory is wrong or empty, you’ll see: *"No Next.js version detected"* or *"Couldn't find any pages or app directory"*.
 
 ---
 
-## 2. Build settings (defaults)
+## 2. Connect the repo (if new)
+
+- Import the Git repository (e.g. `cconnickcc-blvckshell/Blvckshell-Prop`).
+- **Root Directory** must be **`portal`** (see above).
+
+---
+
+## 3. Build settings (defaults)
 
 Vercel will detect Next.js. You can leave these as-is or set explicitly:
 
@@ -25,7 +43,7 @@ Vercel will detect Next.js. You can leave these as-is or set explicitly:
 
 ---
 
-## 3. Environment variables
+## 4. Environment variables
 
 In **Vercel → Project → Settings → Environment Variables**, add these for **Production** (and Preview if you use branch deploys):
 
@@ -46,7 +64,7 @@ In **Vercel → Project → Settings → Environment Variables**, add these for 
 
 ---
 
-## 4. Migrations and seed
+## 5. Migrations and seed
 
 Migrations and seed are **not** run by Vercel. Run them yourself (e.g. from your machine or CI):
 
@@ -61,14 +79,14 @@ Use the same `DIRECT_URL` (and env) that you use locally for migrations.
 
 ---
 
-## 5. Supabase Storage
+## 6. Supabase Storage
 
 - Ensure the `evidence` (and optionally `compliance`) buckets exist in Supabase.
 - The app uses **server-only** Supabase client with `SUPABASE_SERVICE_ROLE_KEY`; no RLS or public bucket URLs needed for evidence.
 
 ---
 
-## 6. After deploy
+## 7. After deploy
 
 1. Open **NEXTAUTH_URL** in the dashboard and set it to your real Vercel URL if needed, then redeploy.
 2. Test login, worker flows, and admin flows.
@@ -78,6 +96,16 @@ Use the same `DIRECT_URL` (and env) that you use locally for migrations.
 
 ## Summary
 
-- **Root Directory:** `portal`
+- **Root Directory:** must be **`portal`** (Settings → General). This is the #1 cause of build failures.
 - **NEXTAUTH_URL:** must be your Vercel (or custom) production URL
 - **Migrations:** run `prisma migrate deploy` (and seed) outside Vercel with `DIRECT_URL`
+
+---
+
+## Troubleshooting
+
+| Error | Fix |
+|-------|-----|
+| **No Next.js version detected** | Set **Root Directory** to **`portal`** (Settings → General). The repo root has no `package.json` with Next.js. |
+| **Couldn't find any pages or app directory** | Same: set **Root Directory** to **`portal`**. The `app` folder is inside `portal/`. |
+| Root Directory already has a value | Change it to exactly **`portal`** (lowercase, no slashes). Then save and redeploy. |
