@@ -3,6 +3,8 @@
 **Status:** 🚧 In Development  
 **Last Updated:** February 16, 2026
 
+> **Vercel:** Set **Root Directory** to **`portal`** in Project Settings → General, or the build will fail (Next.js app is in `portal/`).
+
 This repository contains three production-ready systems for BLVCKSHELL Facilities Services:
 
 1. **[Operations Binder](./ops-binder/)** — Contracts, SOPs, policies, QA forms, checklists, state machines (47 markdown files)
