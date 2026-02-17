@@ -84,6 +84,8 @@ Each component has its own README:
 - `portal/` — Portal setup, env vars, deployment
 - `marketing/` — Marketing site setup and deployment
 
+**Deploying the portal (Vercel):** Set Vercel **Root Directory** to **`portal`** and add env vars. Full guide: **[portal/VERCEL.md](./portal/VERCEL.md)**.
+
 ---
 
 ## Quality Standards

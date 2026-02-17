@@ -186,15 +186,14 @@ portal/
 
 ## Deployment
 
-### Vercel
+### Vercel (production host)
 
-1. Connect your repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy
+The app is configured for **Vercel**. Important:
 
-**Environment Variables Required:**
-- All variables from `.env.example`
-- `DATABASE_URL` and `DIRECT_URL` must be set correctly
+- **Root Directory:** In Vercel project settings, set **Root Directory** to **`portal`** (the Next.js app is in this folder).
+- **NEXTAUTH_URL:** In production, set this to your live Vercel URL (e.g. `https://your-app.vercel.app`).
+
+Full steps, env vars, and migration notes: see **[VERCEL.md](./VERCEL.md)**.
 
 ---
 

@@ -26,7 +26,7 @@ export async function saveDraft(input: {
   if (!validation.success) {
     return {
       success: false,
-      error: validation.error.errors[0]?.message || "Invalid input",
+      error: validation.error.issues[0]?.message || "Invalid input",
     };
   }
 
@@ -96,7 +96,7 @@ export async function submitCompletion(input: {
   if (!validation.success) {
     return {
       success: false,
-      error: validation.error.errors[0]?.message || "Invalid input",
+      error: validation.error.issues[0]?.message || "Invalid input",
     };
   }
 

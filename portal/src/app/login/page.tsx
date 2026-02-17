@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import LoginForm from "@/components/forms/LoginForm";
 
 export default async function LoginPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (session) {
     // Redirect based on role

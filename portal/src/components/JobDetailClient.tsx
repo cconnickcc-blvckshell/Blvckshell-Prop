@@ -13,7 +13,7 @@ interface Evidence {
 
 interface JobCompletion {
   id: string;
-  checklistResults: Record<string, { result: string; note?: string }>;
+  checklistResults: Record<string, { result: string; note?: string }> | unknown;
   evidence: Evidence[];
   isDraft: boolean;
 }
@@ -46,7 +46,7 @@ interface ChecklistTemplate {
     itemId: string;
     label: string;
     required?: boolean;
-  }>;
+  }> | unknown;
 }
 
 interface JobDetailClientProps {
@@ -79,10 +79,10 @@ export default function JobDetailClient({
     ? (existingCompletion.checklistResults as Record<string, { result: string; note?: string }>)
     : {};
 
-  // State for checklist answers
+  // State for checklist answers (cast stored values to PASS|FAIL|NA)
   const [checklistResults, setChecklistResults] = useState<
     Record<string, { result: "PASS" | "FAIL" | "NA"; note?: string }>
-  >(existingResults);
+  >(existingResults as Record<string, { result: "PASS" | "FAIL" | "NA"; note?: string }>);
 
   // State for photos
   const [photos, setPhotos] = useState<File[]>([]);
@@ -194,6 +194,12 @@ export default function JobDetailClient({
           const response = await fetch(`/api/jobs/${job.id}/completion`);
           const data = await response.json();
           completionId = data.completionId;
+        }
+
+        if (!completionId) {
+          setError("Could not get completion for upload");
+          setUploading(false);
+          return;
         }
 
         // Upload photos

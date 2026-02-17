@@ -1,10 +1,10 @@
 import { UserRole } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export interface SessionUser {
   id: string;
+  name: string;
   role: UserRole;
   workforceAccountId?: string;
   workerId?: string;
@@ -14,12 +14,13 @@ export interface SessionUser {
  * Get current session user
  */
 export async function getCurrentUser(): Promise<SessionUser | null> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return null;
   }
   return {
     id: session.user.id,
+    name: session.user.name ?? "",
     role: session.user.role,
     workforceAccountId: session.user.workforceAccountId,
     workerId: session.user.workerId,

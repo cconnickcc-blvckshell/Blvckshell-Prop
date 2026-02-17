@@ -1,4 +1,5 @@
 import { JobStatus, WorkOrderStatus } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { SessionUser } from "@/server/guards/rbac";
 
@@ -120,7 +121,7 @@ export async function transitionJob(
           entityId: jobId,
           fromState: job.status,
           toState,
-          metadata: metadata ?? {},
+          metadata: (metadata ?? {}) as Prisma.InputJsonValue,
         },
       });
     });
@@ -243,7 +244,7 @@ export async function transitionWorkOrder(
           entityId: workOrderId,
           fromState: workOrder.status,
           toState,
-          metadata: metadata ?? {},
+          metadata: (metadata ?? {}) as Prisma.InputJsonValue,
         },
       });
     });

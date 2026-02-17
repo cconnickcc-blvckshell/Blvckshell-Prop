@@ -1,9 +1,10 @@
-import { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import type { UserRole } from "@prisma/client";
 import { prisma } from "./prisma";
 
-export const authOptions: NextAuthOptions = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -12,12 +13,14 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const email = credentials?.email as string | undefined;
+        const password = credentials?.password as string | undefined;
+        if (!email || !password) {
           return null;
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
           include: {
             worker: {
               include: {
@@ -32,7 +35,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        const isValid = await bcrypt.compare(password, user.passwordHash);
 
         if (!isValid) {
           return null;
@@ -43,7 +46,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          workforceAccountId: user.workforceAccountId,
+          workforceAccountId: user.workforceAccountId ?? undefined,
           workerId: user.worker?.id,
         };
       },
@@ -66,7 +69,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as UserRole;
         session.user.workforceAccountId = token.workforceAccountId as string | undefined;
         session.user.workerId = token.workerId as string | undefined;
       }
@@ -77,4 +80,4 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
+});
