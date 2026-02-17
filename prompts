@@ -1,0 +1,588 @@
+You are Cursor acting as a senior full-stack engineer. Build a SUBCONTRACTOR PORTAL MVP for BLVCKSHELL Facilities Services.
+
+GOAL
+A subcontractor-only portal that answers:
+1) Where do I go?
+2) When do I go?
+3) What exactly do I do there?
+4) How do I prove completion so I get paid?
+
+HARD SCOPE LIMITS (DO NOT DRIFT)
+- ONLY subcontractor portal + minimal admin approval. NO client portal.
+- NO automated payments, NO reporting dashboards, NO SLA timers, NO multi-org complexity.
+- NO KPI dashboards or metrics visualization in Phase 1. Data is collected for audit/compliance but NOT visualized.
+- Keep it simple, production-safe, deterministic, and auditable.
+
+TECH STACK (use exactly this unless already present)
+- Next.js 14+ App Router (TypeScript)
+- Postgres
+- Prisma ORM
+- Auth: NextAuth (Credentials provider) OR custom JWT if simpler, but must be secure.
+- File storage: local dev file system for MVP + interface layer so we can swap to S3 later.
+- Styling: Tailwind (clean, minimal, professional). No fancy UI libraries.
+
+MULTI-TENANCY
+- Single company (BLVCKSHELL) for MVP.
+- Users have roles: ADMIN or SUBCONTRACTOR.
+- SUBCONTRACTOR sees only their assigned jobs.
+- ADMIN can manage sites, scopes/checklists, assign jobs, approve completion, mark payouts.
+
+CORE ENTITIES (Prisma models)
+Create Prisma models (with proper relations, indexes) for:
+- User (id, email, passwordHash, role, name, phone, isActive, createdAt)
+- Site (id, name, addressLine1, city, province, postalCode, accessInstructions, notes, isActive)
+- ChecklistTemplate (id, siteId, title, items[], isActive, version, createdAt)  // items stored as JSON array with stable itemIds
+- Job (id, siteId, assignedToUserId, scheduledStart, scheduledEnd, status, payoutAmountCents, createdAt)
+- JobCompletion (id, jobId, completedByUserId, completedAt, checklistResults JSON, notes)
+- Evidence (id, jobCompletionId, filePath, fileType, uploadedAt)
+- Approval (id, jobId, approvedByUserId, approvedAt, decision, notes)
+- PayoutBatch (id, periodStart, periodEnd, status, createdAt)
+- PayoutLine (id, payoutBatchId, userId, jobId, amountCents, status)
+
+STATE MACHINES (ENFORCE THESE IN CODE)
+Job.status enum:
+- SCHEDULED
+- COMPLETED_PENDING_APPROVAL
+- APPROVED_PAYABLE
+- PAID
+- CANCELLED
+
+Rules:
+- Only SUBCONTRACTOR can move SCHEDULED -> COMPLETED_PENDING_APPROVAL by submitting completion.
+- Completion submission requires: all checklist items answered + minimum photo evidence count (configurable per site, default 4).
+- Only ADMIN can approve: COMPLETED_PENDING_APPROVAL -> APPROVED_PAYABLE.
+- Only ADMIN can mark paid: APPROVED_PAYABLE -> PAID (via payout batch).
+- Every state transition must be written to an AuditLog table (add this model) with: actorUserId, entityType, entityId, fromState, toState, metadata JSON, createdAt.
+
+PAGES / UX (App Router)
+Subcontractor pages:
+- /login
+- /jobs (list upcoming + past, with status chips)
+- /jobs/[id] (job detail: site info, access instructions, checklist, evidence uploader, submit completion)
+- /earnings (list jobs and payout status; show totals for current period)
+
+Admin pages (simple, not pretty, but usable):
+- /admin/sites (CRUD)
+- /admin/sites/[id]/checklists (manage checklist template versions + required photo count per site)
+- /admin/jobs (create jobs, assign to subcontractors, calendar-lite list view)
+- /admin/jobs/[id] (review completion, photos, approve/reject with notes)
+- /admin/payouts (create payout batch for a date range; include approved jobs; mark paid)
+
+CHECKLIST & EVIDENCE
+- Each Site has a requiredPhotoCount integer.
+- Checklist items must be stable (each item has itemId + label).
+- Completion stores results as JSON keyed by itemId with values: PASS/FAIL/NA + optional note.
+- Evidence uploader must support multiple images, store them, and associate them to completion.
+- Show thumbnails in review.
+
+SECURITY REQUIREMENTS (NON-NEGOTIABLE)
+- Passwords hashed with bcrypt.
+- RBAC enforced server-side on every route/action.
+- Prevent IDOR: a subcontractor must never access another subcontractor’s job.
+- CSRF protection if using NextAuth.
+- Validate all inputs with zod.
+- Use server actions or API routes with strict validation; no direct client DB access.
+
+DATA SEEDING
+- Provide a seed script that creates:
+  - 1 admin user
+  - 2 subcontractor users
+  - 2 sites with checklists
+  - 6 jobs assigned across subs
+
+DELIVERABLES
+1) Working app with the routes above
+2) Prisma schema + migrations
+3) Seed script + README with setup steps
+4) Clean code, no placeholders, no TODOs for core flows
+5) Unit tests for state transitions + RBAC checks (minimal but real)
+
+BUILD ORDER
+1) Setup Next.js + Tailwind + Prisma + Auth
+2) Prisma models + migrations + seed
+3) Subcontractor job list/detail + completion submission (checklist + photos)
+4) Admin review + approve/reject
+5) Payout batch + mark paid
+6) Audit log + tests
+
+IMPORTANT
+- Do not add features outside scope.
+- If any requirement is ambiguous, make the simplest reasonable choice and document it in README.
+- Keep UI clean and professional (BLVCKSHELL vibe: dark/neutral, but do not overdesign).
+
+
+---
+prompt 1 (REVISED) — Workforce Operations Portal (MODIFY & FINALIZE)
+Use this spec to modify and finalize the existing Subcontractor Portal. This supersedes the original Prompt 1 for implementation. Not greenfield; required adjustments and expansions only. No UX redesign unless required.
+
+You are Cursor acting as a PRINCIPAL FULL-STACK ENGINEER and OPERATIONS ARCHITECT. MODIFY AND FINALIZE the existing Subcontractor Portal MVP for BLVCKSHELL Facilities Services so it is production-safe, scalable, and operationally correct.
+
+CORE GOAL
+Build a WORKFORCE-DRIVEN OPERATIONS PORTAL that supports:
+• Vendor subcontractors with MULTIPLE EMPLOYEES (teams)
+• Internal BLVCKSHELL employees
+• Admin-controlled job assignment, approval, and payout
+• Deterministic state machines
+• Audit-safe evidence collection
+• Compliance enforcement
+• Supabase + Prisma + Vercel correctness
+
+System must survive audits, disputes, staff turnover, and growth.
+
+TECH STACK (LOCKED)
+• Next.js 14+ App Router (TypeScript)
+• Prisma ORM
+• Supabase Postgres
+• Supabase Storage (MANDATORY — no local filesystem)
+• Vercel deployment
+• Auth: NextAuth Credentials OR custom JWT (bcrypt required)
+• Tailwind CSS (clean, minimal)
+
+DATABASE CONNECTION RULES:
+• Use Supabase pooled DATABASE_URL for runtime
+• Use DIRECT_URL for Prisma migrations
+• Document this clearly in README
+
+ABSOLUTE CONSTRAINTS
+• NO client portal
+• NO automated payments
+• NO reporting dashboards or KPI visualization (Phase 1)
+• NO scope creep
+• NO hourly billing logic
+• NO filesystem storage
+• NO soft state transitions
+• ALL permissions enforced server-side
+• ALL state transitions audit logged
+• EVERYTHING deterministic
+• Metrics collected but NOT visualized: missed visits, recleans, time-to-approval, vendor incident rate (see ROADMAP.md Part 8)
+
+If ambiguous, choose the SIMPLEST defensible option and document in DECISIONS.md.
+
+REQUIRED CORE MODELS (PRISMA)
+
+1) ClientOrganization (minimal, future-proof)
+- id, name, primaryContactName, primaryContactEmail, primaryContactPhone, notes, createdAt
+
+2) WorkforceAccount
+- type enum: INTERNAL | VENDOR
+- id, type, displayName, legalName (nullable), primaryContactName, primaryContactEmail, primaryContactPhone, hstNumber (nullable), wsibAccountNumber (nullable), isActive, createdAt, updatedAt
+
+3) User (auth)
+- id, email (unique), passwordHash, role enum: ADMIN | VENDOR_OWNER | VENDOR_WORKER | INTERNAL_WORKER, workforceAccountId (nullable for ADMIN), name, phone, isActive, createdAt
+
+4) Worker (operational identity)
+- id, userId (unique), workforceAccountId, hasPhotoIdOnFile (bool), isActive, createdAt, updatedAt
+
+5) ComplianceDocument (Supabase Storage)
+- type enum: COI | WSIB | AGREEMENT | HST | OTHER
+- id, workforceAccountId, type, storagePath, expiresAt (nullable), uploadedAt
+- RULE: Expired or missing COI/WSIB blocks new job assignment unless ADMIN override (audit logged).
+
+6) Site
+- id, clientOrganizationId, name, address, accessInstructions, serviceWindow, estimatedDurationMinutes, requiredPhotoCount (default 4), suppliesProvidedBy enum: COMPANY | CLIENT | MIXED, doNotEnterUnits (bool), isActive
+
+7) AccessCredential (key/FOB/code ledger)
+- id, siteId, type enum: KEY | FOB | CODE, identifier (masked if code), issuedToWorkerId, issuedAt, returnedAt (nullable), status enum: ACTIVE | LOST | RETURNED, notes
+- Lost credentials must trigger IncidentReport.
+
+8) ChecklistTemplate
+- id, siteId, version, isActive, items JSON (stable itemId required), createdAt
+
+9) Job
+- status enum: SCHEDULED | COMPLETED_PENDING_APPROVAL | APPROVED_PAYABLE | PAID | CANCELLED
+- id, siteId, scheduledStart, scheduledEnd, status, payoutAmountCents, assignedWorkforceAccountId (nullable), assignedWorkerId (nullable), isMissed (bool), missedReason (nullable), makeGoodJobId (nullable), createdAt
+- RULE: Exactly ONE of assignedWorkforceAccountId OR assignedWorkerId must be set.
+
+10) JobCompletion
+- id, jobId (unique, 1:1), completedByWorkerId, completedAt, checklistResults JSON, notes
+
+11) Evidence (Supabase Storage)
+- id, jobCompletionId, storagePath, fileType, uploadedAt
+
+12) WorkOrder (change order / add-on)
+- id, siteId, requestedBy, description, approvedByAdminId, priceCents, status enum: REQUESTED | APPROVED | ASSIGNED | COMPLETED | INVOICED | PAID, beforePhotos (optional), afterPhotos (optional)
+
+13) IncidentReport
+- type enum: SAFETY | PROPERTY_DAMAGE | BIOHAZARD | LOST_KEY | OTHER
+- id, siteId, workerId, description, photos, reportedAt, resolvedAt (nullable), resolutionNotes
+
+14) PayoutBatch / PayoutLine
+- Payouts go to WorkforceAccount. Worker reference optional for reporting.
+
+15) AuditLog (MANDATORY)
+- id, actorUserId, actorWorkerId (nullable), actorWorkforceAccountId (nullable), entityType, entityId, fromState, toState, metadata JSON, createdAt
+
+STATE MACHINES (ENFORCE IN CODE)
+
+Job:
+• SCHEDULED → COMPLETED_PENDING_APPROVAL (Worker only; checklist + photos required)
+• COMPLETED_PENDING_APPROVAL → APPROVED_PAYABLE (ADMIN only)
+• COMPLETED_PENDING_APPROVAL → SCHEDULED (ADMIN reject; rejection reason required)
+• SCHEDULED or COMPLETED_PENDING_APPROVAL → CANCELLED (ADMIN only)
+• APPROVED_PAYABLE → PAID (ADMIN only via payout batch)
+Missed visit: mark job isMissed=true; create make-good Job linked via makeGoodJobId.
+NO other Job transitions allowed. ALL transitions write AuditLog.
+
+RBAC (NON-NEGOTIABLE, SERVER-SIDE)
+ADMIN: Full access; workforce + worker management; compliance enforcement; job assignment/reassignment; approvals; payouts; overrides.
+VENDOR_OWNER: Manage workers in own WorkforceAccount; view vendor-assigned jobs; NO pricing visibility; NO approvals; NO payouts.
+VENDOR_WORKER / INTERNAL_WORKER: View only assigned jobs; submit completion proof; view earnings (read-only).
+
+REQUIRED SCREENS
+
+ADMIN: /admin/workforce, /admin/workforce/[id], /admin/jobs, /admin/jobs/[id], /admin/workorders, /admin/incidents, /admin/payouts
+WORKERS: /jobs, /jobs/[id], /earnings, /profile
+VENDOR OWNER (scaffold): /vendor/team, /vendor/jobs
+
+FILE UPLOAD (SUPABASE STORAGE)
+• jpg, jpeg, png, webp only; max 10MB
+• Path: evidence/{jobId}/{completionId}/{timestamp}-{uuid}.{ext}
+• Server-side validation; reject completion if photo minimum not met
+• Retention: 90 days default (manual purge OK); document in DATA_RETENTION.md
+
+REQUIRED DOCUMENTATION
+• README.md (setup + deploy; DATABASE_URL vs DIRECT_URL)
+• DECISIONS.md (explicit product decisions)
+• SECURITY.md (RBAC + data handling)
+• DATA_RETENTION.md
+• SEED.md (seed instructions)
+
+SEED DATA (MUST INCLUDE)
+• 1 admin
+• 1 vendor workforce with 2 workers
+• 1 internal workforce with 1 worker
+• 2 client orgs
+• 2 sites
+• 6 jobs (mixed assignments)
+• 1 missed visit + make-good job
+• 1 work order
+• 1 incident
+
+PRODUCTION READINESS (NON-NEGOTIABLE)
+Implement these so the portal survives real ops and security scrutiny. Do not ship without them.
+
+Security hardening
+• Rate limit: login, job completion submission, and evidence upload endpoints (per-IP or per-user); document in SECURITY.md.
+• Session: timeout and refresh strategy (e.g. 24h max, refresh on activity); document in SECURITY.md.
+• Login backoff / lockout: after N failed attempts (e.g. 5), temporary backoff or lockout; document in SECURITY.md.
+• Password reset: no self-serve in MVP; admin can reset user password (audit logged). See DECISIONS.md.
+
+Data integrity
+• Deletion: prefer RESTRICT on FKs for Job, JobCompletion, Evidence, AuditLog; soft-deactivate (isActive = false) for User, WorkforceAccount, Site; document cascade/restrict in schema and DECISIONS.md.
+• Uniques: User.email; JobCompletion.jobId (1:1 with Job); one active ChecklistTemplate per site per version (document and enforce).
+• completedByWorkerId: allowed when job is assigned to WorkforceAccount (any worker from that account may complete); document in DECISIONS.md.
+
+UX reliability (operational failure handling)
+• Upload retry + draft: allow retry on failed uploads; support saving partial completion (draft) so worker can resume without losing work.
+• Validation errors: clear inline errors for missing required photos, missing checklist items, wrong file type/size before submit.
+• Mobile-first completion: job completion flow must work on mobile; camera upload for evidence; touch-friendly checklist and submit.
+
+Decision locks (must be in DECISIONS.md)
+• Evidence retention window (e.g. 90 days) and purge process.
+• Compliance gating: expired/missing COI/WSIB blocks new assignment; ADMIN override only with audit log (metadata: reason, overrideAt).
+• Access credential masking: codes masked in UI (e.g. last 4); full value only to authorized roles; document in SECURITY.md.
+• Max photos per job: cap (e.g. 20); enforce in UI (disable past cap) and server (reject upload and completion over cap).
+• Vendor owner job reassignment: Phase 1 = No; only ADMIN assigns/reassigns jobs.
+• Final implementation locks (DECISIONS.md): Supabase Storage security (server-only service role vs signed URLs—choose one); draft completion model (JobCompletionDraft table OR JobCompletion DRAFT status; define if photos attach to drafts); workforce-assigned job visibility (Phase 1: job shown to workers only when assignedWorkerId set by admin—do not show to whole team until claimed/assigned); max photo cap enforced UI + server; password reset = admin-initiated only, audit logged.
+
+Testing bar (explicit suite)
+• Unit: all allowed and denied state transitions per role (Job and WorkOrder); explicit cases, not "minimal."
+• RBAC/IDOR: attempts to access another user's job, completion, evidence, work order, incident must return 403; cover all five.
+• Storage/upload: reject disallowed MIME and oversize; assert no file stored.
+• One E2E: assign → complete (checklist + photos) → approve → payout batch → mark paid.
+
+IMPORTANT
+• No TODOs in core logic
+• No fake flows
+• No redesign unless required
+• Prefer auditability > correctness > simplicity > speed
+• Build boring, defensible software
+• Do not treat as production-ready until all PRODUCTION READINESS items above are implemented and documented
+
+
+prompt 2
+You are Cursor acting as a senior product engineer + UX-minded frontend dev. Build the FRONT-FACING MARKETING WEBSITE for BLVCKSHELL Facilities Services.
+
+GOAL
+A fast, credible, local-services website that converts property managers into calls/emails.
+This is NOT a portal. No logins. No dashboards. No apps. Pure marketing + lead capture.
+
+HARD SCOPE LIMITS (DO NOT DRIFT)
+- No client portal features.
+- No subcontractor portal features.
+- No blog/CMS.
+- No complex animations.
+- No pricing calculator.
+- Only: pages, conversion sections, contact form, and a simple “download proposal” CTA.
+
+TECH STACK
+- Next.js 14+ App Router (TypeScript)
+- Tailwind CSS
+- Deployed-ready (Vercel compatible)
+- Forms: simple POST endpoint (Next.js route handler) that emails submissions via SMTP OR stores to DB (Postgres) as a lead table. Choose the simplest reliable option and document it.
+
+BRAND / STYLE
+- Brand: BLVCKSHELL (clean, premium, corporate)
+- Tone: calm, confident, accountability-focused (not “cheap cleaning”)
+- Visual: dark/neutral, strong typography, lots of whitespace, minimal icons, subtle dividers. No cartoonish graphics.
+
+PRIMARY TARGET AUDIENCE
+Property Management Companies in Windsor–Essex / Ontario.
+Secondary: condo boards, commercial offices, small portfolios.
+
+PRIMARY POSITIONING (copy must reflect this)
+“We reduce common-area complaints and simplify vendor management through consistent cleaning, clear scope, and fast issue resolution.”
+
+PAGES (App Router)
+1) / (Home)
+2) /services
+3) /condo-cleaning (condo-specific landing page)
+4) /commercial-cleaning (office/commercial landing page)
+5) /light-maintenance (optional add-on page)
+6) /about
+7) /contact
+8) /privacy (basic)
+
+SITE-WIDE CTA
+“Request a Quote” + “Book a Site Walk”
+Phone number + email shown in header/footer.
+Optional CTA: “Download Condo Proposal (PDF)”
+
+CONTENT REQUIREMENTS (non-negotiable sections)
+Home page sections:
+- Hero: headline + subheadline + 2 CTAs
+- “Who we serve” (Property managers, condos, commercial)
+- “What we solve” (complaints, inconsistency, unclear scope)
+- “How it works” (site walk → scope → flat monthly service → add-ons)
+- “Services snapshot” (common-area cleaning + add-ons + light maintenance)
+- “Why BLVCKSHELL” (accountability, checklists, proof, fast response)
+- “Service area” (Windsor–Essex + surrounding)
+- FAQ (6–8 questions geared to property managers)
+- Contact CTA block
+
+Condo landing page (/condo-cleaning):
+- Condo-board + PM friendly copy
+- Common area scope bullets
+- Frequency options (2x/3x/5x/daily)
+- Add-ons: guest suite, elevator move clean, garbage room deep clean, bio cleanup
+- “What to expect” + “Request a site walk”
+
+Commercial landing page (/commercial-cleaning):
+- Professional appearance, after-hours, minimal disruption
+- Office scope: washrooms, kitchens, floors, glass, trash
+- Optional day porter / extra visits
+
+Light maintenance page (/light-maintenance):
+- Clearly define “light, non-licensed, common-area maintenance”
+- Provide “we will do” list and “we will not do” list (no electrical/plumbing/HVAC/fire/elevators)
+- Offer as optional add-on and/or per-call
+
+About page:
+- Simple, credible: “Why we exist” (consistency + accountability)
+- Operating values: reliable, documented, low-friction vendor
+- Do not overshare personal story; keep professional.
+
+Contact page:
+- Form: Name, Company, Role, Phone, Email, Property Type, # of sites, Message
+- Consent checkbox: “I agree to be contacted”
+- Display service area + response time expectation (e.g. “We respond within 1 business day”)
+
+LEAD CAPTURE (REQUIRED)
+Implement /api/lead endpoint:
+- Validates input with zod
+- Stores to DB table Lead (id, createdAt, name, company, role, phone, email, propertyType, sitesCount, message, sourcePage)
+OR emails via SMTP (choose one). Must work in dev.
+
+SEO / TECH QUALITY (REQUIRED)
+- Metadata for each page (title, description)
+- OpenGraph tags
+- Sitemap + robots.txt
+- Performance-focused (next/image, minimal JS)
+- Accessibility: proper headings, labels, keyboard nav
+- No broken links, no placeholder lorem ipsum
+
+ASSETS / DOWNLOADS
+- Add a /downloads page OR a button that serves an existing PDF from /public (e.g. /public/BLVCKSHELL_Condo_Cleaning_Proposal.pdf)
+- If the PDF file isn’t present, create a placeholder file name reference and document “drop PDF here” in README (do not generate fake content).
+
+DELIVERABLES
+1) Working site with all pages
+2) Contact form that actually captures leads (DB or email)
+3) Clean, professional copy aligned to property managers
+4) README with setup + deploy steps
+
+BUILD ORDER
+1) Setup layout, header/footer, global styles
+2) Build Home + Contact with working lead capture
+3) Build Services + Condo + Commercial + Light Maintenance pages
+4) Add About + Privacy
+5) Add SEO (metadata, sitemap, robots)
+
+IMPORTANT
+- Stay within scope.
+- Use clean Tailwind components (no UI libraries).
+- Make it feel like a serious facilities vendor, not a startup template.
+
+
+---
+prompt 3
+You are Cursor acting as a principal operations architect and senior technical writer. Your job is to produce a Tier-1 "Operations Binder" for BLVCKSHELL Facilities Services (Ontario, Canada): contracts, SOPs, policies, QA forms, and supporting checklists. This binder must be immediately usable to run condo + rental/common-area cleaning with subcontractors, and must be structured so it can be loaded into a portal later (site templates, checklists, forms, and state workflows).
+
+ABSOLUTE CONSTRAINTS
+- Do not invent legal advice; draft "commercially standard" agreements and include a "review by Ontario counsel recommended" note.
+- No placeholders like "TBD" for core content. Where details vary by site, use explicit bracket fields (e.g., [SITE NAME], [FREQUENCY], [REQUIRED PHOTO COUNT]).
+- No generic fluff. Every section must be actionable: procedures, decision rules, acceptance criteria, and evidence requirements.
+- Keep everything deterministic: define "done," "pass/fail," and "who decides."
+- Use clear Ontario/Canada terms: HST, WSIB, COI (Certificate of Insurance), etc.
+
+DELIVERABLE FORMAT
+Create a folder-style output in Markdown with separate files (show content for each file). Use this exact structure:
+
+/ops-binder/
+  00_README.md
+  01_Client_Contract/
+    01_Master_Service_Agreement.md
+    02_Schedule_A_Site_Scope_Template.md
+    03_Schedule_B_Add_On_Menu_and_Pricing_Template.md
+    04_Schedule_C_Access_And_Site_Rules_Template.md
+    05_Schedule_D_QA_And_Evidence_Requirements.md
+    06_Schedule_E_Insurance_Compliance.md
+    07_Work_Order_Change_Order_Template.md
+    08_Credit_And_Reclean_Policy_Addendum.md
+  02_Subcontractor_Contract/
+    01_Independent_Subcontractor_Agreement_Longform.md
+    02_Subcontractor_One_Page_Summary.md
+    03_Rate_Sheet_Template.md
+    04_Sub_Scope_Will_Wont_Do.md
+    05_Sub_Onboarding_Checklist.md
+  03_SOPs/
+    SOP_01_Common_Area_Cleaning.md
+    SOP_02_Site_Access_And_Conduct.md
+    SOP_03_Completion_Proof_And_Submission.md
+    SOP_04_Issue_Escalation_And_Incident_Response.md
+    SOP_05_Add_On_Services_Execution.md
+    SOP_06_Light_Maintenance_Scope_And_Workflow.md
+  04_Policies/
+    POL_01_Quality_Standard_and_Rework.md
+    POL_02_Health_Safety_and_PPE.md
+    POL_03_Privacy_Photo_Handling_and_Data.md
+    POL_04_Subcontractor_Conduct_and_NonSolicit.md
+    POL_05_Communications_and_Client_Contact.md
+    POL_06_Billing_Collection_and_Service_Holds.md
+  05_QA_Forms/
+    QA_01_Site_Inspection_Form.md
+    QA_02_Job_Completion_Checklist_Form.md
+    QA_03_Reclean_Authorization_Form.md
+    QA_04_Incident_Report_Form.md
+    QA_05_Monthly_Board_Ready_Summary_Template.md
+    QA_06_Supply_And_Consumables_Log.md
+  06_Checklists_Library/
+    CL_01_Lobby_Checklist.md
+    CL_02_Hallway_Checklist.md
+    CL_03_Stairwell_Checklist.md
+    CL_04_Elevator_Checklist.md
+    CL_05_Garbage_Room_Checklist.md
+    CL_06_Glass_Doors_Spot_Checklist.md
+    CL_07_Washroom_Common_Area_Checklist.md
+    CL_08_Seasonal_Deep_Clean_Checklist.md
+  07_State_Machines_and_Roles/
+    01_Roles_and_RBAC.md
+    02_State_Machines_Jobs_WorkOrders_Invoices_Payouts.md
+    03_Audit_Log_Requirements.md
+  08_Sales_Enablement/
+    01_Discovery_Call_Script_Property_Managers.md
+    02_Site_Walk_Checklist.md
+    03_Proposal_Insert_QA_and_Accountability.md
+
+CONTENT REQUIREMENTS (EXTREME DETAIL)
+
+A) MASTER SERVICE AGREEMENT (Client)
+- Must define: parties, term, scope by schedules, frequency, service windows, client responsibilities, access, security, payment terms (monthly in advance; add-ons separate), HST, late fees policy (optional), service holds for non-payment, termination (30–60 days), limitation of liability, indemnity, force majeure, confidentiality, privacy, governing law Ontario, notices, entire agreement.
+- Must explicitly state: "Company does not perform licensed trades; coordinates third parties if requested" unless a separate agreement exists.
+- Must include "No hourly billing; flat monthly fee for scheduled services."
+
+B) SCHEDULES
+Schedule A: Site Scope Template
+- For each area: include/exclude list + frequency + acceptance criteria ("no visible debris," "glass streak-free," "garbage room floors free of residue," etc.)
+Schedule B: Add-on Menu Template
+- Define each add-on with: included tasks, exclusions, pricing field, emergency surcharge rules, approval requirement.
+Schedule C: Access & Site Rules
+- Keys, FOBs, codes; lost key penalties; concierge instructions; parking; service windows; noise rules.
+Schedule D: QA & Evidence
+- Required photo count per visit; required photo locations; inspection cadence; re-clean policy reference.
+Schedule E: Insurance/Compliance
+- COI requirements, WSIB, HST number, additional insured wording, incident reporting timelines.
+
+C) SUBCONTRACTOR AGREEMENT LONGFORM
+- Must include: independent contractor status, confidentiality, non-solicit/non-circumvention (24 months), standards, photo proof requirement, payment terms (per job; only approved), right to withhold for deficiencies, termination for cause, indemnity, governing law Ontario, tools/supplies expectations, no client contact rule.
+- Must include a remedies section for solicitation breach: injunctive relief + liquidated damages clause (careful: define a reasonable amount per client/site) and explain it as a genuine pre-estimate.
+- Must avoid illegal non-compete; keep it to non-solicit/non-circumvent and confidentiality.
+
+D) RATE SHEET TEMPLATE
+- Provide a structured table:
+  - Per-visit rates by property type (small condo / medium / large)
+  - Add-on payouts to sub (guest suite, elevator move clean, garbage deep clean, bio cleanup)
+  - After-hours premium
+  - Minimum call-out (maintenance)
+- Include rules: travel included within X km; extra travel requires approval; no surprise charges.
+
+E) SOPs (write like aviation checklists + decision trees)
+SOP_01 Common Area Cleaning
+- Step-by-step order of operations; must include safety, signage, tools, cleaning chemicals, "start-to-finish route," and required photos.
+- Include "definition of done" per area.
+SOP_02 Access & Conduct
+- How to enter; what to do if denied access; resident interaction rules; escalations; prohibited behaviors.
+SOP_03 Completion Proof
+- Exactly how photos are taken, labeled, uploaded; minimum photos by area; what happens if missing; time stamping expectations.
+SOP_04 Issue Escalation
+- Categories: safety hazard, biohazard, property damage, vandalism, overflow garbage, water leak. Provide response steps and when to call admin.
+SOP_05 Add-ons
+- How to execute each add-on consistently; checklist and photo set.
+SOP_06 Light Maintenance Workflow
+- Define "will do/won't do"; triage; quoting; when to dispatch handyman; documentation; client approval; invoice/payout.
+
+F) POLICIES (tight, enforceable internal rules)
+Quality Standard & Rework
+- Pass/fail thresholds; how rework is assigned; when subs are removed from a site; how credits are decided; recordkeeping.
+Health & Safety
+- PPE, chemicals, slips; incident reporting; no needles/bio unless trained; stop-work authority.
+Privacy & Photos
+- No resident faces; no unit doors with numbers visible if avoidable; storage rules; retention period.
+Subcontractor Conduct
+- No solicitation, no pricing talk, no gifts; no social media; professionalism.
+Communications
+- Only admin communicates with client; subs communicate only with admin.
+Billing & Collections
+- Monthly in advance; service holds; add-on approvals; dispute handling timeline.
+
+G) QA FORMS (templates)
+- Each form must include: required fields, checkboxes, pass/fail, signature blocks, timestamps.
+- QA_01 Site Inspection: include scoring (0–100), defect list, corrective action, re-inspection date.
+- QA_05 Monthly Summary: visits completed, issues, add-ons, notes for board.
+
+H) CHECKLIST LIBRARY
+- Each checklist: tasks, frequency guidance, photo points, "fail conditions."
+- Ensure they can be imported into a portal later: stable IDs for each checklist item (e.g., LOB-001).
+
+I) STATE MACHINES & ROLES
+- Define roles: ADMIN, OPS_MANAGER (optional), SUBCONTRACTOR.
+- Define entity states and transitions:
+  - Job: Scheduled → Completed Pending Approval → Approved Payable → Paid / Cancelled
+  - Work Order: Requested → Approved → Assigned → Completed → Invoiced → Paid
+  - Invoice: Draft → Issued → Paid / Overdue
+  - Payout: Calculated → Approved → Released → Paid
+- Audit log: every transition stored with actor, timestamps, metadata.
+
+J) SALES ENABLEMENT
+- Discovery script specifically for property managers (complaints, scope, frequency, decision process, current vendor pain).
+- Site walk checklist: what to measure/observe; how to estimate frequency; risk areas.
+- Proposal insert: explain QA accountability in 1 page.
+
+OUTPUT QUALITY BAR
+- Use professional legal/ops tone, concise but complete.
+- No contradictions across docs.
+- Define key terms once and reuse.
+- Make sure client contract and sub contract align on: proof requirements, scope boundaries, and communications boundaries.
+
+BEGIN NOW.
+Produce the full /ops-binder/ file tree with content for each file.

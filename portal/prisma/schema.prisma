@@ -1,0 +1,457 @@
+// BLVCKSHELL Workforce Operations Portal - Prisma Schema
+// Generated: February 16, 2026
+// Database: Supabase Postgres
+// Connection: DATABASE_URL (pooled) for runtime, DIRECT_URL for migrations
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum WorkforceAccountType {
+  INTERNAL
+  VENDOR
+}
+
+enum UserRole {
+  ADMIN
+  VENDOR_OWNER
+  VENDOR_WORKER
+  INTERNAL_WORKER
+}
+
+enum ComplianceDocumentType {
+  COI
+  WSIB
+  AGREEMENT
+  HST
+  OTHER
+}
+
+enum AccessCredentialType {
+  KEY
+  FOB
+  CODE
+}
+
+enum AccessCredentialStatus {
+  ACTIVE
+  LOST
+  RETURNED
+}
+
+enum JobStatus {
+  SCHEDULED
+  COMPLETED_PENDING_APPROVAL
+  APPROVED_PAYABLE
+  PAID
+  CANCELLED
+}
+
+enum WorkOrderStatus {
+  REQUESTED
+  APPROVED
+  ASSIGNED
+  COMPLETED
+  INVOICED
+  PAID
+}
+
+enum IncidentReportType {
+  SAFETY
+  PROPERTY_DAMAGE
+  BIOHAZARD
+  LOST_KEY
+  OTHER
+}
+
+enum SuppliesProvidedBy {
+  COMPANY
+  CLIENT
+  MIXED
+}
+
+enum PayoutBatchStatus {
+  CALCULATED
+  APPROVED
+  RELEASED
+  PAID
+}
+
+enum PayoutLineStatus {
+  PENDING
+  APPROVED
+  RELEASED
+  PAID
+  VOID
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model ClientOrganization {
+  id                  String   @id @default(cuid())
+  name                String
+  primaryContactName  String
+  primaryContactEmail String
+  primaryContactPhone String
+  notes               String?
+  createdAt           DateTime @default(now())
+
+  sites          Site[]
+  clientContacts ClientContact[]
+
+  @@index([name])
+}
+
+model ClientContact {
+  id                     String   @id @default(cuid())
+  clientOrganizationId   String
+  name                   String
+  email                  String
+  phone                  String?
+  role                   String?  // "PM", "AP", "SITE"
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+
+  clientOrganization     ClientOrganization @relation(fields: [clientOrganizationId], references: [id], onDelete: Restrict)
+
+  @@index([clientOrganizationId])
+  @@index([email])
+}
+
+model WorkforceAccount {
+  id                  String                @id @default(cuid())
+  type                WorkforceAccountType
+  displayName         String
+  legalName           String?
+  primaryContactName  String
+  primaryContactEmail String
+  primaryContactPhone String
+  hstNumber           String?
+  wsibAccountNumber   String?
+  isActive            Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  users               User[]
+  workers             Worker[]
+  complianceDocuments ComplianceDocument[]
+  jobs                Job[]
+  workOrders          WorkOrder[]
+  siteAssignments     SiteAssignment[]
+  payoutLines         PayoutLine[]
+  auditLogs           AuditLog[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model User {
+  id                 String        @id @default(cuid())
+  email              String        @unique
+  passwordHash       String
+  role               UserRole
+  workforceAccountId String?
+  name               String
+  phone              String?
+  isActive           Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+
+  workforceAccount   WorkforceAccount? @relation(fields: [workforceAccountId], references: [id], onDelete: SetNull)
+  worker             Worker?
+  auditLogs          AuditLog[]         @relation("ActorUser")
+
+  @@index([email])
+  @@index([role])
+  @@index([workforceAccountId])
+  @@index([isActive])
+}
+
+model Worker {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  workforceAccountId String
+  hasPhotoIdOnFile   Boolean  @default(false)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workforceAccount   WorkforceAccount  @relation(fields: [workforceAccountId], references: [id], onDelete: Restrict)
+  jobCompletions     JobCompletion[]
+  accessCredentials  AccessCredential[]
+  incidentReports    IncidentReport[]
+  siteAssignments    SiteAssignment[]
+  assignedJobs       Job[]             @relation("AssignedWorker")
+  auditLogs          AuditLog[]        @relation("ActorWorker")
+
+  @@index([userId])
+  @@index([workforceAccountId])
+  @@index([isActive])
+}
+
+model ComplianceDocument {
+  id                 String                 @id @default(cuid())
+  workforceAccountId String
+  type               ComplianceDocumentType
+  storagePath        String
+  expiresAt          DateTime?
+  uploadedAt         DateTime               @default(now())
+
+  workforceAccount   WorkforceAccount @relation(fields: [workforceAccountId], references: [id], onDelete: Restrict)
+
+  @@index([workforceAccountId])
+  @@index([type])
+  @@index([expiresAt])
+}
+
+model Site {
+  id                    String              @id @default(cuid())
+  clientOrganizationId  String
+  name                  String
+  address               String
+  accessInstructions    String?
+  serviceWindow         String?
+  estimatedDurationMinutes Int?
+  requiredPhotoCount    Int                 @default(4)
+  suppliesProvidedBy    SuppliesProvidedBy
+  doNotEnterUnits       Boolean             @default(true)
+  isActive              Boolean             @default(true)
+
+  clientOrganization    ClientOrganization  @relation(fields: [clientOrganizationId], references: [id], onDelete: Restrict)
+  accessCredentials     AccessCredential[]
+  checklistTemplates    ChecklistTemplate[]
+  siteAssignments       SiteAssignment[]
+  jobs                  Job[]
+  workOrders            WorkOrder[]
+  incidentReports       IncidentReport[]
+
+  @@index([clientOrganizationId])
+  @@index([isActive])
+}
+
+// Standing assignment for QR badge: "all locations assigned to this worker/vendor"
+// Rule: exactly one of workforceAccountId or workerId is set (enforced by DB CHECK in migration)
+model SiteAssignment {
+  id                   String   @id @default(cuid())
+  siteId               String
+  workforceAccountId   String?
+  workerId             String?
+  roleOnSite           String?  // optional: "PRIMARY", "BACKUP"
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  site                 Site     @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  workforceAccount     WorkforceAccount? @relation(fields: [workforceAccountId], references: [id], onDelete: SetNull)
+  worker               Worker?  @relation(fields: [workerId], references: [id], onDelete: SetNull)
+
+  @@index([siteId])
+  @@index([workforceAccountId])
+  @@index([workerId])
+  @@index([isActive])
+}
+
+model AccessCredential {
+  id               String                 @id @default(cuid())
+  siteId          String
+  type            AccessCredentialType
+  identifier      String?  // KEY/FOB: physical id description (e.g. "Key #12")
+  identifierHash  String?  // CODE: hashed code only; never store plain code
+  identifierHint  String?  // CODE: display hint (e.g. "****1234" or last 2 chars)
+  issuedToWorkerId String?
+  issuedAt        DateTime               @default(now())
+  returnedAt      DateTime?
+  status          AccessCredentialStatus  @default(ACTIVE)
+  notes           String?
+
+  site            Site    @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  issuedToWorker  Worker? @relation(fields: [issuedToWorkerId], references: [id], onDelete: SetNull)
+
+  @@index([siteId])
+  @@index([issuedToWorkerId])
+  @@index([status])
+}
+
+model ChecklistTemplate {
+  id        String   @id @default(cuid())
+  siteId    String
+  version   Int      @default(1)
+  isActive  Boolean  @default(true)
+  items     Json     // Array of { itemId, label, required? }
+  createdAt DateTime @default(now())
+
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Restrict)
+
+  // One active template per site enforced by partial unique index in migration
+  @@index([siteId])
+  @@index([isActive])
+}
+
+model Job {
+  id                        String    @id @default(cuid())
+  siteId                    String
+  scheduledStart            DateTime
+  scheduledEnd              DateTime?
+  status                    JobStatus @default(SCHEDULED)
+  payoutAmountCents         Int
+  assignedWorkforceAccountId String?
+  assignedWorkerId           String?
+  isMissed                  Boolean   @default(false)
+  missedReason              String?
+  makeGoodJobId             String?
+  startedAt                 DateTime? // Actual start (disputes / timing truth)
+  endedAt                   DateTime?
+  actualDurationMinutes     Int?
+  checkInMethod             String?   // Optional: "QR" | "GPS" | "MANUAL"
+  createdAt                 DateTime  @default(now())
+
+  site                      Site              @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  assignedWorkforceAccount  WorkforceAccount? @relation(fields: [assignedWorkforceAccountId], references: [id], onDelete: SetNull)
+  assignedWorker            Worker?          @relation("AssignedWorker", fields: [assignedWorkerId], references: [id], onDelete: SetNull)
+  makeGoodJob               Job?              @relation("MakeGoodJob", fields: [makeGoodJobId], references: [id], onDelete: SetNull)
+  makeGoodJobs              Job[]             @relation("MakeGoodJob")
+  completion                JobCompletion?
+
+  // Exactly ONE of assignedWorkforceAccountId OR assignedWorkerId must be set (CHECK in migration)
+  @@index([siteId])
+  @@index([status])
+  @@index([assignedWorkforceAccountId])
+  @@index([assignedWorkerId])
+  @@index([scheduledStart])
+  @@index([isMissed])
+}
+
+model JobCompletion {
+  id               String   @id @default(cuid())
+  jobId            String   @unique
+  completedByWorkerId String
+  completedAt      DateTime @default(now())
+  checklistResults Json     // Record<itemId, { result: PASS|FAIL|NA, note? }>
+  notes            String?
+  isDraft          Boolean  @default(false) // DRAFT status per DECISIONS.md
+
+  job              Job      @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  completedByWorker Worker  @relation(fields: [completedByWorkerId], references: [id], onDelete: Restrict)
+  evidence         Evidence[]
+
+  @@index([jobId])
+  @@index([completedByWorkerId])
+  @@index([isDraft])
+}
+
+model Evidence {
+  id              String   @id @default(cuid())
+  jobCompletionId String
+  storagePath     String   // Supabase Storage path: evidence/{jobId}/{completionId}/{timestamp}-{uuid}.{ext}
+  fileType        String
+  uploadedAt      DateTime @default(now())
+
+  jobCompletion  JobCompletion @relation(fields: [jobCompletionId], references: [id], onDelete: Cascade)
+
+  @@index([jobCompletionId])
+  @@index([uploadedAt])
+}
+
+model WorkOrder {
+  id                        String          @id @default(cuid())
+  siteId                    String
+  requestedBy               String
+  description               String
+  approvedByAdminId         String?
+  priceCents                Int
+  status                    WorkOrderStatus @default(REQUESTED)
+  beforePhotos              String[]        @default([])
+  afterPhotos               String[]        @default([])
+  assignedWorkforceAccountId String?
+  approvedAt                DateTime?
+  completedAt               DateTime?
+  invoicedAt                DateTime?
+
+  site                      Site            @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  assignedWorkforceAccount  WorkforceAccount? @relation(fields: [assignedWorkforceAccountId], references: [id], onDelete: SetNull)
+
+  @@index([siteId])
+  @@index([status])
+  @@index([assignedWorkforceAccountId])
+}
+
+model IncidentReport {
+  id              String             @id @default(cuid())
+  siteId          String
+  workerId        String
+  type            IncidentReportType
+  description     String
+  photos          String[]           @default([])
+  reportedAt      DateTime           @default(now())
+  resolvedAt      DateTime?
+  resolutionNotes String?
+
+  site            Site               @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  worker          Worker             @relation(fields: [workerId], references: [id], onDelete: Restrict)
+
+  @@index([siteId])
+  @@index([workerId])
+  @@index([type])
+  @@index([reportedAt])
+}
+
+model PayoutBatch {
+  id          String            @id @default(cuid())
+  periodStart DateTime
+  periodEnd   DateTime
+  status      PayoutBatchStatus @default(CALCULATED)
+  createdAt   DateTime          @default(now())
+
+  payoutLines PayoutLine[]
+
+  @@index([status])
+  @@index([periodStart, periodEnd])
+}
+
+model PayoutLine {
+  id                 String          @id @default(cuid())
+  payoutBatchId      String
+  workforceAccountId String
+  jobId              String?
+  amountCents        Int
+  status             PayoutLineStatus @default(PENDING)
+
+  payoutBatch       PayoutBatch   @relation(fields: [payoutBatchId], references: [id], onDelete: Restrict)
+  workforceAccount  WorkforceAccount @relation(fields: [workforceAccountId], references: [id], onDelete: Restrict)
+
+  @@index([payoutBatchId])
+  @@index([workforceAccountId])
+  @@index([jobId])
+}
+
+model AuditLog {
+  id                      String   @id @default(cuid())
+  actorUserId             String
+  actorWorkerId           String?
+  actorWorkforceAccountId String?
+  entityType              String   // 'Job' | 'WorkOrder' | 'Invoice' | 'Payout'
+  entityId                String
+  fromState               String?
+  toState                 String?
+  metadata                Json?     // Additional context (rejectionReason, overrideReason, etc.)
+  createdAt               DateTime  @default(now())
+
+  actorUser               User              @relation("ActorUser", fields: [actorUserId], references: [id], onDelete: Restrict)
+  actorWorker              Worker?           @relation("ActorWorker", fields: [actorWorkerId], references: [id], onDelete: SetNull)
+  actorWorkforceAccount   WorkforceAccount? @relation(fields: [actorWorkforceAccountId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId])
+  @@index([actorWorkforceAccountId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}

@@ -1,0 +1,147 @@
+{
+  "version": "1.0",
+  "date": "2026-02-16",
+  "purpose": "Stable checklist item IDs for portal seed and checklist template import",
+  "checklists": {
+    "CL_01": {
+      "name": "Lobby Checklist",
+      "itemIds": [
+        "LOB-001",
+        "LOB-002",
+        "LOB-003",
+        "LOB-004",
+        "LOB-005",
+        "LOB-006",
+        "LOB-007",
+        "LOB-008",
+        "LOB-009",
+        "LOB-010"
+      ],
+      "requiredPhotoCount": 4,
+      "mandatoryPhotoItems": ["LOB-001", "LOB-002", "LOB-003", "LOB-005"]
+    },
+    "CL_02": {
+      "name": "Hallway Checklist",
+      "itemIds": [
+        "HLY-001",
+        "HLY-002",
+        "HLY-003",
+        "HLY-004",
+        "HLY-005",
+        "HLY-006",
+        "HLY-007",
+        "HLY-008",
+        "HLY-009"
+      ],
+      "requiredPhotoCount": 4,
+      "mandatoryPhotoItems": ["HLY-001", "HLY-002", "HLY-003", "HLY-006"]
+    },
+    "CL_03": {
+      "name": "Stairwell Checklist",
+      "itemIds": [
+        "STW-001",
+        "STW-002",
+        "STW-003",
+        "STW-004",
+        "STW-005",
+        "STW-006",
+        "STW-007",
+        "STW-008",
+        "STW-009"
+      ],
+      "requiredPhotoCount": 4,
+      "mandatoryPhotoItems": ["STW-001", "STW-002", "STW-003"]
+    },
+    "CL_04": {
+      "name": "Elevator Checklist",
+      "itemIds": [
+        "ELV-001",
+        "ELV-002",
+        "ELV-003",
+        "ELV-004",
+        "ELV-005",
+        "ELV-006",
+        "ELV-007",
+        "ELV-008",
+        "ELV-009"
+      ],
+      "requiredPhotoCount": 4,
+      "mandatoryPhotoItems": ["ELV-001", "ELV-002", "ELV-004", "ELV-007"]
+    },
+    "CL_05": {
+      "name": "Garbage Room Checklist",
+      "itemIds": [
+        "GRB-001",
+        "GRB-002",
+        "GRB-003",
+        "GRB-004",
+        "GRB-005",
+        "GRB-006",
+        "GRB-007",
+        "GRB-008",
+        "GRB-009"
+      ],
+      "requiredPhotoCount": 4,
+      "mandatoryPhotoItems": ["GRB-001", "GRB-002"]
+    },
+    "CL_06": {
+      "name": "Glass Doors Spot Checklist",
+      "itemIds": [
+        "GLD-001",
+        "GLD-002",
+        "GLD-003",
+        "GLD-004",
+        "GLD-005"
+      ],
+      "requiredPhotoCount": 3,
+      "mandatoryPhotoItems": ["GLD-001"]
+    },
+    "CL_07": {
+      "name": "Washroom Common Area Checklist",
+      "itemIds": [
+        "WCR-001",
+        "WCR-002",
+        "WCR-003",
+        "WCR-004",
+        "WCR-005",
+        "WCR-006",
+        "WCR-007",
+        "WCR-008",
+        "WCR-009",
+        "WCR-010",
+        "WCR-011"
+      ],
+      "requiredPhotoCount": 4,
+      "mandatoryPhotoItems": ["WCR-001", "WCR-002"]
+    },
+    "CL_08": {
+      "name": "Seasonal Deep Clean Checklist",
+      "itemIds": [
+        "DCL-001",
+        "DCL-002",
+        "DCL-003",
+        "DCL-004",
+        "DCL-005",
+        "DCL-006",
+        "DCL-007",
+        "DCL-008",
+        "DCL-009",
+        "DCL-010"
+      ],
+      "requiredPhotoCount": 6,
+      "mandatoryPhotoItems": ["DCL-001"]
+    }
+  },
+  "allItemIds": [
+    "LOB-001", "LOB-002", "LOB-003", "LOB-004", "LOB-005", "LOB-006", "LOB-007", "LOB-008", "LOB-009", "LOB-010",
+    "HLY-001", "HLY-002", "HLY-003", "HLY-004", "HLY-005", "HLY-006", "HLY-007", "HLY-008", "HLY-009",
+    "STW-001", "STW-002", "STW-003", "STW-004", "STW-005", "STW-006", "STW-007", "STW-008", "STW-009",
+    "ELV-001", "ELV-002", "ELV-003", "ELV-004", "ELV-005", "ELV-006", "ELV-007", "ELV-008", "ELV-009",
+    "GRB-001", "GRB-002", "GRB-003", "GRB-004", "GRB-005", "GRB-006", "GRB-007", "GRB-008", "GRB-009",
+    "GLD-001", "GLD-002", "GLD-003", "GLD-004", "GLD-005",
+    "WCR-001", "WCR-002", "WCR-003", "WCR-004", "WCR-005", "WCR-006", "WCR-007", "WCR-008", "WCR-009", "WCR-010", "WCR-011",
+    "DCL-001", "DCL-002", "DCL-003", "DCL-004", "DCL-005", "DCL-006", "DCL-007", "DCL-008", "DCL-009", "DCL-010"
+  ],
+  "totalItemCount": 73,
+  "usage": "Portal seed script and admin UI can import this manifest to create ChecklistTemplate records with stable itemIds matching these IDs."
+}

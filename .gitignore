@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Build / output
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Prisma
+portal/generated/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs / debug
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.log
+.cache/
