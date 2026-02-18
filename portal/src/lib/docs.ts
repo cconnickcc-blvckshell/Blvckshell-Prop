@@ -21,22 +21,46 @@ function safeReadFile(filePath: string): string | null {
   }
 }
 
-export function getChecklistSlugs(): { slug: string; title: string }[] {
-  const dir = path.join(CONTENT_ROOT, "checklists");
-  return safeReadDir(dir).map((f) => {
-    const slug = f.replace(/\.md$/, "");
-    const title = slug.replace(/_/g, " ").replace(/^CL \d+ /i, "").trim() || slug;
-    return { slug, title };
-  });
+/** Extract first H1 line from markdown for display title */
+function extractTitle(content: string | null, slug: string, type: "checklist" | "sop"): string {
+  if (content) {
+    const match = content.match(/^#\s+(.+)$/m);
+    if (match) return match[1].trim();
+  }
+  const cleaned = slug.replace(/_/g, " ").replace(/^(CL|SOP)\s*\d+\s*/i, "").replace(/\s*Checklist\s*$/i, "").trim();
+  return cleaned || slug;
 }
 
-export function getSopSlugs(): { slug: string; title: string }[] {
-  const dir = path.join(CONTENT_ROOT, "sops");
-  return safeReadDir(dir).map((f) => {
+export type DocMeta = { slug: string; title: string; sortKey: number };
+
+export function getChecklistSlugs(): DocMeta[] {
+  const dir = path.join(CONTENT_ROOT, "checklists");
+  const files = safeReadDir(dir);
+  const items: DocMeta[] = files.map((f) => {
     const slug = f.replace(/\.md$/, "");
-    const title = slug.replace(/_/g, " ").replace(/^SOP \d+ /i, "").trim() || slug;
-    return { slug, title };
+    const numMatch = slug.match(/CL_0?(\d+)/i);
+    const sortKey = numMatch ? parseInt(numMatch[1], 10) : 999;
+    const content = safeReadFile(path.join(dir, f));
+    const title = extractTitle(content, slug, "checklist");
+    return { slug, title, sortKey };
   });
+  items.sort((a, b) => a.sortKey - b.sortKey);
+  return items;
+}
+
+export function getSopSlugs(): DocMeta[] {
+  const dir = path.join(CONTENT_ROOT, "sops");
+  const files = safeReadDir(dir);
+  const items: DocMeta[] = files.map((f) => {
+    const slug = f.replace(/\.md$/, "");
+    const numMatch = slug.match(/SOP_0?(\d+)/i);
+    const sortKey = numMatch ? parseInt(numMatch[1], 10) : 999;
+    const content = safeReadFile(path.join(dir, f));
+    const title = extractTitle(content, slug, "sop");
+    return { slug, title, sortKey };
+  });
+  items.sort((a, b) => a.sortKey - b.sortKey);
+  return items;
 }
 
 export function getChecklistContent(slug: string): string | null {

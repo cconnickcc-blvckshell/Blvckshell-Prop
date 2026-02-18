@@ -94,6 +94,18 @@ export default function JobDetailClient({
   const canAddMorePhotos = totalPhotoCount < 20; // MAX_PHOTOS_PER_JOB
   const hasMinimumPhotos = totalPhotoCount >= requiredPhotoCount;
 
+  // Calculate checklist progress
+  const completedItems = Object.keys(checklistResults).length;
+  const requiredItems = checklistItems.filter((item: any) => item.required);
+  const completedRequired = requiredItems.filter(
+    (item: any) => checklistResults[item.itemId]
+  ).length;
+  const checklistProgress = requiredItems.length > 0
+    ? Math.round((completedRequired / requiredItems.length) * 100)
+    : completedItems > 0
+    ? Math.round((completedItems / checklistItems.length) * 100)
+    : 0;
+
   const handleChecklistChange = (
     itemId: string,
     result: "PASS" | "FAIL" | "NA",
@@ -256,28 +268,30 @@ export default function JobDetailClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen bg-zinc-950 p-4 text-zinc-100 sm:p-6">
+      <div className="mx-auto max-w-3xl">
+        {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{job.site.name}</h1>
-          <p className="text-gray-600">{job.site.address}</p>
-          <p className="mt-2 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{job.site.name}</h1>
+          <p className="mt-1 text-zinc-400">{job.site.address}</p>
+          <p className="mt-2 text-sm text-zinc-500">
             Scheduled: {new Date(job.scheduledStart).toLocaleString()}
           </p>
         </div>
 
         {/* Access Instructions */}
         {job.site.accessInstructions && (
-          <div className="mb-6 rounded-lg bg-blue-50 p-4">
-            <h2 className="font-semibold text-blue-900">Access Instructions</h2>
-            <p className="mt-1 text-sm text-blue-800">{job.site.accessInstructions}</p>
+          <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-lg sm:p-6">
+            <h2 className="text-base font-semibold text-white sm:text-lg">Access Instructions</h2>
+            <p className="mt-2 text-sm leading-relaxed text-zinc-300 sm:text-base">{job.site.accessInstructions}</p>
             {job.site.accessCredentials.length > 0 && (
-              <div className="mt-2">
-                <p className="text-sm font-medium text-blue-900">Credentials:</p>
-                <ul className="mt-1 list-disc pl-5 text-sm text-blue-800">
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-medium text-zinc-300">Credentials:</p>
+                <ul className="space-y-1.5">
                   {job.site.accessCredentials.map((cred) => (
-                    <li key={cred.id}>
-                      {cred.type}: {cred.type === "CODE" ? (cred.identifierHint ?? "****") : (cred.identifier ?? "—")}
+                    <li key={cred.id} className="rounded-md bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300">
+                      <span className="font-medium">{cred.type}:</span>{" "}
+                      {cred.type === "CODE" ? (cred.identifierHint ?? "****") : (cred.identifier ?? "—")}
                     </li>
                   ))}
                 </ul>
@@ -286,93 +300,136 @@ export default function JobDetailClient({
           </div>
         )}
 
+        {/* Error / Success Messages */}
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="mb-6 rounded-xl border border-red-500/40 bg-red-500/10 p-4">
+            <p className="text-sm font-medium text-red-300">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 rounded-md bg-green-50 p-4">
-            <p className="text-sm text-green-800">{success}</p>
+          <div className="mb-6 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4">
+            <p className="text-sm font-medium text-emerald-300">{success}</p>
           </div>
         )}
 
-        {/* Checklist */}
-        <div className="mb-6 rounded-lg bg-white p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Checklist</h2>
+        {/* Checklist Section */}
+        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl sm:p-6">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-white sm:text-xl">Checklist</h2>
+              <p className="mt-1 text-sm text-zinc-400">
+                {completedRequired} of {requiredItems.length} required items completed
+              </p>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full sm:w-48">
+              <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-300"
+                  style={{ width: `${checklistProgress}%` }}
+                />
+              </div>
+              <p className="mt-1 text-xs text-zinc-500">{checklistProgress}% complete</p>
+            </div>
+          </div>
+
           <div className="space-y-4">
-            {checklistItems.map((item: any) => (
-              <div key={item.itemId} className="border-b pb-4 last:border-b-0">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-700">
+            {checklistItems.map((item: any, index: number) => {
+              const currentResult = checklistResults[item.itemId]?.result;
+              return (
+                <div
+                  key={item.itemId}
+                  className="rounded-lg border border-zinc-800 bg-zinc-800/30 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/50"
+                >
+                  <div className="mb-3 flex items-start gap-2">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-700 text-xs font-semibold text-zinc-300">
+                      {index + 1}
+                    </span>
+                    <label className="flex-1 text-sm font-medium leading-relaxed text-white sm:text-base">
                       {item.label}
-                      {item.required && <span className="text-red-500">*</span>}
+                      {item.required && <span className="ml-1 text-red-400">*</span>}
                     </label>
                   </div>
-                  <div className="ml-4 flex gap-2">
-                    {(["PASS", "FAIL", "NA"] as const).map((result) => (
-                      <button
-                        key={result}
-                        type="button"
-                        onClick={() => handleChecklistChange(item.itemId, result)}
-                        className={`rounded px-3 py-1 text-xs font-medium ${
-                          checklistResults[item.itemId]?.result === result
-                            ? result === "PASS"
-                              ? "bg-green-100 text-green-800"
-                              : result === "FAIL"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
-                            : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        {result}
-                      </button>
-                    ))}
+
+                  {/* Mobile-first: Stack buttons vertically on small screens, horizontal on larger */}
+                  <div className="ml-8 grid grid-cols-3 gap-2 sm:ml-0 sm:flex sm:gap-3">
+                    {(["PASS", "FAIL", "NA"] as const).map((result) => {
+                      const isSelected = currentResult === result;
+                      const colors =
+                        result === "PASS"
+                          ? isSelected
+                            ? "bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-500/20"
+                            : "bg-zinc-800/50 text-zinc-300 border-zinc-700 hover:bg-zinc-700"
+                          : result === "FAIL"
+                          ? isSelected
+                            ? "bg-red-600 text-white border-red-500 shadow-lg shadow-red-500/20"
+                            : "bg-zinc-800/50 text-zinc-300 border-zinc-700 hover:bg-zinc-700"
+                          : isSelected
+                          ? "bg-zinc-600 text-white border-zinc-500"
+                          : "bg-zinc-800/50 text-zinc-300 border-zinc-700 hover:bg-zinc-700";
+
+                      return (
+                        <button
+                          key={result}
+                          type="button"
+                          onClick={() => handleChecklistChange(item.itemId, result)}
+                          className={`min-h-[48px] rounded-lg border px-4 py-3 text-sm font-semibold transition-all duration-200 active:scale-[0.97] sm:min-h-[52px] sm:px-5 sm:py-3 ${colors}`}
+                        >
+                          {result}
+                        </button>
+                      );
+                    })}
                   </div>
+
+                  {/* Failure note */}
+                  {currentResult === "FAIL" && (
+                    <div className="mt-4 ml-8 sm:ml-0">
+                      <textarea
+                        placeholder="Reason for failure (required)..."
+                        value={checklistResults[item.itemId]?.note || ""}
+                        onChange={(e) =>
+                          handleChecklistChange(item.itemId, "FAIL", e.target.value)
+                        }
+                        className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                        rows={3}
+                      />
+                    </div>
+                  )}
                 </div>
-                {checklistResults[item.itemId]?.result === "FAIL" && (
-                  <div className="mt-2">
-                    <textarea
-                      placeholder="Reason for failure..."
-                      value={checklistResults[item.itemId]?.note || ""}
-                      onChange={(e) =>
-                        handleChecklistChange(
-                          item.itemId,
-                          "FAIL",
-                          e.target.value
-                        )
-                      }
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                      rows={2}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Photo Upload */}
-        <div className="mb-6 rounded-lg bg-white p-6 shadow">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            Photo Evidence
-          </h2>
-          <p className="mb-4 text-sm text-gray-600">
-            Required: {requiredPhotoCount} photos | Maximum: 20 photos | Current:{" "}
-            {totalPhotoCount}
-          </p>
+        {/* Photo Evidence Section */}
+        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl sm:p-6">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-white sm:text-xl">Photo Evidence</h2>
+              <p className="mt-1 text-sm text-zinc-400">
+                Required: <span className="font-medium text-white">{requiredPhotoCount}</span> • Maximum: 20 • Current:{" "}
+                <span className={`font-medium ${hasMinimumPhotos ? "text-emerald-400" : "text-red-400"}`}>
+                  {totalPhotoCount}
+                </span>
+              </p>
+            </div>
+            {!hasMinimumPhotos && (
+              <span className="text-xs font-medium text-red-400">
+                Need {requiredPhotoCount - totalPhotoCount} more
+              </span>
+            )}
+          </div>
 
-          {/* Uploaded Photos */}
-          {uploadedPhotos.length > 0 && (
-            <div className="mb-4 grid grid-cols-4 gap-4">
+          {/* Photo Grid */}
+          {(uploadedPhotos.length > 0 || photos.length > 0) && (
+            <div className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4">
               {uploadedPhotos.map((evidence) => (
-                <div key={evidence.id} className="relative">
+                <div key={evidence.id} className="group relative aspect-square overflow-hidden rounded-lg border border-zinc-800">
                   <img
                     src={`/api/evidence/${evidence.id}`}
                     alt="Evidence"
-                    className="h-24 w-full rounded object-cover"
+                    className="h-full w-full object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = "/placeholder-image.png";
                     }}
@@ -380,29 +437,29 @@ export default function JobDetailClient({
                   <button
                     type="button"
                     onClick={() => handleRemoveUploadedPhoto(evidence.id)}
-                    className="absolute right-1 top-1 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
+                    className="absolute right-2 top-2 rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity hover:bg-red-500 group-hover:opacity-100"
                   >
                     Remove
                   </button>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* New Photos */}
-          {photos.length > 0 && (
-            <div className="mb-4 grid grid-cols-4 gap-4">
               {photos.map((photo, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="group relative aspect-square overflow-hidden rounded-lg border border-zinc-800">
                   <img
                     src={URL.createObjectURL(photo)}
                     alt={`Photo ${index + 1}`}
-                    className="h-24 w-full rounded object-cover"
+                    className="h-full w-full object-cover"
                   />
+                  {uploadProgress[index] && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80">
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(index)}
-                    className="absolute right-1 top-1 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
+                    disabled={uploadProgress[index]}
+                    className="absolute right-2 top-2 rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity hover:bg-red-500 group-hover:opacity-100 disabled:opacity-50"
                   >
                     Remove
                   </button>
@@ -414,30 +471,34 @@ export default function JobDetailClient({
           {/* Upload Button */}
           {canAddMorePhotos && (
             <label className="block">
+              <div className="flex min-h-[52px] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-700 bg-zinc-800/30 px-4 py-3 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-800/50">
+                <span className="mr-2">📷</span>
+                Add {20 - totalPhotoCount} more photo{20 - totalPhotoCount !== 1 ? "s" : ""}
+              </div>
               <input
                 type="file"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
                 multiple
                 onChange={handlePhotoSelect}
                 disabled={uploading || isPending}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-gray-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-100"
+                className="hidden"
               />
             </label>
           )}
           {!canAddMorePhotos && (
-            <p className="text-sm text-red-600">
+            <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-300">
               Maximum 20 photos reached. Remove photos to add more.
             </p>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-4">
+        {/* Action Buttons */}
+        <div className="sticky bottom-0 flex gap-3 bg-zinc-950 pb-4 pt-4 sm:pb-0 sm:pt-6">
           <button
             type="button"
             onClick={handleSaveDraft}
             disabled={isPending || uploading}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="min-h-[52px] flex-1 rounded-lg border border-zinc-700 bg-zinc-800/80 px-5 py-3 text-sm font-semibold text-zinc-300 transition-all hover:border-zinc-600 hover:bg-zinc-800 hover:text-white disabled:opacity-50 active:scale-[0.98]"
           >
             {isPending ? "Saving..." : "Save Draft"}
           </button>
@@ -445,7 +506,7 @@ export default function JobDetailClient({
             type="button"
             onClick={handleSubmit}
             disabled={isPending || uploading || !hasMinimumPhotos}
-            className="flex-1 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="min-h-[52px] flex-[2] rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-500 hover:shadow-xl hover:shadow-emerald-500/30 disabled:opacity-50 disabled:shadow-none active:scale-[0.98]"
           >
             {uploading
               ? "Uploading..."

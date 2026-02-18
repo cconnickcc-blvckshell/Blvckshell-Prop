@@ -118,3 +118,13 @@ html {
     pointer-events: none;
   }
 }
+
+/* Doc viewer: print / PDF */
+@media print {
+  body { background: #fff !important; }
+  .doc-print { box-shadow: none !important; max-width: 100% !important; }
+  .print\:hidden { display: none !important; }
+  nav[class*="border"], .doc-print + nav { display: none !important; }
+  main { padding: 0.5in !important; max-width: 100% !important; }
+  .doc-body table { font-size: 0.85rem; }
+}
