@@ -3,6 +3,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import AddSiteForm from "./AddSiteForm";
+import ChecklistManager from "./ChecklistManager";
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   await requireAdmin();
@@ -10,7 +11,17 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const client = await prisma.clientOrganization.findUnique({
     where: { id: params.id },
     include: {
-      sites: { where: { isActive: true }, orderBy: { name: "asc" } },
+      sites: {
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        include: {
+          checklistTemplates: {
+            where: { isActive: true },
+            orderBy: { version: "desc" },
+            take: 1,
+          },
+        },
+      },
     },
   });
 
@@ -31,25 +42,33 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
       <section>
         <h2 className="text-lg font-semibold text-white">Sites</h2>
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 space-y-6">
           {client.sites.map((site) => (
             <div
               key={site.id}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5"
             >
-              <div>
-                <p className="font-medium text-white">{site.name}</p>
-                <p className="text-sm text-zinc-500">{site.address}</p>
-                <p className="text-xs text-zinc-500 mt-1">
-                  {site.serviceWindow ?? "—"} • {site.estimatedDurationMinutes ?? "—"} min • Photos: {site.requiredPhotoCount}
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div>
+                  <p className="font-medium text-white">{site.name}</p>
+                  <p className="text-sm text-zinc-500">{site.address}</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    {site.serviceWindow ?? "—"} • {site.estimatedDurationMinutes ?? "—"} min • Photos: {site.requiredPhotoCount}
+                  </p>
+                </div>
+                <Link
+                  href={`/admin/jobs?siteId=${site.id}`}
+                  className="text-sm font-medium text-emerald-400 hover:text-emerald-300 shrink-0"
+                >
+                  View jobs →
+                </Link>
               </div>
-              <Link
-                href={`/admin/jobs?siteId=${site.id}`}
-                className="text-sm font-medium text-emerald-400 hover:text-emerald-300 shrink-0"
-              >
-                View jobs →
-              </Link>
+              
+              <ChecklistManager
+                siteId={site.id}
+                siteName={site.name}
+                currentTemplate={site.checklistTemplates[0] || null}
+              />
             </div>
           ))}
           {client.sites.length === 0 && (
