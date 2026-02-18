@@ -12,14 +12,27 @@ import {
 import { canAccessJob } from "@/server/guards/rbac";
 
 /**
- * Upload evidence photo
+ * Upload evidence photo. Optional itemId/checklistRunId link photo to a checklist item.
+ * Phase 3: Only redacted images accepted. Capture must be in-app (camera + redaction).
  */
 export async function uploadEvidence(input: {
   jobId: string;
   completionId: string;
   file: File;
+  itemId?: string;
+  checklistRunId?: string;
+  redactionApplied?: boolean;
+  redactionType?: string;
 }) {
   const user = await requireWorker();
+
+  // Phase 3 acceptance: server rejects uploads without redaction
+  if (input.redactionApplied !== true) {
+    return {
+      success: false,
+      error: "Evidence must be captured and redacted in-app. Use Take photo.",
+    };
+  }
 
   try {
     // Check job access
@@ -101,12 +114,17 @@ export async function uploadEvidence(input: {
       });
     }
 
-    // Create Evidence record
+    // Create Evidence record (optional item/run link + redaction metadata)
     const evidence = await prisma.evidence.create({
       data: {
         jobCompletionId: completion.id,
         storagePath,
         fileType: input.file.type,
+        checklistRunId: input.checklistRunId ?? null,
+        itemId: input.itemId ?? null,
+        redactionApplied: input.redactionApplied ?? false,
+        redactionType: input.redactionType ?? null,
+        capturedByUserId: user.id,
       },
     });
 

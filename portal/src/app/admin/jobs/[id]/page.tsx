@@ -16,6 +16,7 @@ export default async function AdminJobDetailPage({
     include: {
       site: {
         include: {
+          clientOrganization: { select: { name: true, id: true } },
           checklistTemplates: {
             where: { isActive: true },
             orderBy: { version: "desc" },
@@ -39,6 +40,19 @@ export default async function AdminJobDetailPage({
             },
           },
           evidence: { orderBy: { uploadedAt: "asc" } },
+        },
+      },
+      checklistRuns: {
+        orderBy: { updatedAt: "desc" },
+        include: {
+          completedByWorker: {
+            include: { user: { select: { name: true } } },
+          },
+          items: { orderBy: { itemId: "asc" } },
+          evidence: { orderBy: { uploadedAt: "asc" } },
+          checklistTemplate: {
+            select: { id: true, version: true, items: true },
+          },
         },
       },
     },
@@ -67,8 +81,28 @@ export default async function AdminJobDetailPage({
       ? "bg-red-500/20 text-red-300 border-red-500/40"
       : "bg-blue-500/20 text-blue-300 border-blue-500/40";
 
+  const latestRun = job.checklistRuns[0] ?? null;
+  const templateItems =
+    (latestRun?.checklistTemplate?.items as Array<{ itemId: string; label: string }>) ?? [];
+  const itemsByItemId = new Map(templateItems.map((i) => [i.itemId, i]));
+
   return (
     <div className="w-full space-y-6">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm text-zinc-500">
+          <Link href="/admin/clients" className="hover:text-zinc-300">Locations</Link>
+          <span>/</span>
+          <Link href={`/admin/clients/${job.site.clientOrganization.id}`} className="hover:text-zinc-300">
+            {job.site.clientOrganization.name}
+          </Link>
+          <span>/</span>
+          <Link href={`/admin/jobs?siteId=${job.site.id}`} className="hover:text-zinc-300">
+            {job.site.name}
+          </Link>
+          <span>/</span>
+          <span className="text-zinc-400">Job</span>
+        </div>
+      </div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{job.site.name}</h1>
@@ -95,13 +129,113 @@ export default async function AdminJobDetailPage({
         </p>
       </div>
 
-      {/* Completion & actions */}
-      {job.completion && (
+      {/* Checklist run (Phase 4: run-based completion) */}
+      {latestRun && (
         <>
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
-            <h2 className="mb-4 text-lg font-semibold text-white">
-              Completion
-            </h2>
+            <h2 className="mb-4 text-lg font-semibold text-white">Checklist run</h2>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-300">
+              <span
+                className={`rounded-full border px-2.5 py-1 font-medium ${
+                  latestRun.status === "Submitted"
+                    ? "border-amber-500/40 bg-amber-500/20 text-amber-300"
+                    : latestRun.status === "Approved"
+                    ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
+                    : latestRun.status === "Rejected"
+                    ? "border-red-500/40 bg-red-500/20 text-red-300"
+                    : "border-zinc-500/40 bg-zinc-500/20 text-zinc-300"
+                }`}
+              >
+                {latestRun.status}
+              </span>
+              <span>Completed by: {latestRun.completedByWorker.user.name}</span>
+              {latestRun.submittedAt && (
+                <span>Submitted: {new Date(latestRun.submittedAt).toLocaleString()}</span>
+              )}
+              {latestRun.approvedAt && (
+                <span>Approved: {new Date(latestRun.approvedAt).toLocaleString()}</span>
+              )}
+              <span>Template v{latestRun.templateVersion}</span>
+            </div>
+          </div>
+
+          {/* Run items */}
+          {latestRun.items.length > 0 && (
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+              <h2 className="mb-4 text-lg font-semibold text-white">Checklist items</h2>
+              <ul className="space-y-3">
+                {latestRun.items.map((ri) => {
+                  const label = itemsByItemId.get(ri.itemId)?.label ?? ri.itemId;
+                  return (
+                    <li
+                      key={ri.id}
+                      className="flex flex-col gap-1 border-b border-zinc-800 pb-3 last:border-b-0 last:pb-0"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-sm font-medium text-zinc-200">{label}</span>
+                        <span
+                          className={`text-sm font-semibold ${
+                            ri.result === "PASS"
+                              ? "text-emerald-400"
+                              : ri.result === "FAIL"
+                              ? "text-red-400"
+                              : "text-zinc-500"
+                          }`}
+                        >
+                          {ri.result}
+                        </span>
+                      </div>
+                      {(ri.failReason || ri.note) && (
+                        <p className="text-xs text-zinc-500">
+                          {ri.failReason && <span>Fail reason: {ri.failReason}. </span>}
+                          {ri.note && <span>Note: {ri.note}</span>}
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          {/* Run evidence */}
+          {latestRun.evidence.length > 0 && (
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+              <h2 className="mb-4 text-lg font-semibold text-white">
+                Photo evidence ({latestRun.evidence.length})
+              </h2>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {latestRun.evidence.map((ev) => (
+                  <a
+                    key={ev.id}
+                    href={`/api/evidence/${ev.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block overflow-hidden rounded-lg border border-zinc-700"
+                  >
+                    <img
+                      src={`/api/evidence/${ev.id}`}
+                      alt={ev.itemId ? `Evidence ${ev.itemId}` : "Evidence"}
+                      className="h-32 w-full object-cover"
+                    />
+                    {ev.itemId && (
+                      <p className="bg-zinc-800 px-2 py-1 text-xs text-zinc-400">{ev.itemId}</p>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Admin actions when we have a run (use completion for approve/reject) */}
+        </>
+      )}
+
+      {/* Legacy completion (no run) & actions */}
+      {job.completion && !latestRun && (
+        <>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-semibold text-white">Completion</h2>
             <p className="text-sm text-zinc-300">
               Completed by: {job.completion.completedByWorker.user.name} on{" "}
               {new Date(job.completion.completedAt).toLocaleString()}
@@ -111,12 +245,9 @@ export default async function AdminJobDetailPage({
             )}
           </div>
 
-          {/* Checklist results */}
           {checklistTemplate && checklistResults && (
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
-              <h2 className="mb-4 text-lg font-semibold text-white">
-                Checklist Results
-              </h2>
+              <h2 className="mb-4 text-lg font-semibold text-white">Checklist results</h2>
               <ul className="space-y-2">
                 {(checklistTemplate.items as Array<{ itemId: string; label: string }>).map(
                   (item) => {
@@ -147,11 +278,10 @@ export default async function AdminJobDetailPage({
             </div>
           )}
 
-          {/* Evidence photos */}
           {job.completion.evidence.length > 0 && (
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
               <h2 className="mb-4 text-lg font-semibold text-white">
-                Photo Evidence ({job.completion.evidence.length})
+                Photo evidence ({job.completion.evidence.length})
               </h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {job.completion.evidence.map((ev) => (
@@ -172,15 +302,17 @@ export default async function AdminJobDetailPage({
               </div>
             </div>
           )}
-
-          {/* Admin actions: Approve / Reject / Cancel */}
-          <JobAdminActions
-            jobId={job.id}
-            status={job.status}
-            canApproveReject={job.status === "COMPLETED_PENDING_APPROVAL"}
-            canCancel={job.status === "SCHEDULED" || job.status === "COMPLETED_PENDING_APPROVAL"}
-          />
         </>
+      )}
+
+      {/* Admin actions: Approve / Reject / Cancel */}
+      {(job.completion || latestRun) && (
+        <JobAdminActions
+          jobId={job.id}
+          status={job.status}
+          canApproveReject={job.status === "COMPLETED_PENDING_APPROVAL"}
+          canCancel={job.status === "SCHEDULED" || job.status === "COMPLETED_PENDING_APPROVAL"}
+        />
       )}
 
       {/* Actions when no completion yet (e.g. cancel only) */}
@@ -193,7 +325,7 @@ export default async function AdminJobDetailPage({
         />
       )}
 
-      {!job.completion && job.status === "SCHEDULED" && (
+      {!job.completion && !latestRun && job.status === "SCHEDULED" && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 text-center text-zinc-400">
           No completion submitted yet.
         </div>

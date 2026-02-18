@@ -93,6 +93,58 @@ enum PayoutLineStatus {
   VOID
 }
 
+enum ChecklistRunStatus {
+  InProgress
+  Submitted
+  Approved
+  Rejected
+}
+
+enum BillingCadence {
+  Monthly
+}
+
+enum ContractStatus {
+  Active
+  Paused
+  Ended
+}
+
+enum InvoiceStatus {
+  Draft
+  Sent
+  Paid
+  Void
+}
+
+enum BillingAdjustmentType {
+  Charge
+  Discount
+  Credit
+}
+
+enum BillingAdjustmentStatus {
+  Proposed
+  Approved
+  Applied
+  Voided
+}
+
+enum JobPricingModel {
+  IncludedInContract
+  Fixed
+  Hourly
+  PerChecklist
+  PerVisit
+}
+
+enum BillableStatus {
+  Pending
+  Approved
+  Invoiced
+  Void
+}
+
 // ============================================================================
 // MODELS
 // ============================================================================
@@ -108,6 +160,8 @@ model ClientOrganization {
 
   sites          Site[]
   clientContacts ClientContact[]
+  contracts      Contract[]
+  invoices       Invoice[]
 
   @@index([name])
 }
@@ -169,6 +223,9 @@ model User {
   workforceAccount   WorkforceAccount? @relation(fields: [workforceAccountId], references: [id], onDelete: SetNull)
   worker             Worker?
   auditLogs          AuditLog[]         @relation("ActorUser")
+  approvedJobs       Job[]              @relation("ApprovedJobs")
+  invoicesCreated    Invoice[]
+  billingAdjustmentsCreated BillingAdjustment[]
 
   @@index([email])
   @@index([role])
@@ -192,6 +249,8 @@ model Worker {
   incidentReports    IncidentReport[]
   siteAssignments    SiteAssignment[]
   assignedJobs       Job[]             @relation("AssignedWorker")
+  checklistRunItems  ChecklistRunItem[] @relation("CompletedByWorkerRunItem")
+  checklistRuns      ChecklistRun[]
   auditLogs          AuditLog[]        @relation("ActorWorker")
 
   @@index([userId])
@@ -234,6 +293,9 @@ model Site {
   jobs                  Job[]
   workOrders            WorkOrder[]
   incidentReports       IncidentReport[]
+  contracts             Contract[]
+  invoiceLineItems      InvoiceLineItem[]
+  billingAdjustments    BillingAdjustment[]
 
   @@index([clientOrganizationId])
   @@index([isActive])
@@ -287,14 +349,56 @@ model ChecklistTemplate {
   siteId    String
   version   Int      @default(1)
   isActive  Boolean  @default(true)
-  items     Json     // Array of { itemId, label, required? }
+  items     Json     // Array of { itemId, label, required?, photoRequired?, failConditionText? }
   createdAt DateTime @default(now())
 
-  site      Site     @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  site      Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  checklistRuns ChecklistRun[]
 
-  // One active template per site enforced by partial unique index in migration
   @@index([siteId])
   @@index([isActive])
+}
+
+model ChecklistRun {
+  id                   String             @id @default(cuid())
+  jobId                String
+  checklistTemplateId  String
+  templateVersion     Int                 // Snapshot of template version at run creation
+  status               ChecklistRunStatus  @default(InProgress)
+  completedByWorkerId  String
+  submittedAt          DateTime?
+  approvedAt           DateTime?
+  approvedById         String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  job                  Job                 @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  checklistTemplate    ChecklistTemplate   @relation(fields: [checklistTemplateId], references: [id], onDelete: Restrict)
+  completedByWorker    Worker              @relation(fields: [completedByWorkerId], references: [id], onDelete: Restrict)
+  items                ChecklistRunItem[]
+  evidence             Evidence[]
+
+  @@index([jobId])
+  @@index([checklistTemplateId])
+  @@index([completedByWorkerId])
+  @@index([status])
+}
+
+model ChecklistRunItem {
+  id                   String   @id @default(cuid())
+  checklistRunId       String
+  itemId               String   // e.g. LOB-001
+  result               String   // PASS | FAIL | NA
+  failReason           String?
+  note                 String?
+  completedAt          DateTime?
+  completedByWorkerId  String?
+
+  checklistRun         ChecklistRun @relation(fields: [checklistRunId], references: [id], onDelete: Cascade)
+  completedByWorker   Worker?       @relation("CompletedByWorkerRunItem", fields: [completedByWorkerId], references: [id], onDelete: SetNull)
+
+  @@unique([checklistRunId, itemId])
+  @@index([checklistRunId])
 }
 
 model Job {
@@ -314,6 +418,13 @@ model Job {
   actualDurationMinutes     Int?
   checkInMethod             String?   // Optional: "QR" | "GPS" | "MANUAL"
   createdAt                 DateTime  @default(now())
+  // Phase 5: billing
+  pricingModel              JobPricingModel?  @default(Fixed)
+  billableAmountCents       Int?
+  billableStatus            BillableStatus?   @default(Pending)
+  invoiceId                 String?
+  approvedAt                DateTime?
+  approvedById              String?
 
   site                      Site              @relation(fields: [siteId], references: [id], onDelete: Restrict)
   assignedWorkforceAccount  WorkforceAccount? @relation(fields: [assignedWorkforceAccountId], references: [id], onDelete: SetNull)
@@ -321,6 +432,9 @@ model Job {
   makeGoodJob               Job?              @relation("MakeGoodJob", fields: [makeGoodJobId], references: [id], onDelete: SetNull)
   makeGoodJobs              Job[]             @relation("MakeGoodJob")
   completion                JobCompletion?
+  checklistRuns             ChecklistRun[]
+  invoice                   Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  approvedBy                User?             @relation("ApprovedJobs", fields: [approvedById], references: [id], onDelete: SetNull)
 
   // Exactly ONE of assignedWorkforceAccountId OR assignedWorkerId must be set (CHECK in migration)
   @@index([siteId])
@@ -329,6 +443,8 @@ model Job {
   @@index([assignedWorkerId])
   @@index([scheduledStart])
   @@index([isMissed])
+  @@index([invoiceId])
+  @@index([billableStatus])
 }
 
 model JobCompletion {
@@ -350,15 +466,24 @@ model JobCompletion {
 }
 
 model Evidence {
-  id              String   @id @default(cuid())
-  jobCompletionId String
-  storagePath     String   // Supabase Storage path: evidence/{jobId}/{completionId}/{timestamp}-{uuid}.{ext}
-  fileType        String
-  uploadedAt      DateTime @default(now())
+  id               String   @id @default(cuid())
+  jobCompletionId  String
+  storagePath      String   // Supabase Storage path: evidence/{jobId}/{completionId}/{timestamp}-{uuid}.{ext}
+  fileType         String
+  uploadedAt       DateTime @default(now())
+  // Phase 2: item-level evidence + redaction metadata
+  checklistRunId   String?
+  itemId           String?  // e.g. LOB-001 when photo is for a specific checklist item
+  redactionApplied Boolean  @default(false)
+  redactionType    String?  // face | person | manual
+  capturedByUserId String?
 
-  jobCompletion  JobCompletion @relation(fields: [jobCompletionId], references: [id], onDelete: Cascade)
+  jobCompletion   JobCompletion  @relation(fields: [jobCompletionId], references: [id], onDelete: Cascade)
+  checklistRun    ChecklistRun?  @relation(fields: [checklistRunId], references: [id], onDelete: SetNull)
 
   @@index([jobCompletionId])
+  @@index([checklistRunId])
+  @@index([itemId])
   @@index([uploadedAt])
 }
 
@@ -419,19 +544,117 @@ model PayoutBatch {
 }
 
 model PayoutLine {
-  id                 String          @id @default(cuid())
+  id                 String            @id @default(cuid())
   payoutBatchId      String
   workforceAccountId String
   jobId              String?
+  checklistRunId     String?
+  description        String?
+  siteId             String?
   amountCents        Int
-  status             PayoutLineStatus @default(PENDING)
+  status             PayoutLineStatus  @default(PENDING)
 
-  payoutBatch       PayoutBatch   @relation(fields: [payoutBatchId], references: [id], onDelete: Restrict)
+  payoutBatch       PayoutBatch     @relation(fields: [payoutBatchId], references: [id], onDelete: Restrict)
   workforceAccount  WorkforceAccount @relation(fields: [workforceAccountId], references: [id], onDelete: Restrict)
 
   @@index([payoutBatchId])
   @@index([workforceAccountId])
   @@index([jobId])
+  @@index([checklistRunId])
+}
+
+// Phase 5: Billing spine
+model Contract {
+  id                    String         @id @default(cuid())
+  clientOrganizationId  String
+  siteId                String
+  billingCadence        BillingCadence @default(Monthly)
+  monthlyBaseAmountCents Int
+  netTermsDays          Int            @default(30)
+  effectiveStart        DateTime
+  effectiveEnd          DateTime?
+  status                ContractStatus @default(Active)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  clientOrganization   ClientOrganization @relation(fields: [clientOrganizationId], references: [id], onDelete: Restrict)
+  site                  Site               @relation(fields: [siteId], references: [id], onDelete: Restrict)
+
+  @@index([clientOrganizationId])
+  @@index([siteId])
+  @@index([status])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  clientId        String        // ClientOrganization id
+  invoiceNumber   String        @unique
+  periodStart     DateTime
+  periodEnd       DateTime
+  status          InvoiceStatus @default(Draft)
+  issuedAt       DateTime?
+  dueAt          DateTime?
+  notes           String?
+  subtotalCents   Int           @default(0)
+  taxCents        Int           @default(0)
+  totalCents      Int           @default(0)
+  createdById     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  client          ClientOrganization @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  createdBy       User              @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  lineItems       InvoiceLineItem[]
+  adjustments     BillingAdjustment[]
+  jobs            Job[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+}
+
+model InvoiceLineItem {
+  id               String   @id @default(cuid())
+  invoiceId        String
+  jobId            String?
+  checklistRunId   String?
+  contractId       String?
+  description      String
+  qty              Int      @default(1)
+  unitPriceCents   Int
+  amountCents      Int
+  siteId           String
+
+  invoice          Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  site             Site     @relation(fields: [siteId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([jobId])
+  @@index([siteId])
+}
+
+model BillingAdjustment {
+  id               String                 @id @default(cuid())
+  invoiceId        String?
+  siteId           String?
+  jobId            String?
+  type             BillingAdjustmentType
+  amountCents      Int
+  reasonCode       String?
+  notes            String?
+  createdById      String
+  createdAt        DateTime               @default(now())
+  status           BillingAdjustmentStatus @default(Proposed)
+  evidencePhotoIds String[]               @default([])
+
+  invoice          Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  site             Site?     @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  createdBy        User      @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([siteId])
+  @@index([jobId])
+  @@index([status])
 }
 
 model AuditLog {

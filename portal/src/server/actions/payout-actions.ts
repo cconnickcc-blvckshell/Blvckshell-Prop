@@ -5,15 +5,15 @@ import { prisma } from "@/lib/prisma";
 import { transitionJob } from "@/lib/state-machine";
 
 /**
- * Create a payout batch from all jobs in APPROVED_PAYABLE status.
- * Optionally filter by scheduledStart within [periodStart, periodEnd].
- * Creates one PayoutLine per job (workforce = assignedWorkforceAccount or assignedWorker's account).
+ * Create a payout batch from unpaid APPROVED_PAYABLE jobs in the period.
+ * Excludes jobs that already have a PayoutLine (one job = at most one payout line).
+ * Sets description (site + date), siteId, and checklistRunId on each line.
  */
 export async function createPayoutBatch(input: {
   periodStart: string; // ISO date
   periodEnd: string;   // ISO date
 }) {
-  const user = await requireAdmin();
+  await requireAdmin();
 
   const start = new Date(input.periodStart);
   const end = new Date(input.periodEnd);
@@ -21,34 +21,65 @@ export async function createPayoutBatch(input: {
     return { success: false, error: "Invalid period dates" };
   }
 
+  // Job IDs already on any payout line (rule: job appears in at most one line)
+  const existingLineJobIds = await prisma.payoutLine.findMany({
+    where: { jobId: { not: null } },
+    select: { jobId: true },
+  });
+  const paidJobIds = new Set(
+    existingLineJobIds.map((l) => l.jobId).filter((id): id is string => id != null)
+  );
+
   const jobs = await prisma.job.findMany({
     where: {
       status: "APPROVED_PAYABLE",
       scheduledStart: { gte: start, lte: end },
+      id: { notIn: paidJobIds.size > 0 ? Array.from(paidJobIds) : undefined },
     },
     include: {
+      site: { select: { name: true, id: true } },
       assignedWorkforceAccount: { select: { id: true } },
       assignedWorker: {
         include: { workforceAccount: { select: { id: true } } },
+      },
+      checklistRuns: {
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+        select: { id: true },
       },
     },
   });
 
   if (jobs.length === 0) {
-    return { success: false, error: "No approved jobs in this period" };
+    return {
+      success: false,
+      error: paidJobIds.size > 0
+        ? "No additional approved jobs in this period (all are already on a payout)"
+        : "No approved jobs in this period",
+    };
   }
 
-  // Resolve workforceAccountId for each job (required for PayoutLine)
-  const lines: { jobId: string; workforceAccountId: string; amountCents: number }[] = [];
+  const lines: {
+    jobId: string;
+    workforceAccountId: string;
+    amountCents: number;
+    description: string;
+    siteId: string;
+    checklistRunId: string | null;
+  }[] = [];
   for (const job of jobs) {
     const workforceAccountId =
       job.assignedWorkforceAccountId ??
       job.assignedWorker?.workforceAccount.id;
     if (!workforceAccountId) continue;
+    const description = `${job.site.name} — ${new Date(job.scheduledStart).toLocaleDateString()}`;
     lines.push({
       jobId: job.id,
       workforceAccountId,
       amountCents: job.payoutAmountCents,
+      description,
+      siteId: job.site.id,
+      checklistRunId: job.checklistRuns[0]?.id ?? null,
     });
   }
 
@@ -67,6 +98,9 @@ export async function createPayoutBatch(input: {
             workforceAccountId: l.workforceAccountId,
             jobId: l.jobId,
             amountCents: l.amountCents,
+            description: l.description,
+            siteId: l.siteId,
+            checklistRunId: l.checklistRunId,
             status: "PENDING",
           })),
         },

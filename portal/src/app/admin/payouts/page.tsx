@@ -19,8 +19,19 @@ export default async function PayoutsPage() {
     take: 20,
   });
 
+  const paidJobIds = await prisma.payoutLine.findMany({
+    where: { jobId: { not: null } },
+    select: { jobId: true },
+  });
+  const paidSet = new Set(
+    paidJobIds.map((l) => l.jobId).filter((id): id is string => id != null)
+  );
+
   const approvedJobs = await prisma.job.findMany({
-    where: { status: "APPROVED_PAYABLE" },
+    where: {
+      status: "APPROVED_PAYABLE",
+      ...(paidSet.size > 0 ? { id: { notIn: Array.from(paidSet) } } : {}),
+    },
     include: {
       site: { select: { name: true } },
       assignedWorkforceAccount: { select: { displayName: true, id: true } },
@@ -57,7 +68,7 @@ export default async function PayoutsPage() {
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
         <h2 className="border-b border-zinc-800 px-4 py-4 text-lg font-semibold text-white sm:px-6">
           Jobs Ready for Payout
-          <span className="ml-2 text-sm font-normal text-zinc-500">(APPROVED_PAYABLE)</span>
+          <span className="ml-2 text-sm font-normal text-zinc-500">(approved, not yet on a batch)</span>
         </h2>
         <div className="overflow-x-auto">
           {/* Desktop table */}
@@ -165,8 +176,13 @@ export default async function PayoutsPage() {
                 return (
                   <tr key={batch.id} className="hover:bg-zinc-800/30 transition-colors">
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-white">
-                      {new Date(batch.periodStart).toLocaleDateString()} –{" "}
-                      {new Date(batch.periodEnd).toLocaleDateString()}
+                      <Link
+                        href={`/admin/payouts/batch/${batch.id}`}
+                        className="hover:text-emerald-400"
+                      >
+                        {new Date(batch.periodStart).toLocaleDateString()} –{" "}
+                        {new Date(batch.periodEnd).toLocaleDateString()}
+                      </Link>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
@@ -185,6 +201,12 @@ export default async function PayoutsPage() {
                       {new Date(batch.createdAt).toLocaleDateString()}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
+                      <Link
+                        href={`/admin/payouts/batch/${batch.id}`}
+                        className="mr-3 text-sm font-medium text-zinc-400 hover:text-white"
+                      >
+                        View
+                      </Link>
                       <MarkBatchPaidButton batchId={batch.id} status={batch.status} />
                     </td>
                   </tr>
@@ -201,10 +223,13 @@ export default async function PayoutsPage() {
               );
               return (
                 <div key={batch.id} className="flex flex-col gap-2 px-4 py-4">
-                  <p className="text-sm text-white">
+                  <Link
+                    href={`/admin/payouts/batch/${batch.id}`}
+                    className="text-sm font-medium text-white hover:text-emerald-400"
+                  >
                     {new Date(batch.periodStart).toLocaleDateString()} –{" "}
                     {new Date(batch.periodEnd).toLocaleDateString()}
-                  </p>
+                  </Link>
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${

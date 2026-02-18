@@ -6,6 +6,8 @@ export interface ChecklistItem {
   itemId: string;
   label: string;
   required: boolean;
+  photoRequired?: boolean;
+  photoPointLabel?: string;
 }
 
 export interface ParsedChecklist {
@@ -70,18 +72,31 @@ export function parseChecklistMarkdown(content: string, checklistId: string): Pa
         continue;
       }
       
-      if (cells.length >= 3) {
+      if (cells.length >= 4) {
         const itemId = cells[0].replace(/\*\*/g, "").trim(); // Remove markdown bold
         const task = cells[1].trim();
         const requiredText = cells[2].trim().toLowerCase();
         const required = requiredText === "yes" || requiredText === "true" || requiredText === "required";
+        const photoPoint = cells[3]?.trim() ?? "";
+        const photoRequired = photoPoint.length > 0 && photoPoint.toLowerCase() !== "n/a";
+        const photoPointLabel = photoRequired ? photoPoint : undefined;
         
         if (itemId && task) {
           items.push({
             itemId,
             label: task,
             required,
+            photoRequired,
+            photoPointLabel,
           });
+        }
+      } else if (cells.length >= 3) {
+        const itemId = cells[0].replace(/\*\*/g, "").trim();
+        const task = cells[1].trim();
+        const requiredText = cells[2].trim().toLowerCase();
+        const required = requiredText === "yes" || requiredText === "true" || requiredText === "required";
+        if (itemId && task) {
+          items.push({ itemId, label: task, required });
         }
       }
     }

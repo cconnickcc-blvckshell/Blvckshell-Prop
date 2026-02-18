@@ -2,11 +2,19 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
-export default async function AdminJobsPage() {
+export default async function AdminJobsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ siteId?: string }>;
+}) {
   await requireAdmin();
+  const { siteId } = await searchParams;
 
   const jobs = await prisma.job.findMany({
-    where: { status: { not: "CANCELLED" } },
+    where: {
+      status: { not: "CANCELLED" },
+      ...(siteId ? { siteId } : {}),
+    },
     include: {
       site: { select: { name: true, address: true } },
       assignedWorker: {
@@ -37,12 +45,25 @@ export default async function AdminJobsPage() {
       ? job.assignedWorker.user.name
       : job.assignedWorkforceAccount?.displayName ?? "—";
 
+  let siteName: string | null = null;
+  if (siteId) {
+    const site = await prisma.site.findUnique({
+      where: { id: siteId },
+      select: { name: true },
+    });
+    siteName = site?.name ?? null;
+  }
+
   return (
     <div className="w-full">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Jobs</h1>
-          <p className="mt-1 text-zinc-400">Manage and review job completions</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            {siteName ? `Jobs — ${siteName}` : "Jobs"}
+          </h1>
+          <p className="mt-1 text-zinc-400">
+            {siteName ? "Job history for this site" : "Manage and review job completions"}
+          </p>
         </div>
         <Link
           href="/admin/jobs/new"

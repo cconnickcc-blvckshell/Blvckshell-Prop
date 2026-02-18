@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/admin/clients", label: "Locations" },
   { href: "/admin/workforce", label: "Workforce" },
   { href: "/admin/jobs", label: "Jobs" },
+  { href: "/admin/invoices", label: "Invoices" },
   { href: "/admin/workorders", label: "Work Orders" },
   { href: "/admin/incidents", label: "Incidents" },
   { href: "/admin/payouts", label: "Payouts" },

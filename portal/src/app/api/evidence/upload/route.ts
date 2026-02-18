@@ -7,10 +7,20 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File;
     const jobId = formData.get("jobId") as string;
     const completionId = formData.get("completionId") as string;
+    const itemId = (formData.get("itemId") as string) || undefined;
+    const checklistRunId = (formData.get("checklistRunId") as string) || undefined;
+    const redactionApplied = formData.get("redactionApplied") === "true";
+    const redactionType = (formData.get("redactionType") as string) || undefined;
 
     if (!file || !jobId || !completionId) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+    if (redactionApplied !== true) {
+      return NextResponse.json(
+        { error: "Evidence must be captured and redacted in-app. Use Take photo." },
         { status: 400 }
       );
     }
@@ -19,6 +29,10 @@ export async function POST(request: NextRequest) {
       jobId,
       completionId,
       file,
+      itemId,
+      checklistRunId,
+      redactionApplied,
+      redactionType,
     });
 
     if (!result.success) {

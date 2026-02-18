@@ -1,0 +1,23 @@
+---
+description: BLVCKSHELL checklists and billing — interactive DB-backed forms, redaction, invoicing
+alwaysApply: true
+---
+
+# Checklist & Billing Directive
+
+When working on portal checklists, job completion, evidence, invoices, or payouts, follow the **full directive** and **implementation plan**:
+
+- **CURSOR_DIRECTIVE_CHECKLIST_BILLING.md** — non-negotiable outcomes (interactive checklists, DB persistence, photo redaction, client/site history, invoicing, contracts, adjustments).
+- **IMPLEMENTATION_PLAN_CHECKLIST_BILLING.md** — phased implementation (run model → item-level photos → camera/redaction → history → invoice schema → PDFs → payroll).
+
+## Invariants (do not violate)
+
+- Checklists are **interactive execution forms** (PASS/FAIL/NA + failReason), not static view/print docs. Every action persists to the DB.
+- **ChecklistRun** belongs to one **Job**; Job → Site → Client. Every run is auditable job history.
+- Photos: **capture in-app** (getUserMedia) → **detect people** → **redact in browser** → **upload only redacted**. Server never receives unredacted originals. Store `redactionApplied`, `redactionType` on evidence.
+- Item-level and run-level **photo requirements** (template: photoRequired, min count). Submit blocked until Definition of Done satisfied.
+- **Invoice**: only Approved jobs/runs; line items are immutable snapshots when invoice leaves Draft. Job has `billableStatus`, `invoiceId`, `pricingModel`.
+- **Contract** (monthly base per site) + **BillingAdjustment** (charge/discount with reason). No manual total editing; totals = base + jobs + adjustments + tax.
+- **Payout**: job/run in at most one payout line; pay statement PDF for subs; TimeEntry + payroll CSV for employees.
+
+When adding schema or API, prefer the data shapes and enums in the directive. For implementation order, follow the phases in the implementation plan.
