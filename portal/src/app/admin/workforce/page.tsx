@@ -29,9 +29,17 @@ export default async function WorkforcePage() {
 
   return (
     <div className="w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Workforce</h1>
-        <p className="mt-1 text-zinc-400">Vendor and internal accounts</p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Workforce</h1>
+          <p className="mt-1 text-zinc-400">Vendor and internal accounts</p>
+        </div>
+        <Link
+          href="/admin/workforce/new"
+          className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
+        >
+          Add account
+        </Link>
       </div>
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">

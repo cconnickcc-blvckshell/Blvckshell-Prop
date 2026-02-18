@@ -3,13 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const navLinks = [
+  { href: "/admin/clients", label: "Locations" },
   { href: "/admin/workforce", label: "Workforce" },
   { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/workorders", label: "Work Orders" },
   { href: "/admin/incidents", label: "Incidents" },
   { href: "/admin/payouts", label: "Payouts" },
+  { href: "/admin/docs", label: "Docs" },
 ] as const;
 
 export default function AdminNav({ userName, userRole }: { userName: string; userRole: string }) {
@@ -50,6 +53,13 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
             <span className="rounded-md bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-300">
               {userRole}
             </span>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+            >
+              Log out
+            </button>
             {/* Mobile menu button */}
             <button
               type="button"
@@ -89,6 +99,13 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
               ))}
               <div className="mt-2 border-t border-zinc-800 pt-2">
                 <p className="px-3 py-1 text-xs text-zinc-500">{userName}</p>
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+                >
+                  Log out
+                </button>
               </div>
             </div>
           </div>
