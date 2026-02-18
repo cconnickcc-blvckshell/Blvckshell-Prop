@@ -20,6 +20,7 @@
 | 8 | Upload limits | 10MB max; jpg, jpeg, png, webp | Balance quality vs storage and abuse. |
 | 9 | Lead capture (Marketing) | Store in Postgres Lead table + optional email to admin | One source of truth; optional notification. |
 | 10 | Node / Next | e.g. Node 20 LTS; Next.js 14.x | Stable, Vercel-supported. |
+| 21 | **Front-facing program** | **Marketing website is the front door.** The public site (home, services, contact) is what visitors see first. The **portal** (workforce app) is **accessible from** the marketing site — e.g. header/footer link “Portal” or “Log in” / “Subcontractor portal” that goes to the portal URL. Portal is not the default landing; marketing is. | Clear user journey: public first, then portal for workers/admins. |
 
 ---
 

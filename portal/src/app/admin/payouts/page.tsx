@@ -1,6 +1,8 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import CreatePayoutBatchForm from "@/components/admin/CreatePayoutBatchForm";
+import MarkBatchPaidButton from "@/components/admin/MarkBatchPaidButton";
 
 export default async function PayoutsPage() {
   await requireAdmin();
@@ -43,6 +45,9 @@ export default async function PayoutsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Payouts</h1>
         <p className="text-gray-600">Payout batches and approved jobs</p>
       </div>
+
+      {/* Create batch */}
+      <CreatePayoutBatchForm />
 
       {/* Approved jobs (ready for payout) */}
       <div className="rounded-lg bg-white shadow">
@@ -122,6 +127,9 @@ export default async function PayoutsPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Created
                 </th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
@@ -152,6 +160,9 @@ export default async function PayoutsPage() {
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                       {new Date(batch.createdAt).toLocaleDateString()}
                     </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-right">
+                      <MarkBatchPaidButton batchId={batch.id} status={batch.status} />
+                    </td>
                   </tr>
                 );
               })}
@@ -160,8 +171,7 @@ export default async function PayoutsPage() {
         </div>
         {batches.length === 0 && (
           <div className="p-6 text-center text-sm text-gray-500">
-            No payout batches yet. Create a batch from approved jobs (mark as PAID
-            via batch — implement create batch + mark paid in next iteration).
+            No payout batches yet. Use the form above to create a batch from approved jobs, then mark it paid.
           </div>
         )}
       </div>

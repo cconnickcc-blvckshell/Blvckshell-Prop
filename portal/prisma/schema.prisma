@@ -455,3 +455,22 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt])
 }
+
+// Marketing lead capture (same DB; marketing app writes via API or shared client)
+model Lead {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  name         String
+  company      String?
+  role         String?
+  phone        String?
+  email        String
+  propertyType String?
+  sitesCount   Int?
+  message      String?
+  sourcePage   String?
+  honeypot     String?  // anti-spam; should be empty
+
+  @@index([createdAt])
+  @@index([email])
+}

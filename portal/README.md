@@ -10,6 +10,8 @@
 
 Production-ready workforce operations portal for BLVCKSHELL Facilities Services. Supports vendor subcontractors with multiple employees, internal BLVCKSHELL employees, admin-controlled job assignment, approval, and payout.
 
+**Placement:** The **marketing website** is the front-facing program (what the public sees first). This **portal** is accessible from the marketing site via a “Portal” or “Log in” link (see DECISIONS.md #21).
+
 **Tech Stack:**
 - Next.js 14+ App Router (TypeScript)
 - Prisma ORM

@@ -8,8 +8,8 @@
 This repository contains three production-ready systems for BLVCKSHELL Facilities Services:
 
 1. **[Operations Binder](./ops-binder/)** — Contracts, SOPs, policies, QA forms, checklists, state machines (47 markdown files)
-2. **[Workforce Operations Portal](./portal/)** — Next.js + Supabase + Vercel; workforce/teams; full RBAC; audit-safe
-3. **[Marketing Website](./marketing/)** — Public site; lead capture; SEO
+2. **[Marketing Website](./marketing/)** — **Front-facing program**: public site (home, services, contact, lead capture, SEO). Visitors see this first; it must link to the portal.
+3. **[Workforce Operations Portal](./portal/)** — Internal app (login, jobs, completions, admin); **accessible from the marketing site** via a “Portal” / “Log in” link.
 
 ---
 
@@ -74,6 +74,16 @@ See **[ROADMAP.md](./ROADMAP.md)** for complete step-by-step execution plan.
 - Node.js 20 LTS
 - Supabase account (for portal)
 - Vercel account (for deployment)
+
+### Environment (single .env)
+
+Portal and marketing **share one database** and **one env file** at repo root:
+
+- Copy **`.env.example`** (in repo root) to **`.env`** at repo root and fill in values.
+- Both apps read from **root `.env`** when running (portal and marketing load `../.env` automatically).
+- On **Vercel**, set the same variables in each project (Portal project and Marketing project); use the same `DATABASE_URL` for both.
+
+Do not create separate `.env` files in `portal/` or `marketing/` unless you need local overrides.
 
 ### Setup
 

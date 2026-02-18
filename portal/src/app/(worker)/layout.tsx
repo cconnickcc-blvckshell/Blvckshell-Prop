@@ -39,6 +39,22 @@ export default async function WorkerLayout({
               >
                 Jobs
               </Link>
+              {(user.role === "VENDOR_OWNER") && (
+                <>
+                  <Link
+                    href="/vendor/team"
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
+                    Team
+                  </Link>
+                  <Link
+                    href="/vendor/jobs"
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
+                    Vendor Jobs
+                  </Link>
+                </>
+              )}
               <Link
                 href="/earnings"
                 className="text-sm font-medium text-gray-700 hover:text-gray-900"
