@@ -29,9 +29,12 @@ export const motionConfig = {
 
   // Stagger for lists/cards
   staggerContainer: {
-    initial: "hidden",
-    whileInView: "visible",
-    viewport: { once: true, margin: "-50px" },
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.06,
+      },
+    },
   },
 
   staggerItem: {

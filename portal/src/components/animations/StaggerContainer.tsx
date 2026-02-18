@@ -27,7 +27,6 @@ export function StaggerItem({ children, index, className }: { children: ReactNod
   return (
     <motion.div
       variants={motionConfig.staggerItem}
-      {...getStaggerDelay(index)}
       className={className}
     >
       {children}

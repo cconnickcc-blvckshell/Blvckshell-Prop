@@ -1,6 +1,5 @@
 "use client";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import ImageTreatment from "@/components/marketing/ImageTreatment";
