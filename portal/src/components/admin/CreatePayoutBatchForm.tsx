@@ -32,35 +32,38 @@ export default function CreatePayoutBatchForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 rounded-lg border bg-gray-50 p-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Period start</label>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-wrap items-end gap-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 shadow-xl sm:gap-6 sm:p-6"
+    >
+      <div className="min-w-0 flex-1 sm:min-w-[140px]">
+        <label className="block text-sm font-medium text-zinc-300">Period start</label>
         <input
           type="date"
           value={periodStart}
           onChange={(e) => setPeriodStart(e.target.value)}
-          className="mt-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
           required
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Period end</label>
+      <div className="min-w-0 flex-1 sm:min-w-[140px]">
+        <label className="block text-sm font-medium text-zinc-300">Period end</label>
         <input
           type="date"
           value={periodEnd}
           onChange={(e) => setPeriodEnd(e.target.value)}
-          className="mt-1 rounded border border-gray-300 px-3 py-2 text-sm"
+          className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
           required
         />
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="w-full shrink-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50 sm:w-auto"
       >
-        {isPending ? "Creating..." : "Create batch from approved jobs"}
+        {isPending ? "Creating…" : "Create batch from approved jobs"}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="w-full text-sm text-red-400 sm:order-last">{error}</p>}
     </form>
   );
 }

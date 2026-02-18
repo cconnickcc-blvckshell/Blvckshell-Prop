@@ -16,8 +16,9 @@
 | **Phase 2B (Marketing)** | Parallel after P0 | Next.js app, all required pages, `/api/lead` | ✅ Aligned |
 | **Tests** | Required (2A.10) | No test framework or tests in repo | ❌ Not started |
 | **Security hardening** | Rate limit, lockout, admin reset | Not implemented; session 24h only | ❌ Gaps |
+| **Env / deploy** | Single DB, Vercel | Root `.env` for portal + marketing; two Vercel projects required (Root = `portal`, Root = `marketing`) | ✅ Documented |
 
-**Bottom line:** Core portal and marketing are built and aligned with docs. Production gates (Part 4 of ROADMAP) are not satisfied: **no test suite**, **no rate limiting**, **no login lockout**, **no admin password reset**. Ops Binder is complete; portal is feature-rich but not yet production-ready per the roadmap.
+**Bottom line:** Core portal and marketing are built and aligned with docs. Production gates (Part 4 of ROADMAP) are not satisfied: **no test suite**, **no rate limiting**, **no login lockout**, **no admin password reset**. Ops Binder is complete; portal is feature-rich but not yet production-ready per the roadmap. **Vercel:** Use two projects with Root Directory set to `portal` and `marketing` respectively; building from repo root causes "No Next.js detected" / "no app directory."
 
 ---
 
@@ -176,10 +177,10 @@
 | Next.js 14, App Router, Tailwind | ROADMAP 2B.1 | marketing/ has Next.js, app router, build output | ✅ |
 | Home, contact, services, condo/commercial/light-maintenance, about, privacy | ROADMAP 2B.2–2B.3 | app routes present (page, contact, services, condo-cleaning, commercial-cleaning, light-maintenance, about, privacy) | ✅ |
 | `/api/lead` | ROADMAP 2B.2.3 | `marketing/app/api/lead/route.ts`; zod schema; creates Lead (Prisma) | ✅ |
-| SEO: metadata, sitemap, robots | ROADMAP 2B.4 | .next output suggests sitemap.xml and robots.txt routes | ✅ |
-| marketing/README | ROADMAP 2B.4.3 | Not verified in this audit | 🟡 |
+| SEO: metadata, sitemap, robots | ROADMAP 2B.4 | app/sitemap.ts, app/robots.ts; metadata in layout and pages | ✅ |
+| marketing/README | ROADMAP 2B.4.3 | Present: setup, root .env, DATABASE_URL, Vercel (Root = marketing), deploy | ✅ |
 
-**Verdict:** Marketing site and lead capture implemented; README and SEO details can be spot-checked.
+**Verdict:** Marketing site and lead capture implemented; README and SEO in place.
 
 ---
 
@@ -201,16 +202,31 @@
 1. **ROADMAP 2A.4.6** — Marked “⏳ Pending”; **code has** `/vendor/team` and `/vendor/jobs`. Update ROADMAP to ✅.
 2. **ROADMAP “78 tasks”** — No single task index; either add one or reword to “all tasks in this roadmap”.
 3. **ROADMAP 2A.6** — Duplicate “2A.6 State machines and audit” section; remove duplicate and keep one.
-4. **Schema model count** — Docs say “15 models”; schema has more (e.g. includes Lead). Update or clarify.
+4. **Schema model count** — Docs say “15 models”; schema has more (e.g. includes Lead, ClientContact, SiteAssignment). Update or clarify.
+
+## Database constraints (Migration #2)
+
+Per CTO schema review: production readiness also depends on **DB-level constraints** that Prisma does not enforce. Confirm in Supabase that the following have been applied (via a follow-up migration or raw SQL):
+
+- **Job:** CHECK that exactly one of `assignedWorkforceAccountId` / `assignedWorkerId` is set.
+- **SiteAssignment:** CHECK that exactly one of `workforceAccountId` / `workerId` is set.
+- **ChecklistTemplate:** UNIQUE partial index on `siteId` WHERE `isActive` = true (one active per site).
+- **Worker:** UNIQUE on `userId`; **JobCompletion:** UNIQUE on `jobId`.
+- **Evidence:** FK to JobCompletion with ON DELETE CASCADE.
+- **AccessCredential:** CHECK for CODE vs non-CODE identifier/hash rules.
+- **Indexes:** Job (assignedWorkerId + scheduledStart; assignedWorkforceAccountId + scheduledStart); AuditLog (entityType, entityId, createdAt).
+
+If not yet applied, treat as a prerequisite before production sign-off.
 
 ---
 
 ## Recommendations for CTO
 
 1. **Before production:** Implement 2A.8 (rate limiting, login lockout, admin password reset) and 2A.10 (unit, RBAC/IDOR, upload, one E2E). Then run 2A.11 production checklist and smoke test.
-2. **Verify:** Job assignment blocking when COI/WSIB expired and ADMIN override with AuditLog (code path and one manual test).
-3. **Update ROADMAP:** Mark vendor scaffold complete; remove duplicate 2A.6; fix “78 tasks” or add task index; align model count wording.
-4. **Phase 3:** Run only after Gates 2 and 5 (security + tests) are satisfied and 2A.11 is signed off.
+2. **Verify:** Job assignment blocking when COI/WSIB expired and ADMIN override with AuditLog (code path and one manual test). Workforce detail page shows compliance status and “blocked” messaging; confirm assign flow actually checks compliance and records override in AuditLog when admin overrides.
+3. **Apply Migration #2:** Add CHECK constraints, unique indexes, Evidence CASCADE, and AccessCredential rules in Supabase (see “Database constraints” above) if not already applied.
+4. **Update ROADMAP:** Mark vendor scaffold complete; remove duplicate 2A.6; fix “78 tasks” or add task index; align model count wording.
+5. **Phase 3:** Run only after Gates 2 and 5 (security + tests) are satisfied, Migration #2 is confirmed, and 2A.11 is signed off.
 
 ---
 

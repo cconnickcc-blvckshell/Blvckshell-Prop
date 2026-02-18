@@ -4,7 +4,7 @@ import path from "path";
 import dotenv from "dotenv";
 
 // Load root .env first (single env for portal + marketing)
-dotenv.config({ path: path.resolve(process.cwd(), "../.env"), silent: true });
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
 dotenv.config(); // then portal/.env if present
 
 import { defineConfig } from "prisma/config";

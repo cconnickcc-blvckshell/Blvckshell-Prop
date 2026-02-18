@@ -1,6 +1,11 @@
 # Deploying to Vercel
 
-The BLVCKSHELL portal is set up for **Vercel** as the production host.
+**One Vercel project** serves both the **public marketing site** and the **workforce portal**:
+
+- **/** = Marketing (home, contact, services, about, privacy, lead capture)
+- **/login**, **/jobs**, **/admin**, etc. = Workforce portal
+
+Use a **single** Vercel project with Root Directory = **`portal`**.
 
 ---
 

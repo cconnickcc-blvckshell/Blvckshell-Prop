@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BLVCKSHELL Workforce Operations Portal",
-  description: "Workforce operations portal for BLVCKSHELL Facilities Services",
+  title: "BLVCKSHELL — Facilities Services",
+  description: "BLVCKSHELL facilities services. Public site and workforce operations portal.",
 };
 
 export default function RootLayout({

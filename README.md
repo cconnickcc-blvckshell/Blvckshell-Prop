@@ -3,7 +3,7 @@
 **Status:** 🚧 In Development  
 **Last Updated:** February 16, 2026
 
-> **Vercel:** Set **Root Directory** to **`portal`** in Project Settings → General, or the build will fail (Next.js app is in `portal/`).
+> **Vercel:** Use **one project** with **Root Directory** = **`portal`**. That single deployment serves the public site (/) and the workforce portal (/login, /admin, /jobs).
 
 This repository contains three production-ready systems for BLVCKSHELL Facilities Services:
 

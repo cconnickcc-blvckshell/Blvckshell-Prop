@@ -69,10 +69,10 @@ export default function JobAdminActions({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Actions</h2>
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+      <h2 className="mb-4 text-lg font-semibold text-white">Actions</h2>
       {error && (
-        <div className="mb-4 rounded bg-red-50 p-2 text-sm text-red-800">{error}</div>
+        <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>
       )}
 
       <div className="flex flex-wrap items-end gap-4">
@@ -82,23 +82,23 @@ export default function JobAdminActions({
               type="button"
               onClick={handleApprove}
               disabled={isPending}
-              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
             >
-              {isPending ? "Processing..." : "Approve"}
+              {isPending ? "Processing…" : "Approve"}
             </button>
-            <div className="flex flex-1 flex-col gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
               <input
                 type="text"
                 placeholder="Rejection reason (required for reject)"
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
               />
               <button
                 type="button"
                 onClick={handleReject}
                 disabled={isPending || !rejectReason.trim()}
-                className="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                className="rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-50"
               >
                 Reject (resubmit allowed)
               </button>
@@ -111,7 +111,7 @@ export default function JobAdminActions({
             type="button"
             onClick={handleCancel}
             disabled={isPending}
-            className="rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+            className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 hover:bg-red-500/20 disabled:opacity-50"
           >
             Cancel Job
           </button>
