@@ -32,6 +32,7 @@ export default function ContactForm() {
         propertyType: fd.get("propertyType"),
         sitesCount: fd.get("sitesCount") ? Number(fd.get("sitesCount")) : undefined,
         message: fd.get("message"),
+        preferredContact: fd.get("preferredContact") || undefined,
         sourcePage: "/contact",
         website: fd.get("website") ?? "",
       }),
@@ -74,6 +75,14 @@ export default function ContactForm() {
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-zinc-300">Email *</label>
         <input type="email" id="email" name="email" required className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500" placeholder="you@company.com" />
+      </div>
+      <div>
+        <label htmlFor="preferredContact" className="block text-sm font-medium text-zinc-300">Preferred contact method</label>
+        <select id="preferredContact" name="preferredContact" className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-white focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500">
+          <option value="either">Email or phone—your choice</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone</option>
+        </select>
       </div>
       <div>
         <label htmlFor="propertyType" className="block text-sm font-medium text-zinc-300">Property type</label>

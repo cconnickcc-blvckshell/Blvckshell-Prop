@@ -467,9 +467,10 @@ model Lead {
   email        String
   propertyType String?
   sitesCount   Int?
-  message      String?
-  sourcePage   String?
-  honeypot     String?  // anti-spam; should be empty
+  message          String?
+  sourcePage       String?
+  preferredContact String?  // email | phone | either
+  honeypot         String?  // anti-spam; should be empty
 
   @@index([createdAt])
   @@index([email])

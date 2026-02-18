@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         sitesCount: data.sitesCount ?? null,
         message: data.message ?? null,
         sourcePage: data.sourcePage ?? null,
+        preferredContact: data.preferredContact ?? null,
       },
     });
 

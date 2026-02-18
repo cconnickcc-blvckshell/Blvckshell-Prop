@@ -10,6 +10,7 @@ export const leadSchema = z.object({
   sitesCount: z.number().int().min(0).optional(),
   message: z.string().max(2000).optional(),
   sourcePage: z.string().max(500).optional(),
+  preferredContact: z.enum(["email", "phone", "either"]).optional(),
   website: z.string().max(500).optional(), // honeypot
 });
 
