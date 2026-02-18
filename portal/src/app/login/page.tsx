@@ -10,7 +10,17 @@ export default async function LoginPage() {
     session = await auth();
   } catch (err) {
     // Log server-side only (Vercel captures this). Do not throw — avoid 500.
-    console.error("[login] Auth/session check failed:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorName = err instanceof Error ? err.name : "UnknownError";
+    console.error("[login] Auth/session check failed:", {
+      error: errorMessage,
+      name: errorName,
+      stack: err instanceof Error ? err.stack : undefined,
+      // Diagnostic info (don't log sensitive values)
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
+      hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
+    });
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-4 text-white">
         <div className="w-full max-w-md space-y-6 rounded-xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-xl">
