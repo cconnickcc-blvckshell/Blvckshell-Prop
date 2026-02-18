@@ -3,7 +3,8 @@
 **Status:** 🚧 In Development  
 **Last Updated:** February 16, 2026
 
-> **Vercel:** Use **one project** with **Root Directory** = **`portal`**. That single deployment serves the public site (/) and the workforce portal (/login, /admin, /jobs).
+> **Vercel:** Use **one project** with **Root Directory** = **`portal`**. That single deployment serves the public site (/) and the workforce portal (/login, /admin, /jobs).  
+> If the build fails with *"No Next.js version detected"*, set **Settings → General → Root Directory** to **`portal`** (no leading/trailing slash), then redeploy.
 
 This repository contains three production-ready systems for BLVCKSHELL Facilities Services:
 
