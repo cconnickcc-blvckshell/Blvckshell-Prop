@@ -6,14 +6,14 @@ import Link from "next/link";
 export default async function JobsPage() {
   const user = await requireWorker();
 
-  // Get worker's assigned jobs (only where assignedWorkerId is set per DECISIONS §3.3 #18)
+  // VENDOR_OWNER: jobs assigned to their workforce account; workers: jobs assigned to them
+  const whereClause =
+    user.role === "VENDOR_OWNER"
+      ? { assignedWorkforceAccountId: user.workforceAccountId!, status: { not: "CANCELLED" as const } }
+      : { assignedWorkerId: user.workerId!, status: { not: "CANCELLED" as const } };
+
   const jobs = await prisma.job.findMany({
-    where: {
-      assignedWorkerId: user.workerId,
-      status: {
-        not: "CANCELLED",
-      },
-    },
+    where: whereClause,
     include: {
       site: {
         select: {

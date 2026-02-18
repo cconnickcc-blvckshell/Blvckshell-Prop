@@ -61,11 +61,16 @@ export async function requireVendorOwner(): Promise<SessionUser> {
 }
 
 /**
- * Require worker role (VENDOR_WORKER or INTERNAL_WORKER)
+ * Require worker portal access (VENDOR_WORKER, INTERNAL_WORKER, or VENDOR_OWNER).
+ * Matches (worker) layout so these roles can view /jobs, /profile, etc.
  */
 export async function requireWorker(): Promise<SessionUser> {
   const user = await requireAuth();
-  if (user.role !== "VENDOR_WORKER" && user.role !== "INTERNAL_WORKER") {
+  if (
+    user.role !== "VENDOR_WORKER" &&
+    user.role !== "INTERNAL_WORKER" &&
+    user.role !== "VENDOR_OWNER"
+  ) {
     throw new Error("Forbidden: Worker access required");
   }
   return user;

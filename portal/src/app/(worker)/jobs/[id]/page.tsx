@@ -55,6 +55,24 @@ export default async function JobDetailPage({
     redirect("/jobs");
   }
 
+  // Only the assigned worker can complete the job (must have workerId)
+  if (!user.workerId) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-lg bg-white p-8 shadow">
+            <p className="text-gray-600">
+              This job is assigned to your organization. Only the assigned worker can complete the checklist. Please log in as that worker or assign the job to yourself from the admin panel.
+            </p>
+            <p className="mt-4 text-sm text-gray-500">
+              Job: {job.site.name} — {job.status}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const checklistTemplate = job.site.checklistTemplates[0];
   if (!checklistTemplate) {
     return (
@@ -74,7 +92,7 @@ export default async function JobDetailPage({
     <JobDetailClient
       job={job}
       checklistTemplate={checklistTemplate}
-      currentWorkerId={user.workerId!}
+      currentWorkerId={user.workerId}
       requiredPhotoCount={job.site.requiredPhotoCount}
     />
   );
