@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import StaggerContainer, { StaggerItem } from "@/components/animations/StaggerContainer";
 import PremiumTile from "@/components/marketing/PremiumTile";
 import ImageTreatment from "@/components/marketing/ImageTreatment";
+import ProcessFlow from "@/components/marketing/ProcessFlow";
+import { motionConfig } from "@/lib/animations";
 
 // Curated commercial building imagery (replace with your own)
 // Using Unsplash URLs for now - replace with your curated images
@@ -19,45 +22,64 @@ const IMAGES = {
 export default function HomePage() {
   return (
     <div>
-      {/* Hero — premium with real image */}
-      <section className="relative min-h-[70vh] border-b border-zinc-800">
-        <ImageTreatment src={IMAGES.hero} alt="Modern commercial building" priority className="absolute inset-0">
-          <div className="relative z-10 flex min-h-[70vh] flex-col items-center justify-center px-4 py-24 sm:px-6 lg:py-32">
-            <div className="mx-auto max-w-3xl text-center">
-              <ScrollReveal>
-                <h1 className="text-display font-bold tracking-tight text-white">
-                  Facilities services that scale with your properties
-                </h1>
-              </ScrollReveal>
-              <ScrollReveal delay={0.1}>
-                <p className="mt-6 text-lg text-zinc-300 sm:text-xl">
-                  BLVCKSHELL delivers consistent cleaning, light maintenance, and site
-                  management for condos and commercial buildings. Quality you can measure.
-                </p>
-              </ScrollReveal>
-              <ScrollReveal delay={0.2}>
-                <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-                  <Link
-                    href="/contact"
-                    className="rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-lg"
-                  >
-                    Request a walkthrough & quote
-                  </Link>
-                  <a
-                    href="tel:+15195550100"
-                    className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-center text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50 sm:hidden"
-                  >
-                    Call (519) 555-0100
-                  </a>
-                </div>
-              </ScrollReveal>
+      {/* Hero — Portfolio-Ready Facility Operations */}
+      <section className="relative min-h-[75vh] border-b border-zinc-800">
+        <ImageTreatment src={IMAGES.hero} alt="Premium commercial building lobby" priority className="absolute inset-0">
+          <div className="relative z-10 flex min-h-[75vh] flex-col items-center justify-center px-4 py-24 sm:px-6 lg:py-32">
+            <div className="mx-auto max-w-4xl text-center">
+              <motion.h1
+                initial={motionConfig.heroReveal.initial}
+                animate={motionConfig.heroReveal.animate}
+                transition={motionConfig.heroReveal.animate.transition}
+                className="text-display font-bold tracking-tight text-white text-balance"
+              >
+                Portfolio-Ready Facility Operations
+              </motion.h1>
+              <motion.p
+                initial={motionConfig.heroReveal.initial}
+                animate={motionConfig.heroReveal.animate}
+                transition={{ delay: 0.2, ...motionConfig.heroReveal.animate.transition }}
+                className="mt-4 text-lg font-medium text-zinc-300 sm:text-xl"
+              >
+                Standardized, Auditable, Professional
+              </motion.p>
+              <motion.p
+                initial={motionConfig.heroReveal.initial}
+                animate={motionConfig.heroReveal.animate}
+                transition={{ delay: 0.35, ...motionConfig.heroReveal.animate.transition }}
+                className="mt-6 text-base leading-relaxed text-zinc-400 sm:text-lg"
+              >
+                Checklists, photo verification, compliance tracking — built for property managers, condo boards, and commercial portfolios.
+              </motion.p>
+              <motion.div
+                initial={motionConfig.heroReveal.initial}
+                animate={motionConfig.heroReveal.animate}
+                transition={{ delay: 0.5, ...motionConfig.heroReveal.animate.transition }}
+                className="mt-10 flex flex-col justify-center gap-4 sm:flex-row"
+              >
+                <Link
+                  href="/contact"
+                  className="group rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
+                >
+                  Request a Portfolio Walkthrough
+                </Link>
+                <a
+                  href="tel:+15195550100"
+                  className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-center text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50 sm:hidden"
+                >
+                  Call (519) 555-0100
+                </a>
+              </motion.div>
             </div>
             {/* Subtle scroll indicator */}
-            <ScrollReveal delay={0.4}>
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-                <div className="h-8 w-px bg-zinc-600 animate-pulse" />
-              </div>
-            </ScrollReveal>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2"
+            >
+              <div className="h-8 w-px bg-zinc-600 animate-pulse" />
+            </motion.div>
           </div>
         </ImageTreatment>
       </section>
@@ -86,13 +108,56 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* 3 Core Pillars — Premium Tiles */}
+      {/* How We Operationalize Quality — Process Flow */}
+      <ScrollReveal>
+        <section className="border-b border-zinc-800 bg-zinc-950 px-4 py-20 sm:px-6 lg:py-24">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="text-headline font-semibold text-white">How We Operationalize Quality</h2>
+            <p className="mt-4 max-w-2xl text-zinc-400">
+              Not generic promises—a systematic flow. Every visit follows a documented process with accountability at every step.
+            </p>
+            <div className="mt-12">
+              <ProcessFlow
+                steps={[
+                  {
+                    icon: "📅",
+                    title: "Scheduled Visits",
+                    description: "Checklist enforced. Every job tied to site-specific scope and frequency. No guesswork.",
+                  },
+                  {
+                    icon: "📸",
+                    title: "Photo Evidence Captured",
+                    description: "Timestamped and labeled. Minimum evidence per area so you see what was done, when.",
+                  },
+                  {
+                    icon: "👁️",
+                    title: "Site Manager Review",
+                    description: "Approval required. You review completions, evidence, and checklists before sign-off.",
+                  },
+                  {
+                    icon: "⚡",
+                    title: "Issue & Escalation",
+                    description: "Automatic alerts for safety, damage, or scope gaps. Reported same day with documented response times.",
+                  },
+                  {
+                    icon: "📋",
+                    title: "Audit Trails",
+                    description: "Every change logged. Complete history of visits, approvals, issues, and resolutions. Board-ready reporting.",
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Services — Solution */}
       <section className="px-4 py-20 sm:px-6 lg:py-24">
         <div className="mx-auto max-w-6xl">
           <ScrollReveal>
-            <h2 className="text-headline font-semibold text-white">Services</h2>
+            <h2 className="text-headline font-semibold text-white">Our Services</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Cleaning, light maintenance, and site support tailored to your buildings and contracts.
+              Cleaning, light maintenance, and site support tailored to your buildings and contracts. Each service follows our standardized operational flow.
             </p>
           </ScrollReveal>
           <StaggerContainer className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -130,11 +195,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Proof of Operations */}
+      {/* Proof & Accountability — Visual Evidence */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-900/30 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-headline font-semibold text-white">Proof & accountability</h2>
+            <h2 className="text-headline font-semibold text-white">Proof & Accountability</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
               We don't just show up—we document. Every job is tied to clear standards and your review.
             </p>
@@ -148,18 +213,18 @@ export default function HomePage() {
                     { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit." },
                   ].map((item, i) => (
                     <StaggerItem key={i} index={i} className="flex gap-4">
-                      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                      <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: "var(--accent-secondary)" }} aria-hidden />
                       <p className="text-zinc-300">{item.text}</p>
                     </StaggerItem>
                   ))}
                 </StaggerContainer>
               </div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-800">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50">
                 <ImageTreatment src={IMAGES.evidence} alt="Portal evidence example" />
-                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/40">
-                  <div className="text-center text-zinc-400">
-                    <p className="text-sm font-medium">Portal evidence example</p>
-                    <p className="mt-1 text-xs">Replace with screenshot</p>
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50 backdrop-blur-sm">
+                  <div className="text-center text-zinc-300">
+                    <p className="text-sm font-medium">Portal Evidence Example</p>
+                    <p className="mt-1 text-xs text-zinc-500">Replace with real portal screenshot</p>
                   </div>
                 </div>
               </div>
@@ -168,11 +233,11 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* Who we serve */}
+      {/* Who we serve — Target Audience */}
       <ScrollReveal>
-        <section className="px-4 py-20 sm:px-6 lg:py-24">
+        <section className="border-y border-zinc-800 bg-zinc-950 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-headline font-semibold text-white">Who we serve</h2>
+            <h2 className="text-headline font-semibold text-white">Who We Serve</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
               Property managers, condo boards, and commercial building operators who need reliable, auditable facilities work. We launch in{" "}
               <strong className="text-white">Windsor–Essex</strong> and serve{" "}
@@ -191,11 +256,11 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* How it works */}
+      {/* How it works — Process Overview */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-900/30 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-headline font-semibold text-white">How it works</h2>
+            <h2 className="text-headline font-semibold text-white">How It Works</h2>
             <StaggerContainer className="mt-12 grid gap-8 sm:grid-cols-3">
               {[
                 { title: "Scope & quote", body: "We align on scope, checklists, and frequency. You get a clear quote and schedule." },
@@ -219,11 +284,11 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* Trust & Compliance */}
+      {/* Trust & Compliance — Credibility */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-900/30 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-headline font-semibold text-white">Trust & compliance</h2>
+            <h2 className="text-headline font-semibold text-white">Trust & Compliance</h2>
             <StaggerContainer className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 {
@@ -270,20 +335,31 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* CTA */}
+      {/* Final CTA — Portfolio Walkthrough */}
       <ScrollReveal>
-        <section className="px-4 py-24 sm:px-6 lg:py-32">
+        <section className="border-t border-zinc-800 bg-zinc-950 px-4 py-24 sm:px-6 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-headline font-semibold text-white">Ready to get started?</h2>
-            <p className="mt-4 text-lg text-zinc-400">
-              Request a quote or book a site walk. We'll respond within one business day.
+            <h2 className="text-headline font-semibold text-white">Ready to Get Started?</h2>
+            <p className="mt-4 text-lg leading-relaxed text-zinc-400">
+              Get a no-obligation site evaluation. See how we run your sites with a guided tour of our portal and process.
             </p>
-            <Link
-              href="/contact"
-              className="mt-10 inline-block rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-lg"
-            >
-              Contact us
-            </Link>
+            <p className="mt-2 text-sm text-zinc-500">
+              We'll respond within one business day.
+            </p>
+            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+              <Link
+                href="/contact"
+                className="group rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
+              >
+                Request a Portfolio Walkthrough
+              </Link>
+              <Link
+                href="/contact"
+                className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
+              >
+                Get a Site Evaluation
+              </Link>
+            </div>
           </div>
         </section>
       </ScrollReveal>

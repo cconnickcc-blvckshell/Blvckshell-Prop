@@ -5,14 +5,27 @@
  */
 
 export const motionConfig = {
-  // Page transitions
+  // Page transitions (200-280ms for premium feel)
   pageTransition: {
     initial: { opacity: 0, y: 8 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -4 },
     transition: {
-      duration: 0.2,
+      duration: 0.24, // 240ms - premium precision
       ease: [0.25, 0.1, 0.25, 1], // ease-in-out
+    },
+  },
+
+  // Hero headline reveal (slow opacity ramp)
+  heroReveal: {
+    initial: { opacity: 0, y: 20 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.25, 0.1, 0.25, 1],
+      },
     },
   },
 

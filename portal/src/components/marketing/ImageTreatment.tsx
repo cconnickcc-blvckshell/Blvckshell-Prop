@@ -30,11 +30,14 @@ export default function ImageTreatment({
         className="h-full w-full object-cover"
         loading={priority ? "eager" : "lazy"}
       />
-      {/* Color grading overlay (consistent across site) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/30 via-transparent to-zinc-950/40" />
+      {/* Color grading overlay (consistent warm neutral overlay) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/40 via-zinc-950/10 to-zinc-950/35" />
       
-      {/* Vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
+      {/* Warm tone overlay (subtle brand calibration) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-transparent" />
+      
+      {/* Vignette (focused attention) */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.5)_100%)]" />
       
       {/* Subtle grain texture */}
       <div

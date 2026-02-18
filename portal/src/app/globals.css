@@ -17,10 +17,15 @@
   --zinc-900: #18181b;
   --zinc-950: #09090b;
   
-  /* Accent colors (luxury warm gold) */
+  /* Accent colors (luxury warm gold - primary) */
   --accent: #d4af37;
   --accent-light: #e5c866;
   --accent-dark: #b8941f;
+  
+  /* Secondary accent (emerald for trust/verification) */
+  --accent-secondary: #10b981;
+  --accent-secondary-light: #34d399;
+  --accent-secondary-dark: #059669;
   
   /* Spacing scale (4px base) */
   --space-1: 0.25rem;  /* 4px */
@@ -72,6 +77,7 @@ html {
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.1;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   }
   
   .text-headline {
@@ -79,6 +85,24 @@ html {
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.2;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  
+  /* Accent color utilities */
+  .text-accent {
+    color: var(--accent);
+  }
+  
+  .text-accent-secondary {
+    color: var(--accent-secondary);
+  }
+  
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  
+  .border-accent {
+    border-color: var(--accent);
   }
   
   /* Image treatment utilities */
