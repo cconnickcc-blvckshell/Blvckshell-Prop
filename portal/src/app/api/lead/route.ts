@@ -21,12 +21,12 @@ export async function POST(request: Request) {
     await prisma.lead.create({
       data: {
         name: data.name,
-        company: data.company ?? null,
-        role: data.role ?? null,
         phone: data.phone ?? null,
         email: data.email,
+        buildingAddress: data.buildingAddress ?? null,
         propertyType: data.propertyType ?? null,
-        sitesCount: data.sitesCount ?? null,
+        frequency: data.frequency ?? null,
+        callbackTime: data.callbackTime ?? null,
         message: data.message ?? null,
         sourcePage: data.sourcePage ?? null,
         preferredContact: data.preferredContact ?? null,

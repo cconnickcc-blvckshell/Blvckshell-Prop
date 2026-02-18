@@ -458,19 +458,23 @@ model AuditLog {
 
 // Marketing lead capture (same DB; marketing app writes via API or shared client)
 model Lead {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
-  name         String
-  company      String?
-  role         String?
-  phone        String?
-  email        String
-  propertyType String?
-  sitesCount   Int?
-  message          String?
-  sourcePage       String?
-  preferredContact String?  // email | phone | either
-  honeypot         String?  // anti-spam; should be empty
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  name              String
+  phone             String?
+  email             String
+  buildingAddress   String?
+  propertyType      String?
+  frequency         String?  // e.g. "3x/week", "daily"
+  callbackTime      String?  // e.g. "Morning", "Afternoon", "Either"
+  message           String?
+  sourcePage        String?
+  preferredContact  String?  // email | phone | either
+  honeypot          String?  // anti-spam; should be empty
+  // Legacy fields (kept for backward compatibility)
+  company           String?
+  role              String?
+  sitesCount        Int?
 
   @@index([createdAt])
   @@index([email])

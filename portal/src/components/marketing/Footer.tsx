@@ -24,7 +24,7 @@ export default function MarketingFooter() {
             <Link href="/privacy" className="text-zinc-400 hover:text-white">
               Privacy
             </Link>
-            <Link href="/login" className="text-zinc-400 hover:text-white">
+            <Link href="/portal" className="text-zinc-400 hover:text-white">
               Portal / Log in
             </Link>
           </div>

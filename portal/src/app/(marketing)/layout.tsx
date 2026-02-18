@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import MarketingHeader from "@/components/marketing/Header";
 import MarketingFooter from "@/components/marketing/Footer";
+import MarketingLayoutClient from "@/components/marketing/MarketingLayoutClient";
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +23,9 @@ export default function MarketingLayout({
   return (
     <>
       <MarketingHeader />
-      <main className="min-h-screen flex-1 bg-zinc-950 text-white">{children}</main>
+      <MarketingLayoutClient>
+        <main className="min-h-screen flex-1 bg-zinc-950 text-white">{children}</main>
+      </MarketingLayoutClient>
       <MarketingFooter />
     </>
   );
