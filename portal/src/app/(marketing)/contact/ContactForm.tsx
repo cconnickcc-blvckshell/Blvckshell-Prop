@@ -1,10 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ContactForm() {
+export default function ContactForm({
+  requestType,
+  defaultMessage,
+}: {
+  requestType?: string;
+  defaultMessage?: string;
+} = {}) {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const sourcePage = requestType ? `/contact?request=${encodeURIComponent(requestType)}` : "/contact";
+
+  useEffect(() => {
+    if (defaultMessage && typeof document !== "undefined") {
+      const el = document.getElementById("message") as HTMLTextAreaElement | null;
+      if (el && !el.value) el.value = defaultMessage;
+    }
+  }, [defaultMessage]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,7 +47,7 @@ export default function ContactForm() {
         callbackTime: fd.get("callbackTime"),
         message: fd.get("message"),
         preferredContact: fd.get("preferredContact") || undefined,
-        sourcePage: "/contact",
+        sourcePage,
         website: fd.get("website") ?? "",
       }),
     });
@@ -66,7 +80,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="phone" className="block text-sm font-medium text-zinc-300">Phone</label>
-        <input type="tel" id="phone" name="phone" className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500" placeholder="(519) 555-0000" />
+        <input type="tel" id="phone" name="phone" className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500" placeholder="Your phone (optional)" />
       </div>
       <div>
         <label htmlFor="buildingAddress" className="block text-sm font-medium text-zinc-300">Building address</label>

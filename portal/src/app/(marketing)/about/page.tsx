@@ -23,15 +23,45 @@ export default function AboutPage() {
       <ScrollReveal delay={0.1}>
         <div className="mt-8 space-y-4 text-zinc-300">
           <p>
-            We provide facilities services for condos and commercial properties, with a focus on consistency, evidence, and ease of review for property managers. Our operations are structured to produce audit-ready documentation by default.
+            Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties—cleaning, turnovers, light maintenance—with consistency, evidence, and ease of review built in from day one. Our operations are structured to produce audit-ready documentation by default.
           </p>
           <p>
-            Our network includes internal crews and vetted subcontractors. All are onboarded with compliance documentation (COI, WSIB) and trained on your scope. Work is assigned, completed, and approved through our portal—one place for scheduling, evidence, and payouts.
+            <strong className="text-white">Operating region:</strong> We launch in Windsor–Essex and serve Ontario-wide. One consistent footprint—no geographic ambiguity on coverage, staffing, or response times.
           </p>
           <p>
-            We serve Windsor–Essex initially and work with property managers, condo boards, and commercial building operators. For custom scope or multi-site programs, get in touch.
+            Our network includes internal crews and vetted subcontractors. All are onboarded with compliance documentation (COI, WSIB) and trained on your scope. Work is assigned, completed, and approved through our portal—one place for scheduling, evidence, and payouts. Accountability remains with Blvckshell; we don’t subcontract anonymously.
+          </p>
+          <p>
+            For custom scope or multi-site programs, get in touch.
           </p>
         </div>
+      </ScrollReveal>
+
+      <ScrollReveal delay={0.15}>
+        <section className="mt-10">
+          <h2 className="text-headline font-semibold text-white">What We Don’t Do</h2>
+          <p className="mt-4 text-zinc-400">
+            Clear boundaries reduce disputes and set expectations.
+          </p>
+          <ul className="mt-4 space-y-2 text-zinc-300">
+            <li className="flex gap-3">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-500" aria-hidden />
+              We do not bill hourly for cleaning—scope and cadence are agreed, then flat or per-visit pricing.
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-500" aria-hidden />
+              We do not subcontract anonymously—everyone is vetted, documented, and accountable through us.
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-500" aria-hidden />
+              We do not clean without documentation—every visit is checklist- and evidence-based.
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-500" aria-hidden />
+              We do not change scope mid-contract without written confirmation.
+            </li>
+          </ul>
+        </section>
       </ScrollReveal>
 
       <ScrollReveal delay={0.2}>

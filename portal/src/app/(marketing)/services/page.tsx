@@ -73,7 +73,7 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <p className="mt-4 text-sm text-zinc-500">Typical cadence: {cadence}</p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link
                   href={href}
                   className="inline-block text-sm font-semibold text-white underline decoration-zinc-600 underline-offset-2 transition-colors hover:decoration-white"
@@ -84,7 +84,13 @@ export default function ServicesPage() {
                   href="/contact"
                   className="inline-block text-sm font-semibold text-emerald-400 underline decoration-emerald-500/40 underline-offset-2 transition-colors hover:text-emerald-300 hover:decoration-emerald-400"
                 >
-                  Schedule a walkthrough
+                  Request a site evaluation
+                </Link>
+                <Link
+                  href="/contact?request=sample-report"
+                  className="inline-block text-sm font-semibold text-zinc-400 underline decoration-zinc-600 underline-offset-2 transition-colors hover:text-zinc-300"
+                >
+                  See a sample report
                 </Link>
               </div>
             </div>

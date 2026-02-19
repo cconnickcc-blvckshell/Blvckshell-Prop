@@ -15,6 +15,9 @@ export default function MarketingFooter() {
             <Link href="/services" className="text-zinc-400 hover:text-white">
               Services
             </Link>
+            <Link href="/compliance" className="text-zinc-400 hover:text-white">
+              Compliance
+            </Link>
             <Link href="/about" className="text-zinc-400 hover:text-white">
               About
             </Link>

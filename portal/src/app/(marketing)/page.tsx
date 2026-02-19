@@ -71,14 +71,14 @@ export default function HomePage() {
                   href="/contact"
                   className="group rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
                 >
-                  Request a Portfolio Walkthrough
+                  Request a site evaluation
                 </Link>
-                <a
-                  href="tel:+15195550100"
+                <Link
+                  href="/contact"
                   className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-center text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50 sm:hidden"
                 >
-                  Call (519) 555-0100
-                </a>
+                  Get in touch
+                </Link>
               </motion.div>
             </div>
             {/* Subtle scroll indicator */}
@@ -239,13 +239,20 @@ export default function HomePage() {
                   ))}
                 </StaggerContainer>
               </div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50">
-                <ImageTreatment src={IMAGES.evidence} alt="Portal evidence example" />
-                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50 backdrop-blur-sm">
-                  <div className="text-center text-zinc-300">
-                    <p className="text-sm font-medium">Portal Evidence Example</p>
-                    <p className="mt-1 text-xs text-zinc-500">Replace with real portal screenshot</p>
-                  </div>
+              <div className="space-y-4">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50">
+                  <ImageTreatment src={IMAGES.evidence} alt="Documented visit example — timestamped evidence and checklist sign-off" />
+                </div>
+                <p className="text-center text-sm text-zinc-500">
+                  Every visit produces timestamped evidence and checklist sign-off. Request a sample report below.
+                </p>
+                <div className="flex justify-center">
+                  <Link
+                    href="/contact?request=sample-report"
+                    className="rounded-lg border border-zinc-600 bg-zinc-800/50 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:bg-zinc-800"
+                  >
+                    Request a sample report
+                  </Link>
                 </div>
               </div>
             </div>
@@ -371,13 +378,13 @@ export default function HomePage() {
                 href="/contact"
                 className="group rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
               >
-                Request a Portfolio Walkthrough
+                Request a site evaluation
               </Link>
               <Link
-                href="/contact"
+                href="/contact?request=sample-report"
                 className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
               >
-                Get a Site Evaluation
+                See a sample report
               </Link>
             </div>
           </div>

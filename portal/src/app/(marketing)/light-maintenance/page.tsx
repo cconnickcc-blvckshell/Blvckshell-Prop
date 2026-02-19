@@ -145,16 +145,22 @@ export default function LightMaintenancePage() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.6}>
-          <div className="mt-12 flex flex-col gap-4 sm:flex-row">
+          <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <Link
               href="/contact"
               className="inline-flex justify-center rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-lg"
             >
-              Request a quote
+              Request a site evaluation
+            </Link>
+            <Link
+              href="/contact?request=sample-report"
+              className="inline-flex justify-center rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
+            >
+              See a sample report
             </Link>
             <Link
               href="/services"
-              className="inline-flex justify-center rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
+              className="inline-flex justify-center rounded-lg border border-zinc-600 px-8 py-3.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800/50"
             >
               ← Back to services
             </Link>

@@ -37,8 +37,8 @@ export default function LoginForm() {
         return;
       }
 
-      // Redirect based on role (handled by middleware or server component)
-      router.push("/jobs");
+      // Single navigation: /portal will redirect by role on the server (avoids redirect loops)
+      router.push("/portal");
       router.refresh();
     } catch (err) {
       setError("An error occurred. Please try again.");
