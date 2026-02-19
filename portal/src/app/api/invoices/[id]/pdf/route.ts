@@ -92,8 +92,9 @@ export async function GET(
   doc.text("Subtotal:", colUnit, y);
   doc.text(`$${(invoice.subtotalCents / 100).toFixed(2)}`, colAmount, y);
   y += rowHeight;
+  // D2: Ontario HST 13%
   if (invoice.taxCents > 0) {
-    doc.text("Tax:", colUnit, y);
+    doc.text("HST (13%):", colUnit, y);
     doc.text(`$${(invoice.taxCents / 100).toFixed(2)}`, colAmount, y);
     y += rowHeight;
   }

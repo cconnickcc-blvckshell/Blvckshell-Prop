@@ -30,6 +30,9 @@ export default function WorkerNav({ userName, role }: WorkerNavProps) {
                 <Link href="/vendor/jobs" className="text-sm font-medium text-gray-700 hover:text-gray-900">
                   Vendor Jobs
                 </Link>
+                <Link href="/vendor/earnings" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Payout Totals
+                </Link>
               </>
             )}
             <Link href="/earnings" className="text-sm font-medium text-gray-700 hover:text-gray-900">

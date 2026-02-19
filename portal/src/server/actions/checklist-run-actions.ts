@@ -48,10 +48,24 @@ export async function createOrGetChecklistRun(jobId: string) {
     return { success: false, error: "Job not in editable state", run: null, runItems: {} };
   }
 
-  const template = job.site.checklistTemplates[0];
-  if (!template) return { success: false, error: "No checklist template for site", run: null, runItems: {} };
+  const templates = job.site.checklistTemplates;
+  if (!templates || templates.length === 0) {
+    return { success: false, error: "No checklist templates for site", run: null, runItems: {} };
+  }
 
-  const templateItems = (template.items as Array<{ itemId: string; label: string; required?: boolean }>) || [];
+  // Merge all active templates into one combined list
+  // Prefix itemId with template checklistId to avoid collisions
+  const templateItems: Array<{ itemId: string; label: string; required?: boolean; photoRequired?: boolean; photoPointLabel?: string; failConditionText?: string }> = [];
+  for (const template of templates) {
+    const items = (template.items as Array<{ itemId: string; label: string; required?: boolean; photoRequired?: boolean; photoPointLabel?: string; failConditionText?: string }>) || [];
+    const prefix = template.checklistId ? `${template.checklistId}_` : '';
+    for (const item of items) {
+      templateItems.push({
+        ...item,
+        itemId: `${prefix}${item.itemId}`,
+      });
+    }
+  }
 
   // Use existing in-progress run if any
   const existingRun = job.checklistRuns[0];
@@ -77,12 +91,15 @@ export async function createOrGetChecklistRun(jobId: string) {
   }
 
   // Create new run and ensure JobCompletion exists for evidence
+  // Use the first template's ID for the run (items are merged from all templates)
+  const primaryTemplate = templates[0];
+  
   const run = await prisma.$transaction(async (tx) => {
     const newRun = await tx.checklistRun.create({
       data: {
         jobId,
-        checklistTemplateId: template.id,
-        templateVersion: template.version,
+        checklistTemplateId: primaryTemplate.id,
+        templateVersion: primaryTemplate.version,
         status: "InProgress",
         completedByWorkerId: user.workerId!,
       },

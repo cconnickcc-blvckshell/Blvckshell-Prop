@@ -17,8 +17,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         include: {
           checklistTemplates: {
             where: { isActive: true },
-            orderBy: { version: "desc" },
-            take: 1,
+            orderBy: { createdAt: "desc" },
           },
         },
       },
@@ -67,7 +66,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <ChecklistManager
                 siteId={site.id}
                 siteName={site.name}
-                currentTemplate={site.checklistTemplates[0] || null}
+                currentTemplates={site.checklistTemplates}
               />
             </div>
           ))}

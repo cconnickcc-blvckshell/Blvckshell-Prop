@@ -43,16 +43,20 @@ export async function assignChecklistTemplate(formData: FormData) {
     return { error: `Failed to parse checklist ${checklistId}.` };
   }
   
-  // Deactivate any existing active template for this site
-  await prisma.checklistTemplate.updateMany({
-    where: { siteId, isActive: true },
-    data: { isActive: false },
+  // Check if this checklistId is already assigned to this site
+  const existing = await prisma.checklistTemplate.findFirst({
+    where: { siteId, checklistId, isActive: true },
   });
   
-  // Create new active template
+  if (existing) {
+    return { error: `Checklist template ${checklistId} is already assigned to this site.` };
+  }
+  
+  // Create new active template (allow multiple templates per site)
   await prisma.checklistTemplate.create({
     data: {
       siteId,
+      checklistId,
       version: 1,
       isActive: true,
       items: parsed.items as any, // Prisma JSON type

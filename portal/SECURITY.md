@@ -41,6 +41,7 @@ All sensitive routes and server actions enforce role checks. **Never trust the c
 - **Validation:** Zod schemas for all user-supplied inputs (forms, API bodies). Fail fast with clear messages.
 - **File uploads:** Max 10 MB per file; types: jpg, jpeg, png, webp (DECISIONS #8). Stored in Supabase Storage via server-only code.
 - **Max photos per job:** Cap = 20 per job (evidence for that job’s completion). Enforced in UI (disable add when at 20) and on the server (reject upload/submit if over cap). Value is configurable in one place; see DECISIONS §3.4.
+- **Evidence and redaction:** Evidence is captured via in-app camera with mandatory manual redaction. The system enforces the capture path (no file picker; server rejects uploads unless `redactionApplied === true`) but **does not cryptographically verify** pixel modification. See RELEASE_POLICY_APPENDIX.md for release stance and enhancement path.
 
 ---
 

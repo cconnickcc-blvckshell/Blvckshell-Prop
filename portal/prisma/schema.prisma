@@ -345,18 +345,20 @@ model AccessCredential {
 }
 
 model ChecklistTemplate {
-  id        String   @id @default(cuid())
-  siteId    String
-  version   Int      @default(1)
-  isActive  Boolean  @default(true)
-  items     Json     // Array of { itemId, label, required?, photoRequired?, failConditionText? }
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  siteId       String
+  checklistId  String?  // e.g., "CL_01", "CL_02" - identifies which template from markdown
+  version      Int      @default(1)
+  isActive     Boolean  @default(true)
+  items        Json     // Array of { itemId, label, required?, photoRequired?, failConditionText? }
+  createdAt    DateTime @default(now())
 
-  site      Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  site         Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
   checklistRuns ChecklistRun[]
 
   @@index([siteId])
   @@index([isActive])
+  @@index([checklistId])
 }
 
 model ChecklistRun {

@@ -49,7 +49,7 @@ async function getNextInvoiceNumber(clientId: string): Promise<string> {
   return `${prefix}-${seq}`;
 }
 
-/** Create a draft invoice for client + period (no line items yet) */
+/** Create a draft invoice for client + period. Auto-adds monthly base from active contracts per D1. */
 export async function createDraftInvoice(
   clientId: string,
   periodStart: Date,
@@ -81,6 +81,10 @@ export async function createDraftInvoice(
       createdById: user.id,
     },
   });
+
+  // D1: Auto-add monthly base from active contracts
+  await addContractBaseToInvoice(invoice.id);
+
   revalidatePath("/admin/invoices");
   revalidatePath("/admin/clients");
   return { success: true, error: null, invoiceId: invoice.id };
@@ -265,9 +269,9 @@ export async function addContractBaseToInvoice(invoiceId: string) {
   return { success: true, error: null, added };
 }
 
-/** Recompute subtotal/tax/total from line items and adjustments */
+/** Recompute subtotal/tax/total from line items and adjustments. D2: Ontario HST 13% */
 async function recomputeInvoiceTotals(invoiceId: string) {
-  const [lines, adjustments] = await Promise.all([
+  const [lines, adjustments, invoice] = await Promise.all([
     prisma.invoiceLineItem.aggregate({
       where: { invoiceId },
       _sum: { amountCents: true },
@@ -275,6 +279,10 @@ async function recomputeInvoiceTotals(invoiceId: string) {
     prisma.billingAdjustment.findMany({
       where: { invoiceId, status: { in: ["Approved", "Applied"] } },
       select: { type: true, amountCents: true },
+    }),
+    prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      select: { taxRate: true },
     }),
   ]);
   const linesTotal = lines._sum.amountCents ?? 0;
@@ -284,7 +292,9 @@ async function recomputeInvoiceTotals(invoiceId: string) {
     else adjustmentsTotal -= a.amountCents; // Discount, Credit
   }
   const subtotalCents = linesTotal + adjustmentsTotal;
-  const taxCents = 0; // TODO: configurable tax rate
+  // D2: Ontario HST 13% (0.13) - hardcoded for v1
+  const taxRate = 0.13;
+  const taxCents = Math.round(subtotalCents * taxRate);
   const totalCents = subtotalCents + taxCents;
   await prisma.invoice.update({
     where: { id: invoiceId },

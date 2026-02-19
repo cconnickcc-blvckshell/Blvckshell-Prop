@@ -38,10 +38,9 @@ The **interactive checklist and billing spine** work is **substantially complete
 
 ## Gaps and deferred work
 
-1. **Phase 3 (camera + redaction)**  
-   - Required for “no unredacted originals stored” and in-app capture.  
-   - Needs: getUserMedia, in-browser detection (e.g. MediaPipe), canvas redaction, upload of redacted blob only, server-side rejection of non-redacted uploads.  
-   - **Recommendation:** Schedule as a focused sprint; consider manual-redact-only MVP if detection is deferred.
+1. **Phase 3 — optional future work**  
+   - **Shipped:** In-app camera (getUserMedia), manual redaction (draw rects or “No sensitive content”), upload of redacted blob only; API and server action reject uploads without `redactionApplied=true`.  
+   - **Optional later:** In-browser auto-detect (e.g. MediaPipe) for face/person blur; today enforcement is client-declared (server trusts redactionApplied flag).
 
 2. **Phase 8 (TimeEntry + payroll)**  
    - For hourly employees and payroll provider export.  
