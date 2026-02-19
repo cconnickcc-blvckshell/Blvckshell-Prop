@@ -271,7 +271,7 @@ export async function addContractBaseToInvoice(invoiceId: string) {
 
 /** Recompute subtotal/tax/total from line items and adjustments. D2: Ontario HST 13% */
 async function recomputeInvoiceTotals(invoiceId: string) {
-  const [lines, adjustments, invoice] = await Promise.all([
+  const [lines, adjustments] = await Promise.all([
     prisma.invoiceLineItem.aggregate({
       where: { invoiceId },
       _sum: { amountCents: true },
@@ -279,10 +279,6 @@ async function recomputeInvoiceTotals(invoiceId: string) {
     prisma.billingAdjustment.findMany({
       where: { invoiceId, status: { in: ["Approved", "Applied"] } },
       select: { type: true, amountCents: true },
-    }),
-    prisma.invoice.findUnique({
-      where: { id: invoiceId },
-      select: { taxRate: true },
     }),
   ]);
   const linesTotal = lines._sum.amountCents ?? 0;
