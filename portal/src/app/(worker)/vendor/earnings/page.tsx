@@ -29,12 +29,6 @@ export default async function VendorEarningsPage() {
           status: true,
         },
       },
-      job: {
-        select: {
-          id: true,
-          status: true,
-        },
-      },
     },
     orderBy: {
       payoutBatch: {
@@ -42,6 +36,14 @@ export default async function VendorEarningsPage() {
       },
     },
   });
+
+  // Get job statuses separately (PayoutLine doesn't have job relation)
+  const jobIds = payoutLines.map(line => line.jobId).filter((id): id is string => id != null);
+  const jobs = jobIds.length > 0 ? await prisma.job.findMany({
+    where: { id: { in: jobIds } },
+    select: { id: true, status: true },
+  }) : [];
+  const jobStatusMap = new Map(jobs.map(j => [j.id, j.status]));
 
   // Group by payout batch period
   const byPeriod = new Map<
@@ -65,7 +67,8 @@ export default async function VendorEarningsPage() {
     const key = batch.id;
     const existing = byPeriod.get(key);
     const amount = line.amountCents;
-    const isPaid = batch.status === "PAID" || line.job?.status === "PAID";
+    const jobStatus = line.jobId ? jobStatusMap.get(line.jobId) : null;
+    const isPaid = batch.status === "PAID" || jobStatus === "PAID";
 
     if (existing) {
       existing.totalCents += amount;

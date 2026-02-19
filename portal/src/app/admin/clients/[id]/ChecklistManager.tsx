@@ -7,7 +7,7 @@ import { getAvailableChecklistTemplates } from "@/lib/checklist-parser";
 
 interface ChecklistTemplate {
   id: string;
-  checklistId?: string;
+  checklistId: string | null;
   version: number;
   isActive: boolean;
   items: any; // Prisma JsonValue type
@@ -33,7 +33,7 @@ export default function ChecklistManager({
   const availableTemplates = getAvailableChecklistTemplates();
   
   // Filter out already assigned templates
-  const assignedIds = new Set(currentTemplates.map(t => t.checklistId).filter(Boolean));
+  const assignedIds = new Set(currentTemplates.map(t => t.checklistId).filter((id): id is string => id != null));
   const availableToAssign = availableTemplates.filter(t => !assignedIds.has(t.id));
 
   const handleAssign = async () => {

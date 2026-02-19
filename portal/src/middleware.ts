@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { getToken } from "next-auth/jwt";
 
 /**
  * Middleware: Route protection + rate limiting
  * Defense-in-depth: Even if a layout/route is misconfigured, middleware blocks unauthorized access.
+ * Uses Edge-compatible JWT token check instead of auth() to avoid bcryptjs dependency.
  */
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -40,12 +41,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protected routes: require authentication
-  const session = await auth();
+  // Protected routes: require authentication (Edge-compatible JWT check)
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
 
   // Admin routes: require ADMIN role
   if (pathname.startsWith("/admin")) {
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!token || token.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/login", request.url));
     }
     return NextResponse.next();
@@ -58,10 +59,10 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/earnings") ||
     pathname.startsWith("/vendor")
   ) {
-    if (!session?.user) {
+    if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    const role = session.user.role;
+    const role = token.role as string;
     if (
       role !== "VENDOR_WORKER" &&
       role !== "INTERNAL_WORKER" &&
@@ -74,10 +75,10 @@ export async function middleware(request: NextRequest) {
 
   // Portal entry: redirect by role
   if (pathname === "/portal") {
-    if (!session?.user) {
+    if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    const role = session.user.role;
+    const role = token.role as string;
     if (role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
