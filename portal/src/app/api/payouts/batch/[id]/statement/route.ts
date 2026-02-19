@@ -98,7 +98,7 @@ export async function GET(
   const buffer = await done;
 
   const filename = `pay-statement-${batchId.slice(-6)}-${payeeName.replace(/\W/g, "-")}.pdf`;
-  return new NextResponse(buffer, {
+  return new NextResponse(buffer as any, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${filename}"`,
