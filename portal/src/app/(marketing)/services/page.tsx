@@ -52,7 +52,7 @@ export default function ServicesPage() {
       <ScrollReveal>
         <h1 className="text-headline font-bold text-white">Services</h1>
         <p className="mt-4 text-lg text-zinc-400">
-          We deliver cleaning and light maintenance with clear scope, checklists, and evidence so you can review and approve with confidence.
+          Cleaning, unit turnovers, light maintenance, and facilities support. Each service is structured with checklists, evidence, and accountability built in from day one.
         </p>
       </ScrollReveal>
       <StaggerContainer className="mt-12 space-y-8">
@@ -92,7 +92,22 @@ export default function ServicesPage() {
         ))}
       </StaggerContainer>
       <ScrollReveal delay={0.3}>
-        <p className="mt-12 text-zinc-500">
+        <div className="mt-12 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-6">
+          <h3 className="text-lg font-semibold text-white">Starting with a Pilot?</h3>
+          <p className="mt-2 text-sm text-zinc-400">
+            We offer controlled, scope-locked pilot programs designed to prove value without long-term commitment. Each pilot is time-bound and naturally converts to ongoing service.
+          </p>
+          <Link
+            href="/pilots"
+            className="mt-4 inline-block text-sm font-semibold text-emerald-400 underline decoration-emerald-500/40 underline-offset-2 transition-colors hover:text-emerald-300 hover:decoration-emerald-400"
+          >
+            View pilot programs →
+          </Link>
+        </div>
+      </ScrollReveal>
+      
+      <ScrollReveal delay={0.4}>
+        <p className="mt-8 text-zinc-500">
           Need a custom scope or multi-site program?{" "}
           <Link href="/contact" className="font-medium text-white underline decoration-zinc-600 underline-offset-2 hover:decoration-white">
             Contact us

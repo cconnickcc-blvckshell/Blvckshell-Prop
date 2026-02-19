@@ -3,23 +3,24 @@
 import Link from "next/link";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import ImageTreatment from "@/components/marketing/ImageTreatment";
+import StaggerContainer, { StaggerItem } from "@/components/animations/StaggerContainer";
 
 const IMAGE = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80";
 
 export default function CondoCleaningPage() {
   return (
     <div className="min-h-screen">
-      {/* Hero with premium image treatment */}
+      {/* Hero */}
       <section className="relative min-h-[50vh] border-b border-zinc-800">
         <ImageTreatment src={IMAGE} alt="Luxury condo lobby" priority className="absolute inset-0">
           <div className="relative z-10 flex min-h-[50vh] flex-col justify-end px-4 py-16 sm:px-6 sm:py-24">
             <div className="mx-auto w-full max-w-4xl">
               <ScrollReveal>
-                <h1 className="text-headline font-bold tracking-tight text-white">Condo cleaning</h1>
+                <h1 className="text-headline font-bold tracking-tight text-white">Condo Cleaning</h1>
               </ScrollReveal>
               <ScrollReveal delay={0.1}>
                 <p className="mt-4 max-w-2xl text-lg text-zinc-300">
-                  Common areas, lobbies, washrooms, and shared spaces. Site-specific checklists and evidence so you know exactly what's done and when.
+                  Common areas, lobbies, washrooms, and shared spaces. Site-specific checklists and evidence designed into every visit from day one.
                 </p>
               </ScrollReveal>
             </div>
@@ -27,66 +28,77 @@ export default function CondoCleaningPage() {
         </ImageTreatment>
       </section>
 
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
         <ScrollReveal>
-          <h2 className="text-headline font-semibold text-white">What's included</h2>
-          <ul className="mt-6 space-y-3 text-zinc-300">
-            <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Lobby and entrance (floor, glass, desk, bins)
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Hallways and stairwells (sweep, mop, baseboards)
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Elevators (floor, panel, walls)
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Common washrooms (toilets, sinks, mirrors, sanitize)
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Garbage rooms (floor, bins, deodorize)
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Site-specific checklist per job; photo evidence in the portal
-            </li>
-          </ul>
+          <h2 className="text-headline font-semibold text-white">Common Areas</h2>
+          <p className="mt-4 text-zinc-400">
+            Lobbies, hallways, stairwells, elevators, mail rooms, garbage rooms, shared washrooms, and amenity spaces.
+          </p>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <h2 className="mt-12 text-headline font-semibold text-white">What's excluded</h2>
-          <p className="mt-4 text-zinc-400">
-            We do not enter resident units. Deep carpet cleaning, hazmat, and window exteriors are add-ons or separate scope. We'll confirm exclusions at site walk.
-          </p>
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold text-white">What's Included</h3>
+            <StaggerContainer className="mt-4 space-y-3">
+              {[
+                "Lobbies and vestibules (floor, glass, desk, bins)",
+                "Hallways and corridors (sweep, mop, baseboards)",
+                "Stairwells and landings (sweep, mop, railings)",
+                "Elevators (interiors, floors, buttons, rails)",
+                "Mail rooms and parcel areas",
+                "Garbage rooms and recycling areas (floor, bins, deodorize)",
+                "Shared washrooms (toilets, sinks, mirrors, sanitize)",
+                "Amenity spaces (gyms, lounges, party rooms)",
+              ].map((item, i) => (
+                <StaggerItem key={i} index={i}>
+                  <div className="flex gap-3">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                    <span className="text-zinc-300">{item}</span>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <h2 className="mt-12 text-headline font-semibold text-white">Frequency</h2>
-          <p className="mt-4 text-zinc-400">
-            Set per contract: e.g. 2x, 3x, or 5x per week. Service window and days agreed at quote. Flat monthly fee—no hourly billing.
-          </p>
+          <div className="mt-12">
+            <h3 className="text-lg font-semibold text-white">Cleaning Activities</h3>
+            <ul className="mt-4 space-y-2 text-zinc-400">
+              <li className="flex gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                Surface cleaning and sanitization
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                Floor care (vacuuming, mopping, spot treatment)
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                Glass and mirror cleaning (ground-level only)
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                Trash and recycling handling
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                Odor control and deodorization
+              </li>
+            </ul>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.3}>
-          <h2 className="mt-12 text-headline font-semibold text-white">Add-ons</h2>
-          <p className="mt-4 text-zinc-400">
-            Seasonal deep clean, extra hallway passes, glass door spot cleans, and one-off work orders. Priced per site or per visit—ask in your quote request.
-          </p>
+          <div className="mt-12 rounded-lg border border-zinc-800 bg-zinc-900/30 p-6">
+            <h3 className="text-lg font-semibold text-white">How It Works</h3>
+            <p className="mt-4 text-sm text-zinc-400">
+              Every visit follows a site-specific checklist designed from day one. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee—no hourly billing.
+            </p>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.4}>
-          <h2 className="mt-12 text-headline font-semibold text-white">How quoting works</h2>
-          <p className="mt-4 text-zinc-400">
-            We align on scope (areas, checklist, frequency), do a site walk if helpful, then send a clear quote and schedule. Once approved, work starts and you review completions in the portal.
-          </p>
-        </ScrollReveal>
-
-        <ScrollReveal delay={0.5}>
           <div className="mt-12 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/contact"

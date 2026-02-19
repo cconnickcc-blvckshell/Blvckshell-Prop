@@ -33,7 +33,7 @@ export default function HomePage() {
                 transition={motionConfig.heroReveal.animate.transition}
                 className="text-display font-bold tracking-tight text-white text-balance"
               >
-                Portfolio-Ready Facility Operations
+                Facilities Services Built Deliberately
               </motion.h1>
               <motion.p
                 initial={motionConfig.heroReveal.initial}
@@ -41,7 +41,7 @@ export default function HomePage() {
                 transition={{ delay: 0.2, ...motionConfig.heroReveal.animate.transition }}
                 className="mt-4 text-lg font-medium text-zinc-300 sm:text-xl"
               >
-                Standardized, Auditable, Professional
+                Structured, Accountable, Prepared from Day One
               </motion.p>
               <motion.p
                 initial={motionConfig.heroReveal.initial}
@@ -49,8 +49,18 @@ export default function HomePage() {
                 transition={{ delay: 0.35, ...motionConfig.heroReveal.animate.transition }}
                 className="mt-6 text-base leading-relaxed text-zinc-400 sm:text-lg"
               >
-                Checklists, photo verification, compliance tracking — built for property managers, condo boards, and commercial portfolios.
+                Checklists, photo verification, and compliance tracking designed into our operations from the start. Built for property managers who value structure over scale.
               </motion.p>
+              <motion.div
+                initial={motionConfig.heroReveal.initial}
+                animate={motionConfig.heroReveal.animate}
+                transition={{ delay: 0.45, ...motionConfig.heroReveal.animate.transition }}
+                className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 max-w-2xl"
+              >
+                <p className="text-sm text-emerald-300">
+                  <strong>New operator, built deliberately.</strong> We're starting small, onboarding carefully, and prioritizing repeatable quality over rapid growth. Our systems are designed to prevent problems before they happen.
+                </p>
+              </motion.div>
               <motion.div
                 initial={motionConfig.heroReveal.initial}
                 animate={motionConfig.heroReveal.animate}
@@ -114,7 +124,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-4xl">
             <h2 className="text-headline font-semibold text-white">How We Operationalize Quality</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Not generic promises—a systematic flow. Every visit follows a documented process with accountability at every step.
+              Not generic promises—a systematic flow designed from day one. Every visit is structured to follow a documented process with accountability at every step.
             </p>
             <div className="mt-12">
               <ProcessFlow
@@ -157,7 +167,7 @@ export default function HomePage() {
           <ScrollReveal>
             <h2 className="text-headline font-semibold text-white">Our Services</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Cleaning, light maintenance, and site support tailored to your buildings and contracts. Each service follows our standardized operational flow.
+              Cleaning, unit turnovers, light maintenance, and facilities support. Each service is structured with checklists, evidence, and accountability built in from day one.
             </p>
           </ScrollReveal>
           <StaggerContainer className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -186,12 +196,22 @@ export default function HomePage() {
                 href="/light-maintenance"
                 image={IMAGES.maintenance}
                 title="Light maintenance"
-                description="Minor repairs, bulb replacement, and site support."
+                description="Minor repairs, paint touch-ups, caulking, and site support."
                 label="Reporting"
                 imageAlt="Professional facility maintenance"
               />
             </StaggerItem>
           </StaggerContainer>
+          <ScrollReveal delay={0.2}>
+            <div className="mt-12 text-center">
+              <Link
+                href="/pilots"
+                className="inline-block rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-6 py-3 text-sm font-semibold text-emerald-300 transition-all hover:bg-emerald-500/20"
+              >
+                View Pilot Programs →
+              </Link>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -201,16 +221,16 @@ export default function HomePage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-headline font-semibold text-white">Proof & Accountability</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              We don't just show up—we document. Every job is tied to clear standards and your review.
+              Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review—this isn't added later, it's built in from the start.
             </p>
             <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-16">
               <div>
                 <StaggerContainer className="space-y-6">
                   {[
-                    { icon: "✓", text: "Site-specific checklists so scope is clear and nothing is missed." },
-                    { icon: "📸", text: "Photo evidence minimums per area so you see what was done." },
-                    { icon: "⚡", text: "Issue escalation SLA: safety and damage reported same day." },
-                    { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit." },
+                    { icon: "✓", text: "Site-specific checklists designed from day one so scope is clear and nothing is missed." },
+                    { icon: "📸", text: "Photo evidence minimums per area—structured to show what was done, not added as an afterthought." },
+                    { icon: "⚡", text: "Issue escalation logic: safety and damage reported same day with documented response times." },
+                    { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit—accountability designed in, not reactive." },
                   ].map((item, i) => (
                     <StaggerItem key={i} index={i} className="flex gap-4">
                       <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: "var(--accent-secondary)" }} aria-hidden />
