@@ -5,13 +5,13 @@ import MarketingLayoutClient from "@/components/marketing/MarketingLayoutClient"
 
 export const metadata: Metadata = {
   title: {
-    default: "BLVCKSHELL — Facilities Services",
+    default: "BLVCKSHELL - Facilities Services",
     template: "%s | BLVCKSHELL",
   },
   description:
     "Professional facilities services for condos and commercial properties. Cleaning, light maintenance, and site management.",
   openGraph: {
-    title: "BLVCKSHELL — Facilities Services",
+    title: "BLVCKSHELL - Facilities Services",
     description: "Professional facilities services for condos and commercial properties.",
     type: "website",
   },

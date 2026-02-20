@@ -14,7 +14,7 @@ export default function CompliancePage() {
       <ScrollReveal>
         <h1 className="text-headline font-bold text-white">Compliance & Risk</h1>
         <p className="mt-4 text-lg text-zinc-400">
-          How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor–Essex launch, Ontario-wide service. Our documentation exists to protect you during audits, disputes, and board review.
+          How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor-Essex launch, Ontario-wide coverage as we expand. Our documentation exists to protect you during audits, disputes, and board review.
         </p>
       </ScrollReveal>
 
@@ -24,15 +24,15 @@ export default function CompliancePage() {
           <ul className="mt-4 space-y-2 text-zinc-300">
             <li className="flex gap-3">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              <strong>COI (Certificate of Insurance)</strong> — On file and available upon request. We maintain current commercial general liability and relevant coverage for our operations.
+              <strong>COI (Certificate of Insurance)</strong> - On file and available upon request. We maintain current commercial general liability and relevant coverage for our operations.
             </li>
             <li className="flex gap-3">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              <strong>WSIB</strong> — Coverage in place for our workforce. Proof available upon request.
+              <strong>WSIB</strong> - Coverage in place for our workforce. Proof available upon request.
             </li>
             <li className="flex gap-3">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              <strong>HST registered</strong> — Invoices and compliance documentation are issued accordingly.
+              <strong>HST registered</strong> - Invoices and compliance documentation are issued accordingly.
             </li>
           </ul>
         </section>
@@ -71,7 +71,7 @@ export default function CompliancePage() {
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
               <h3 className="font-semibold text-white">Missed visit</h3>
               <p className="mt-2 text-sm text-zinc-400">
-                We have a make-good policy: we return to complete the service or you receive credit as agreed. Missed visits are logged, acknowledged, and remediated—no silent skips.
+                We have a make-good policy: we return to complete the service or you receive credit as agreed. Missed visits are logged, acknowledged, and remediated-no silent skips.
               </p>
             </div>
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
@@ -119,7 +119,7 @@ export default function CompliancePage() {
             </li>
             <li className="flex gap-3">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-              Accountability: We remain the single point of contact and liability to you. You don’t manage subs—we do.
+              Accountability: We remain the single point of contact and liability to you. You don’t manage subs-we do.
             </li>
           </ul>
         </section>

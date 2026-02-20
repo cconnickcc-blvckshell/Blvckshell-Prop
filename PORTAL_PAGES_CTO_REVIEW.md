@@ -2,7 +2,7 @@
 
 **Purpose:** Single document for CTO to review every portal page: **full content word-for-word** (every heading, label, button, table header, empty state, error message) plus styling. Standalone reference only; does not affect the live site. Where content is dynamic (e.g. from DB), marked as [Dynamic].
 
-**Generated:** February 2026.
+**Generated:** February 2026. **Content:** No structural changes to portal UI copy since last review; this doc remains the canonical reference for admin/worker/login/portal pages.
 
 ---
 

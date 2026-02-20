@@ -65,19 +65,21 @@
 
 **How We Operationalize Quality**
 - H2: **How We Operationalize Quality**
-- Body: **Not generic promises—a systematic flow designed from day one. Every visit is structured to follow a documented process with accountability at every step.**
+- Body: **Not generic promises—a systematic flow. Every visit is structured to follow a documented process with accountability at every step.**
 - Steps: **Scheduled Visits** — Checklist enforced. Every job tied to site-specific scope and frequency. No guesswork. | **Photo Evidence Captured** — Timestamped and labeled. Minimum evidence per area so you see what was done, when. | **Site Manager Review** — Approval required. You review completions, evidence, and checklists before sign-off. | **Issue & Escalation** — Automatic alerts for safety, damage, or scope gaps. Reported same day with documented response times. | **Audit Trails** — Every change logged. Complete history of visits, approvals, issues, and resolutions. Board-ready reporting.
 
 **Our Services**
 - H2: **Our Services**
-- Body: **Cleaning, unit turnovers, light maintenance, and facilities support. Each service is structured with checklists, evidence, and accountability built in from day one.**
+- Body: **Cleaning, unit turnovers, light maintenance, and facilities support. Each service is structured with checklists, evidence, and accountability built in.**
 - Tiles: **Condo cleaning** — Common areas, lobbies, washrooms, and shared spaces. (Label: Scope) | **Commercial cleaning** — Office, retail, and mixed-use. Scheduled and on-demand. (Label: Process) | **Light maintenance** — Minor repairs, paint touch-ups, caulking, and site support. (Label: Reporting)
 - Link: **View Pilot Programs →**
 
 **Proof & Accountability**
 - H2: **Proof & Accountability**
 - Body: **Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review—this isn't added later, it's built in from the start.**
-- Bullets: **Site-specific checklists designed from day one so scope is clear and nothing is missed.** | **Photo evidence minimums per area—structured to show what was done, not added as an afterthought.** | **Issue escalation logic: safety and damage reported same day with documented response times.** | **Re-clean policy: we return to fix it or you get credit—accountability designed in, not reactive.**
+- Rule: **If a visit can't be evidenced and reviewed, it isn't considered complete.**
+- Audit: **Our documentation exists to protect you during audits, disputes, and board review.**
+- Bullets: **Site-specific checklists so scope is clear and nothing is missed.** | **Photo evidence minimums per area—structured to show what was done, not added as an afterthought.** | **Issue escalation logic: safety and damage reported same day with documented response times.** | **Re-clean policy: we return to fix it or you get credit—accountability designed in, not reactive.**
 - Caption: **Every visit produces timestamped evidence and checklist sign-off. Request a sample report below.**
 - Button: **Request a sample report**
 
@@ -100,6 +102,7 @@
 - **Operational coverage:** Backup cleaner plan, Missed-visit make-good policy, Key/FOB control, Multi-site coordination
 - **Where we operate:** Launch: Windsor–Essex, Service area: Ontario-wide, Multi-site portfolios welcome, Site walks available
 - **Proof & accountability:** Site-specific checklists, Photo evidence minimums, Re-clean or credit policy, Portal access for review
+- **When things go wrong:** **Missed visits, quality issues, and incidents have a defined response: make-good or credit, same-day reporting, and documented escalation. We own the process—you get a clear audit trail.** Link: **Full details →** (to /compliance)
 
 **Final CTA**
 - H2: **Ready to Get Started?**
@@ -125,7 +128,9 @@ Hero: `min-h-[75vh] border-b border-zinc-800`, `text-display`, `text-zinc-300`/`
 - H1: **About BLVCKSHELL**
 - Callout: **New operator, built deliberately.** Blvckshell is a new facilities services operator, built with controls and structure that are often added later—after mistakes are made. We are starting small, onboarding carefully, and prioritizing repeatable quality over rapid growth.
 
-- Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties—cleaning, turnovers, light maintenance—with consistency, evidence, and ease of review built in from day one. Our operations are structured to produce audit-ready documentation by default.
+- Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties—cleaning, turnovers, light maintenance—with consistency, evidence, and ease of review built in. Our operations are structured to produce audit-ready documentation by default.
+
+- **These standards were designed by operators who have worked inside facilities environments where undocumented work created risk, disputes, and board exposure.**
 
 - **Operating region:** We launch in Windsor–Essex and serve Ontario-wide. One consistent footprint—no geographic ambiguity on coverage, staffing, or response times.
 
@@ -143,7 +148,7 @@ Hero: `min-h-[75vh] border-b border-zinc-800`, `text-display`, `text-zinc-300`/`
 
 **How We're Built**
 - H2: **How We're Built**
-- **These aren't promises we'll add later—these are foundations designed into our operations from day one.**
+- **These aren't promises we'll add later—they're how we operate.**
 - **Accountability Design** — Every task is designed to be photo-verified and logged from day one. Responsibility is assigned, not diffused. When something is missed, there's a clear path to resolution.
 - **Failure-Mode Awareness** — We've thought through what can go wrong—missed visits, quality issues, safety concerns—and built escalation logic and response protocols into our systems before they're needed.
 - **Growth Limits** — We cap active properties early. This isn't a limitation—it's intentional. We'd rather do fewer sites well than many sites poorly. Quality over scale.
@@ -277,7 +282,7 @@ Container `mx-auto max-w-4xl`. Cards `rounded-xl border border-zinc-800 bg-zinc-
 
 **How It Works**
 - H3: **How It Works**
-- **Every visit follows a site-specific checklist designed from day one. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee—no hourly billing.**
+- **Every visit follows a site-specific checklist. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee—no hourly billing. Hourly billing creates disputes and misaligned incentives; we don't use it.**
 
 - **Request a site evaluation** | **See a sample report** | **← Back to services**
 
@@ -309,7 +314,7 @@ Hero `min-h-[50vh] border-b border-zinc-800`, ImageTreatment. Content `mx-auto m
 
 **Frequency**
 - H2: **Frequency**
-- **Daily, several times per week, or weekly—tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing.**
+- **Daily, several times per week, or weekly—tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing; we avoid hourly billing so scope and incentives stay aligned.**
 
 **Add-ons**
 - H2: **Add-ons**
@@ -371,7 +376,7 @@ Exclusions callout: `rounded-lg border border-red-500/20 bg-red-500/5 p-6`. Rest
 ### Full content (word-for-word)
 
 - H1: **Compliance & Risk**
-- **How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor–Essex launch, Ontario-wide service.**
+- **How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor–Essex launch, Ontario-wide service. Our documentation exists to protect you during audits, disputes, and board review.**
 
 **Insurance & Compliance**
 - H2: **Insurance & Compliance**
@@ -420,8 +425,8 @@ Sections `mt-12`, risk cards `rounded-xl border border-zinc-800 bg-zinc-900/50 p
 ### Full content (word-for-word)
 
 - H1: **Pilot Programs**
-- **We start with controlled, scope-locked pilots designed to prove value without long-term commitment. Each pilot is time-bound, prepaid or deposit-based, and naturally converts to ongoing service.**
-- **Why pilots?** We're building deliberately. Pilots let us prove our systems work for your specific sites before scaling. You get proof, we get controlled onboarding.
+- **Scope-locked, time-bound, prepaid or deposit-based. Each pilot converts naturally to ongoing service or ends cleanly.**
+- **This is how serious vendors onboard.** You get proof; we get controlled rollout.
 
 **1. Unit Turnover Pilot**
 - **Unit Turnover Pilot**

@@ -175,7 +175,15 @@ export default async function AdminJobsPage({
           </div>
         </div>
         {jobs.length === 0 && (
-          <div className="p-8 text-center text-sm text-zinc-500">No jobs yet.</div>
+          <div className="p-8 text-center">
+            <p className="text-sm text-zinc-500 mb-4">No jobs yet.</p>
+            <Link
+              href="/admin/jobs/new"
+              className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
+            >
+              Create your first job
+            </Link>
+          </div>
         )}
       </section>
     </div>

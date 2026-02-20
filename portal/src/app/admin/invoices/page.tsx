@@ -94,8 +94,16 @@ export default async function AdminInvoicesPage() {
           </table>
         </div>
         {invoices.length === 0 && (
-          <div className="p-8 text-center text-sm text-zinc-500">
-            No invoices yet. Create a draft from a client and period.
+          <div className="p-8 text-center">
+            <p className="text-sm text-zinc-500 mb-4">
+              No invoices yet.
+            </p>
+            <Link
+              href="/admin/invoices/new"
+              className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
+            >
+              Create your first invoice
+            </Link>
           </div>
         )}
       </section>

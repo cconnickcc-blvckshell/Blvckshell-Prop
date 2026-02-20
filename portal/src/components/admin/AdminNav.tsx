@@ -31,8 +31,8 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
             >
               BLVCKSHELL Admin
             </Link>
-            {/* Desktop nav */}
-            <div className="hidden gap-1 md:flex">
+            {/* Desktop nav — wrap so Invoices/Payouts etc. stay visible on smaller desktop */}
+            <div className="hidden gap-1 md:flex md:flex-wrap md:items-center">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}

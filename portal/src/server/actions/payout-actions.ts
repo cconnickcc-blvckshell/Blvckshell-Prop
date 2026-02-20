@@ -13,7 +13,7 @@ export async function createPayoutBatch(input: {
   periodStart: string; // ISO date
   periodEnd: string;   // ISO date
 }) {
-  await requireAdmin();
+  const user = await requireAdmin();
 
   const start = new Date(input.periodStart);
   const end = new Date(input.periodEnd);
@@ -88,24 +88,45 @@ export async function createPayoutBatch(input: {
   }
 
   try {
-    const batch = await prisma.payoutBatch.create({
-      data: {
-        periodStart: start,
-        periodEnd: end,
-        status: "CALCULATED",
-        payoutLines: {
-          create: lines.map((l) => ({
-            workforceAccountId: l.workforceAccountId,
-            jobId: l.jobId,
-            amountCents: l.amountCents,
-            description: l.description,
-            siteId: l.siteId,
-            checklistRunId: l.checklistRunId,
-            status: "PENDING",
-          })),
+    const batch = await prisma.$transaction(async (tx) => {
+      const batch = await tx.payoutBatch.create({
+        data: {
+          periodStart: start,
+          periodEnd: end,
+          status: "CALCULATED",
+          payoutLines: {
+            create: lines.map((l) => ({
+              workforceAccountId: l.workforceAccountId,
+              jobId: l.jobId,
+              amountCents: l.amountCents,
+              description: l.description,
+              siteId: l.siteId,
+              checklistRunId: l.checklistRunId,
+              status: "PENDING",
+            })),
+          },
         },
-      },
-      include: { payoutLines: true },
+        include: { payoutLines: true },
+      });
+      // Audit log: payout batch creation
+      await tx.auditLog.create({
+        data: {
+          actorUserId: user.id,
+          actorWorkerId: user.workerId ?? null,
+          actorWorkforceAccountId: user.workforceAccountId ?? null,
+          entityType: "PayoutBatch",
+          entityId: batch.id,
+          fromState: null,
+          toState: "CALCULATED",
+          metadata: {
+            periodStart: start.toISOString(),
+            periodEnd: end.toISOString(),
+            lineCount: lines.length,
+            totalCents: lines.reduce((sum, l) => sum + l.amountCents, 0),
+          },
+        },
+      });
+      return batch;
     });
     return { success: true, batchId: batch.id };
   } catch (e) {
@@ -143,16 +164,31 @@ export async function markPayoutBatchPaid(batchId: string) {
     }
   }
 
-  await prisma.$transaction([
-    prisma.payoutBatch.update({
+  await prisma.$transaction(async (tx) => {
+    await tx.payoutBatch.update({
       where: { id: batchId },
       data: { status: "PAID" },
-    }),
-    prisma.payoutLine.updateMany({
+    });
+    await tx.payoutLine.updateMany({
       where: { payoutBatchId: batchId },
       data: { status: "PAID" },
-    }),
-  ]);
+    });
+    // Audit log: payout batch marked paid
+    await tx.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        actorWorkerId: user.workerId ?? null,
+        actorWorkforceAccountId: user.workforceAccountId ?? null,
+        entityType: "PayoutBatch",
+        entityId: batchId,
+        fromState: batch.status,
+        toState: "PAID",
+        metadata: {
+          jobCount: jobIds.length,
+        },
+      },
+    });
+  });
 
   return { success: true };
 }

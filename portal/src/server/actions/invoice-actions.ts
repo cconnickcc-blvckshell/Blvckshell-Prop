@@ -317,7 +317,7 @@ export async function updateInvoiceStatus(
   invoiceId: string,
   newStatus: "Sent" | "Paid"
 ) {
-  await requireAdmin();
+  const user = await requireAdmin();
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
     select: { id: true, status: true, clientId: true },
@@ -335,16 +335,29 @@ export async function updateInvoiceStatus(
     updateData.issuedAt = new Date();
   }
 
-  await prisma.$transaction([
-    prisma.invoice.update({
+  await prisma.$transaction(async (tx) => {
+    await tx.invoice.update({
       where: { id: invoiceId },
       data: updateData,
-    }),
-    prisma.job.updateMany({
+    });
+    await tx.job.updateMany({
       where: { invoiceId },
       data: { billableStatus: "Invoiced" },
-    }),
-  ]);
+    });
+    // Audit log: invoice status change
+    await tx.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        actorWorkerId: user.workerId ?? null,
+        actorWorkforceAccountId: user.workforceAccountId ?? null,
+        entityType: "Invoice",
+        entityId: invoiceId,
+        fromState: invoice.status,
+        toState: newStatus,
+        metadata: {},
+      },
+    });
+  });
 
   revalidatePath(`/admin/invoices/${invoiceId}`);
   revalidatePath("/admin/invoices");

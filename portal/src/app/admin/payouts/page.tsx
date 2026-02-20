@@ -136,7 +136,7 @@ export default async function PayoutsPage() {
         </div>
         {approvedJobs.length === 0 && (
           <div className="p-8 text-center text-sm text-zinc-500">
-            No jobs in APPROVED_PAYABLE status.
+            No jobs in APPROVED_PAYABLE status. Jobs will appear here after admin approval.
           </div>
         )}
       </section>
@@ -252,7 +252,7 @@ export default async function PayoutsPage() {
         </div>
         {batches.length === 0 && (
           <div className="p-8 text-center text-sm text-zinc-500">
-            No payout batches yet. Use the form above to create a batch from approved jobs, then mark it paid.
+            No payout batches yet. When jobs are approved, use the form above to create a batch, then mark it paid.
           </div>
         )}
       </section>

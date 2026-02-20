@@ -59,7 +59,10 @@ export default async function JobsPage() {
 
         {jobs.length === 0 ? (
           <div className="rounded-lg bg-white p-8 text-center shadow">
-            <p className="text-gray-500">No jobs assigned yet.</p>
+            <p className="text-gray-500 mb-2">No jobs assigned yet.</p>
+            <p className="text-sm text-gray-400">
+              If you expected jobs, contact your admin or vendor owner.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">

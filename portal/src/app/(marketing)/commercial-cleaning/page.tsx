@@ -67,15 +67,25 @@ export default function CommercialCleaningPage() {
         <ScrollReveal delay={0.2}>
           <h2 className="mt-12 text-headline font-semibold text-white">Frequency</h2>
           <p className="mt-4 text-zinc-400">
-            Daily, several times per week, or weekly—tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing; we avoid hourly billing so scope and incentives stay aligned.
+            Daily, several times per week, or weekly - tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing; we avoid hourly billing so scope and incentives stay aligned.
           </p>
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/30 p-4">
+            <p className="text-sm text-zinc-300">
+              <strong className="text-white">Why we avoid hourly billing:</strong> Hourly billing creates disputes and misaligned incentives. When scope is locked upfront, you know what you're paying for and we're incentivized to complete efficiently, not drag out time.
+            </p>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.3}>
           <h2 className="mt-12 text-headline font-semibold text-white">Add-ons</h2>
           <p className="mt-4 text-zinc-400">
-            Deep cleans, carpet cleaning, window interiors, and one-off work orders. Priced per site or per visit—outline your needs in the contact form.
+            Deep cleans, carpet cleaning, window interiors, and one-off work orders. Priced per site or per visit - outline your needs in the contact form.
           </p>
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/30 p-4">
+            <p className="text-sm text-zinc-300">
+              <strong className="text-white">Why scope lock matters:</strong> We define scope upfront so there's no ambiguity about what's included. Add-ons are quoted separately, preventing scope creep and surprise charges.
+            </p>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.4}>

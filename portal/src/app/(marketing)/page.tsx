@@ -22,7 +22,7 @@ const IMAGES = {
 export default function HomePage() {
   return (
     <div>
-      {/* Hero — Portfolio-Ready Facility Operations */}
+      {/* Hero - Portfolio-Ready Facility Operations */}
       <section className="relative min-h-[75vh] border-b border-zinc-800">
         <ImageTreatment src={IMAGES.hero} alt="Premium commercial building lobby" priority className="absolute inset-0">
           <div className="relative z-10 flex min-h-[75vh] flex-col items-center justify-center px-4 py-24 sm:px-6 lg:py-32">
@@ -54,17 +54,7 @@ export default function HomePage() {
               <motion.div
                 initial={motionConfig.heroReveal.initial}
                 animate={motionConfig.heroReveal.animate}
-                transition={{ delay: 0.45, ...motionConfig.heroReveal.animate.transition }}
-                className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 max-w-2xl"
-              >
-                <p className="text-sm text-emerald-300">
-                  <strong>New operator, built deliberately.</strong> We're starting small, onboarding carefully, and prioritizing repeatable quality over rapid growth. Our systems are designed to prevent problems before they happen.
-                </p>
-              </motion.div>
-              <motion.div
-                initial={motionConfig.heroReveal.initial}
-                animate={motionConfig.heroReveal.animate}
-                transition={{ delay: 0.5, ...motionConfig.heroReveal.animate.transition }}
+                transition={{ delay: 0.35, ...motionConfig.heroReveal.animate.transition }}
                 className="mt-10 flex flex-col justify-center gap-4 sm:flex-row"
               >
                 <Link
@@ -94,7 +84,7 @@ export default function HomePage() {
         </ImageTreatment>
       </section>
 
-      {/* Built for property managers — trust strip */}
+      {/* Built for property managers - trust strip */}
       <ScrollReveal>
         <section className="border-b border-zinc-800 bg-zinc-900/30 px-4 py-12 backdrop-blur-sm sm:px-6">
           <div className="mx-auto max-w-6xl">
@@ -118,13 +108,13 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* How We Operationalize Quality — Process Flow */}
+      {/* How We Operationalize Quality - Process Flow */}
       <ScrollReveal>
         <section className="border-b border-zinc-800 bg-zinc-950 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-4xl">
             <h2 className="text-headline font-semibold text-white">How We Operationalize Quality</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Not generic promises—a systematic flow. Every visit is structured to follow a documented process with accountability at every step.
+              Not generic promises-a systematic flow. Every visit is structured to follow a documented process with accountability at every step.
             </p>
             <div className="mt-12">
               <ProcessFlow
@@ -161,7 +151,7 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* Services — Solution */}
+      {/* Services - Solution */}
       <section className="px-4 py-20 sm:px-6 lg:py-24">
         <div className="mx-auto max-w-6xl">
           <ScrollReveal>
@@ -215,13 +205,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Proof & Accountability — Visual Evidence */}
+      {/* Proof & Accountability - Visual Evidence */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-900/30 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-headline font-semibold text-white">Proof & Accountability</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review—this isn't added later, it's built in from the start.
+              Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review-this isn't added later, it's built in from the start.
             </p>
             <p className="mt-3 max-w-2xl text-sm font-medium text-zinc-300">
               If a visit can't be evidenced and reviewed, it isn't considered complete.
@@ -234,9 +224,9 @@ export default function HomePage() {
                 <StaggerContainer className="space-y-6">
                   {[
                     { icon: "✓", text: "Site-specific checklists so scope is clear and nothing is missed." },
-                    { icon: "📸", text: "Photo evidence minimums per area—structured to show what was done, not added as an afterthought." },
+                    { icon: "📸", text: "Photo evidence minimums per area-structured to show what was done, not added as an afterthought." },
                     { icon: "⚡", text: "Issue escalation logic: safety and damage reported same day with documented response times." },
-                    { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit—accountability designed in, not reactive." },
+                    { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit-accountability designed in, not reactive." },
                   ].map((item, i) => (
                     <StaggerItem key={i} index={i} className="flex gap-4">
                       <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: "var(--accent-secondary)" }} aria-hidden />
@@ -247,7 +237,7 @@ export default function HomePage() {
               </div>
               <div className="space-y-4">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50">
-                  <ImageTreatment src={IMAGES.evidence} alt="Documented visit example — timestamped evidence and checklist sign-off" />
+                  <ImageTreatment src={IMAGES.evidence} alt="Documented visit example - timestamped evidence and checklist sign-off" />
                 </div>
                 <p className="text-center text-sm text-zinc-500">
                   Every visit produces timestamped evidence and checklist sign-off. Request a sample report below.
@@ -266,15 +256,15 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* Who we serve — Target Audience */}
+      {/* Who we serve - Target Audience */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-950 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-headline font-semibold text-white">Who We Serve</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
               Property managers, condo boards, and commercial building operators who need reliable, auditable facilities work. We launch in{" "}
-              <strong className="text-white">Windsor–Essex</strong> and serve{" "}
-              <strong className="text-white">Ontario-wide</strong>—multi-site portfolios welcome.
+              <strong className="text-white">Windsor-Essex</strong> and serve{" "}
+              <strong className="text-white">Ontario-wide coverage as we expand</strong> - multi-site portfolios considered case-by-case.
             </p>
             <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {["Condo corporations", "Commercial property managers", "Multi-site portfolios"].map((item, i) => (
@@ -289,7 +279,7 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* How it works — Process Overview */}
+      {/* How it works - Process Overview */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-900/30 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
@@ -317,7 +307,7 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* Trust & Compliance — Credibility */}
+      {/* Trust & Compliance - Credibility */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-900/30 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
@@ -342,7 +332,7 @@ export default function HomePage() {
                 },
                 {
                   title: "Where we operate",
-                  items: ["Launch: Windsor–Essex", "Service area: Ontario-wide", "Multi-site portfolios welcome", "Site walks available"],
+                  items: ["Launch: Windsor-Essex", "Service area: Ontario-wide", "Multi-site portfolios welcome", "Site walks available"],
                 },
                 {
                   title: "Proof & accountability",
@@ -367,14 +357,14 @@ export default function HomePage() {
             <div className="mt-10 rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-4">
               <p className="text-sm font-medium text-white">When things go wrong</p>
               <p className="mt-1 text-sm text-zinc-400">
-                Missed visits, quality issues, and incidents have a defined response: make-good or credit, same-day reporting, and documented escalation. We own the process—you get a clear audit trail. <Link href="/compliance" className="font-medium text-zinc-300 underline decoration-zinc-600 underline-offset-2 hover:decoration-white">Full details →</Link>
+                Missed visits, quality issues, and incidents have a defined response: make-good or credit, same-day reporting, and documented escalation. We own the process-you get a clear audit trail. <Link href="/compliance" className="font-medium text-zinc-300 underline decoration-zinc-600 underline-offset-2 hover:decoration-white">Full details →</Link>
               </p>
             </div>
           </div>
         </section>
       </ScrollReveal>
 
-      {/* Final CTA — Portfolio Walkthrough */}
+      {/* Final CTA - Portfolio Walkthrough */}
       <ScrollReveal>
         <section className="border-t border-zinc-800 bg-zinc-950 px-4 py-24 sm:px-6 lg:py-32">
           <div className="mx-auto max-w-2xl text-center">

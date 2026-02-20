@@ -19,7 +19,7 @@ export default function LightMaintenancePage() {
               </ScrollReveal>
               <ScrollReveal delay={0.1}>
                 <p className="mt-4 max-w-2xl text-lg text-zinc-300">
-                  Non-structural, non-permit, non-licensed work. Paint touch-ups, caulking, hardware fixes, and minor repairs—logged and tracked in our portal.
+                  Non-structural, non-permit, non-licensed work. Paint touch-ups, caulking, hardware fixes, and minor repairs - logged and tracked in our portal.
                 </p>
               </ScrollReveal>
             </div>
@@ -140,6 +140,11 @@ export default function LightMaintenancePage() {
             <h3 className="text-lg font-semibold text-white">Explicit Exclusions</h3>
             <p className="mt-4 text-sm text-zinc-400">
               Blvckshell does not provide electrical work beyond fixture replacement, plumbing work beyond visible fittings, HVAC servicing or repair, structural repairs, roofing or exterior envelope work, permit-required work, emergency response services, or licensed trade replacement.
+            </p>
+          </div>
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/30 p-4">
+            <p className="text-sm text-zinc-300">
+              <strong className="text-white">Why exclusions protect both sides:</strong> Clear boundaries prevent liability risk, permit violations, and disputes. We stay within our expertise - you know exactly what we handle and what requires a licensed trade.
             </p>
           </div>
         </ScrollReveal>

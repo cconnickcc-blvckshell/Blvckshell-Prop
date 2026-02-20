@@ -51,7 +51,7 @@ const PILOTS = [
   {
     id: "readiness-audit",
     title: "Turnover Readiness Audit Pilot",
-    description: "Low-labor, high-trust validation. Perfect if you already have cleaners and painters—we validate readiness, not compete.",
+    description: "Low-labor, high-trust validation. Perfect if you already have cleaners and painters-we validate readiness, not compete.",
     scope: [
       "1–3 vacant units",
       "Visual inspection only",
@@ -87,11 +87,6 @@ export default function PilotsPage() {
         <p className="mt-4 text-lg text-zinc-400">
           Scope-locked, time-bound, prepaid or deposit-based. Each pilot converts naturally to ongoing service or ends cleanly.
         </p>
-        <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-          <p className="text-sm text-emerald-300">
-            <strong>This is how serious vendors onboard.</strong> You get proof; we get controlled rollout.
-          </p>
-        </div>
       </ScrollReveal>
 
       <StaggerContainer className="mt-12 space-y-8">

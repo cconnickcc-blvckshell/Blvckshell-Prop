@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const completionId = formData.get("completionId") as string;
     const itemId = (formData.get("itemId") as string) || undefined;
     const checklistRunId = (formData.get("checklistRunId") as string) || undefined;
+    // FormData sends all values as strings
     const redactionApplied = formData.get("redactionApplied") === "true";
     const redactionType = (formData.get("redactionType") as string) || undefined;
 
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    if (redactionApplied !== true) {
+    if (!redactionApplied) {
       return NextResponse.json(
         { error: "Evidence must be captured and redacted in-app. Use Take photo." },
         { status: 400 }
