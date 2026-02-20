@@ -47,7 +47,7 @@ export default async function ContactPage({
         </p>
       </div>
 
-      <h2 className="mt-10 text-xl font-semibold text-white">Send a message</h2>
+      <h2 className="mt-8 text-xl font-semibold text-white">Send a message</h2>
       <ContactForm
         requestType={params.request}
         defaultMessage={isSampleRequest ? "I'd like to receive a sample completion report." : undefined}

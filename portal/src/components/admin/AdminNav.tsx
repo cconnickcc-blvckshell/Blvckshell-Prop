@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/admin/workorders", label: "Work Orders" },
   { href: "/admin/incidents", label: "Incidents" },
   { href: "/admin/payouts", label: "Payouts" },
+  { href: "/admin/leads", label: "Leads" },
   { href: "/admin/docs", label: "Docs" },
 ] as const;
 

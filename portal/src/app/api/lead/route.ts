@@ -23,13 +23,8 @@ export async function POST(request: Request) {
         name: data.name,
         phone: data.phone ?? null,
         email: data.email,
-        buildingAddress: data.buildingAddress ?? null,
-        propertyType: data.propertyType ?? null,
-        frequency: data.frequency ?? null,
-        callbackTime: data.callbackTime ?? null,
         message: data.message ?? null,
         sourcePage: data.sourcePage ?? null,
-        preferredContact: data.preferredContact ?? null,
       },
     });
 

@@ -34,34 +34,34 @@ export default function ContactForm({
     setStatus("sending");
     setErrorMessage("");
 
-    const res = await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: fd.get("name"),
-        phone: fd.get("phone"),
-        email: fd.get("email"),
-        buildingAddress: fd.get("buildingAddress"),
-        propertyType: fd.get("propertyType"),
-        frequency: fd.get("frequency"),
-        callbackTime: fd.get("callbackTime"),
-        message: fd.get("message"),
-        preferredContact: fd.get("preferredContact") || undefined,
-        sourcePage,
-        website: fd.get("website") ?? "",
-      }),
-    });
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fd.get("name"),
+          phone: fd.get("phone") || undefined,
+          email: fd.get("email"),
+          message: fd.get("message") || undefined,
+          sourcePage,
+          website: fd.get("website") ?? "",
+        }),
+      });
 
-    const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMessage(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+
+      setStatus("success");
+      form.reset();
+    } catch (error) {
       setStatus("error");
-      setErrorMessage(data.error ?? "Something went wrong. Please try again.");
-      return;
+      setErrorMessage("Network error. Please check your connection and try again.");
     }
-
-    setStatus("success");
-    form.reset();
   }
 
   return (
