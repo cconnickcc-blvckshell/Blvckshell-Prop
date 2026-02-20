@@ -56,7 +56,6 @@
 - H1: **Facilities Services Built Deliberately**
 - Sub: **Structured, Accountable, Prepared from Day One**
 - Body: **Checklists, photo verification, and compliance tracking designed into our operations from the start. Built for property managers who value structure over scale.**
-- Callout: **New operator, built deliberately.** We're starting small, onboarding carefully, and prioritizing repeatable quality over rapid growth. Our systems are designed to prevent problems before they happen.
 - Buttons: **Request a site evaluation** | **Get in touch** (mobile only)
 
 **Trust strip**
@@ -85,7 +84,7 @@
 
 **Who We Serve**
 - H2: **Who We Serve**
-- Body: **Property managers, condo boards, and commercial building operators who need reliable, auditable facilities work. We launch in Windsor–Essex and serve Ontario-wide—multi-site portfolios welcome.**
+- Body: **Property managers, condo boards, and commercial building operators who need reliable, auditable facilities work. We launch in Windsor-Essex and serve Ontario-wide coverage as we expand - multi-site portfolios considered case-by-case.**
 - Cards: **Condo corporations** | **Commercial property managers** | **Multi-site portfolios**
 
 **How It Works**
@@ -126,13 +125,12 @@ Hero: `min-h-[75vh] border-b border-zinc-800`, `text-display`, `text-zinc-300`/`
 ### Full content (word-for-word)
 
 - H1: **About BLVCKSHELL**
-- Callout: **New operator, built deliberately.** Blvckshell is a new facilities services operator, built with controls and structure that are often added later—after mistakes are made. We are starting small, onboarding carefully, and prioritizing repeatable quality over rapid growth.
 
-- Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties—cleaning, turnovers, light maintenance—with consistency, evidence, and ease of review built in. Our operations are structured to produce audit-ready documentation by default.
+- Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties-cleaning, turnovers, light maintenance-with consistency, evidence, and ease of review built in. Our operations are structured to produce audit-ready documentation by default.
 
 - **These standards were designed by operators who have worked inside facilities environments where undocumented work created risk, disputes, and board exposure.**
 
-- **Operating region:** We launch in Windsor–Essex and serve Ontario-wide. One consistent footprint—no geographic ambiguity on coverage, staffing, or response times.
+- **Operating region:** We launch in Windsor-Essex and serve Ontario-wide coverage as we expand. One consistent footprint - no geographic ambiguity on coverage, staffing, or response times.
 
 - Our network includes internal crews and vetted subcontractors. All are onboarded with compliance documentation (COI, WSIB) and trained on your scope. Work is assigned, completed, and approved through our portal—one place for scheduling, evidence, and payouts. Accountability remains with Blvckshell; we don't subcontract anonymously.
 
@@ -282,7 +280,7 @@ Container `mx-auto max-w-4xl`. Cards `rounded-xl border border-zinc-800 bg-zinc-
 
 **How It Works**
 - H3: **How It Works**
-- **Every visit follows a site-specific checklist. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee—no hourly billing. Hourly billing creates disputes and misaligned incentives; we don't use it.**
+- **Every visit follows a site-specific checklist. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee - no hourly billing. Hourly billing creates disputes and misaligned incentives; we don't use it.**
 
 - **Request a site evaluation** | **See a sample report** | **← Back to services**
 
@@ -314,11 +312,13 @@ Hero `min-h-[50vh] border-b border-zinc-800`, ImageTreatment. Content `mx-auto m
 
 **Frequency**
 - H2: **Frequency**
-- **Daily, several times per week, or weekly—tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing; we avoid hourly billing so scope and incentives stay aligned.**
+- **Daily, several times per week, or weekly - tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing; we avoid hourly billing so scope and incentives stay aligned.**
+- **Why we avoid hourly billing:** Hourly billing creates disputes and misaligned incentives. When scope is locked upfront, you know what you're paying for and we're incentivized to complete efficiently, not drag out time.
 
 **Add-ons**
 - H2: **Add-ons**
-- **Deep cleans, carpet cleaning, window interiors, and one-off work orders. Priced per site or per visit—outline your needs in the contact form.**
+- **Deep cleans, carpet cleaning, window interiors, and one-off work orders. Priced per site or per visit - outline your needs in the contact form.**
+- **Why scope lock matters:** We define scope upfront so there's no ambiguity about what's included. Add-ons are quoted separately, preventing scope creep and surprise charges.
 
 **How quoting works**
 - H2: **How quoting works**
@@ -357,6 +357,7 @@ Same hero + content pattern as condo; content `max-w-3xl`. Same CTA set.
 **Explicit Exclusions**
 - H3: **Explicit Exclusions**
 - **Blvckshell does not provide electrical work beyond fixture replacement, plumbing work beyond visible fittings, HVAC servicing or repair, structural repairs, roofing or exterior envelope work, permit-required work, emergency response services, or licensed trade replacement.**
+- **Why exclusions protect both sides:** Clear boundaries prevent liability risk, permit violations, and disputes. We stay within our expertise - you know exactly what we handle and what requires a licensed trade.
 
 - **Request a site evaluation** | **See a sample report** | **← Back to services**
 
@@ -426,7 +427,6 @@ Sections `mt-12`, risk cards `rounded-xl border border-zinc-800 bg-zinc-900/50 p
 
 - H1: **Pilot Programs**
 - **Scope-locked, time-bound, prepaid or deposit-based. Each pilot converts naturally to ongoing service or ends cleanly.**
-- **This is how serious vendors onboard.** You get proof; we get controlled rollout.
 
 **1. Unit Turnover Pilot**
 - **Unit Turnover Pilot**

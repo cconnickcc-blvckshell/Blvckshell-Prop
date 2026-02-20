@@ -79,21 +79,21 @@ All actions use guards: `requireWorker`, `requireAdmin`, or `requireVendorOwner`
 
 ## 3. Weaknesses & Risks
 
-- **Evidence upload route — redaction check:** The route correctly treats FormData's `redactionApplied` as a string and compares to `"true"`; the resulting boolean is used for the reject check. Consider a short comment in the route that FormData sends strings so future changes don't introduce a type bug.
+- **Evidence upload route — redaction check:** The route correctly treats FormData's `redactionApplied` as a string and compares to `"true"`; the resulting boolean is used for the reject check. Comment added clarifying FormData sends strings.
 - **Rate limit storage:** In-memory rate limiting does not persist across instances/restarts; under multi-instance or serverless, limits are per-instance. For production at scale, use Redis/Upstash/Vercel KV.
-- **Error handling:** Some API routes return generic 500 messages; logging is present but structured correlation (request id, user id) is limited, which can slow debugging and incident response.
+- **Error handling:** ✅ Invoice PDF route now has proper try-catch and error handling. Other routes may benefit from similar structured error responses.
 - **ID validation:** A few API routes take `id` from params without CUID/format validation; invalid IDs could cause unnecessary DB errors or leak “not found” vs “invalid id” behavior.
-- **Audit surface:** State transitions are audited; other sensitive operations (e.g. invoice status changes, payout mark paid, workforce/site edits) may not all write to a dedicated audit log for compliance and forensics.
+- **Audit surface:** ✅ Now covers invoice status changes and payout batch operations. Job/work order transitions already audited. Workforce/site edits may need audit coverage if they become sensitive operations.
 
 ---
 
 ## 4. Areas for Improvement
 
-- **Upload route:** Add a short comment that FormData sends strings so the redaction check remains correct (e.g. `redactionApplied === "true"` → boolean).
+- **Upload route:** ✅ Comment added clarifying FormData sends strings.
 - **API IDs:** Validate route params (e.g. CUID) in a small shared helper and return 400 for bad format, 404 for not found.
 - **Logging:** Add request ID and user id to log lines for auth, evidence, jobs, invoices, and payouts; consider a thin logging wrapper.
 - **Rate limiting:** Document “in-memory, single-instance” in code and in runbooks; plan migration path to Redis/KV for multi-instance and stricter limits.
-- **Audit:** Define a minimal audit log (who, what, when, entity id) and ensure all state-changing and sensitive operations write to it (job approve/reject/cancel, invoice status, payout mark paid, key admin creates/updates).
+- **Audit:** ✅ Invoice status changes and payout batch operations now audited. Job/work order transitions already covered. Consider adding audit for workforce/site edits if they become sensitive.
 
 ---
 

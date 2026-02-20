@@ -2,7 +2,7 @@
 
 **Purpose:** Single document for CTO to review every portal page: **full content word-for-word** (every heading, label, button, table header, empty state, error message) plus styling. Standalone reference only; does not affect the live site. Where content is dynamic (e.g. from DB), marked as [Dynamic].
 
-**Generated:** February 2026. **Content:** No structural changes to portal UI copy since last review; this doc remains the canonical reference for admin/worker/login/portal pages.
+**Generated:** February 2026. **Updated:** February 2026 - Empty states now include action buttons/guidance; Docs sections hide when empty.
 
 ---
 
@@ -99,7 +99,7 @@
 
 ### Full content (word-for-word)
 
-H1 **Jobs** or **Jobs — [site name]** [Dynamic] | Subtitle **Manage and review job completions** or **Job history for this site** | Button **Create job** | Table headers: **Site**, **Scheduled**, **Assigned To**, **Status**, **Payout**, **Actions** | Cell link **View** | Mobile card link **View →** | Empty: **No jobs yet.**
+H1 **Jobs** or **Jobs — [site name]** [Dynamic] | Subtitle **Manage and review job completions** or **Job history for this site** | Button **Create job** | Table headers: **Site**, **Scheduled**, **Assigned To**, **Status**, **Payout**, **Actions** | Cell link **View** | Mobile card link **View →** | Empty: **No jobs yet.** + Button **Create your first job**
 
 **Key classes:**
 - Header: `mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`
@@ -181,7 +181,7 @@ H1 **Locations** | Subtitle **Client organizations and sites** | Button **Add cl
 
 ### Full content (word-for-word)
 
-H1 **Invoices** | Subtitle **Create and manage client invoices** | Button **New draft invoice** | Table headers: **Number**, **Client**, **Period**, **Status**, **Total**, **Actions** | Status values: Draft, Sent, Paid, Void. Rows: [Dynamic].
+H1 **Invoices** | Subtitle **Create and manage client invoices** | Button **New draft invoice** | Table headers: **Number**, **Client**, **Period**, **Status**, **Total**, **Actions** | Status values: Draft, Sent, Paid, Void. Rows: [Dynamic]. Empty: **No invoices yet.** + Button **Create your first invoice**
 
 **Key classes:** Same section/table; statusClass map (Draft/Sent/Paid/Void) — zinc, amber, emerald, red badge styles.
 
@@ -218,7 +218,7 @@ H1 **Invoices** | Subtitle **Create and manage client invoices** | Button **New 
 ## Page: Payouts (`/admin/payouts`)
 
 **File:** `portal/src/app/admin/payouts/page.tsx`  
-**Purpose:** Payout batches list. Same admin table and CTAs.
+**Purpose:** Payout batches list. Create batch form. Jobs ready for payout section. Empty states: **No jobs in APPROVED_PAYABLE status. Jobs will appear here after admin approval.** | **No payout batches yet. When jobs are approved, use the form above to create a batch, then mark it paid.**
 
 ---
 
@@ -236,7 +236,7 @@ H1 **Invoices** | Subtitle **Create and manage client invoices** | Button **New 
 
 ### Full content (word-for-word)
 
-H1 **Documentation** | **Checklists and standard operating procedures. Open any doc to view or print / save as PDF.** | Section **Checklists** | **Area-specific cleaning checklists for common areas (lobby, hallway, washroom, etc.)** | Empty: **No checklists in content/docs/checklists yet.** | Card label **View & print** | Section **Standard operating procedures** | **Step-by-step procedures for cleaning, access, completion, and incidents** | Empty: **No SOPs in content/docs/sops yet.** | Card label **View & print**. Doc titles [from content files].
+H1 **Documentation** | **Checklists and standard operating procedures. Open any doc to view or print / save as PDF.** | Sections **Checklists** and **Standard operating procedures** only render if content exists (hidden if empty). If both empty: **Documentation will appear here once checklists and SOPs are added to the system.** | Card label **View & print**. Doc titles [from content files].
 
 **Key classes:**
 - H1: `text-2xl font-bold tracking-tight text-white sm:text-3xl`; subtitle `mt-2 text-zinc-400`
@@ -275,7 +275,7 @@ H1 **Documentation** | **Checklists and standard operating procedures. Open any 
 
 ### Full content (word-for-word)
 
-H1 **My Jobs** | **View and complete your assigned jobs** | Empty: **No jobs assigned yet.** | Cards: [Dynamic: site name, site address, Scheduled: [date], Status badge, View link]. Status labels: SCHEDULED, COMPLETED PENDING APPROVAL, APPROVED PAYABLE, PAID.
+H1 **My Jobs** | **View and complete your assigned jobs** | Empty: **No jobs assigned yet.** + **If you expected jobs, contact your admin or vendor owner.** | Cards: [Dynamic: site name, site address, Scheduled: [date], Status badge, View link]. Status labels: SCHEDULED, COMPLETED PENDING APPROVAL, APPROVED PAYABLE, PAID.
 
 **Key classes:**
 - Wrapper: `min-h-screen bg-gray-50 p-4`; inner `mx-auto max-w-4xl`
