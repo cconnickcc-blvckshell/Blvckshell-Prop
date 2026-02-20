@@ -67,7 +67,7 @@ export default function CommercialCleaningPage() {
         <ScrollReveal delay={0.2}>
           <h2 className="mt-12 text-headline font-semibold text-white">Frequency</h2>
           <p className="mt-4 text-zinc-400">
-            Daily, several times per week, or weekly—tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing.
+            Daily, several times per week, or weekly—tailored to your building and contract. Service window and days agreed at quote. Flat fee or per-visit pricing; we avoid hourly billing so scope and incentives stay aligned.
           </p>
         </ScrollReveal>
 

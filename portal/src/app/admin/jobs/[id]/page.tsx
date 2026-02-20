@@ -17,11 +17,7 @@ export default async function AdminJobDetailPage({
       site: {
         include: {
           clientOrganization: { select: { name: true, id: true } },
-          checklistTemplates: {
-            where: { isActive: true },
-            orderBy: { version: "desc" },
-            take: 1,
-          },
+          checklistTemplates: { where: { isActive: true } },
         },
       },
       assignedWorker: {
@@ -62,7 +58,7 @@ export default async function AdminJobDetailPage({
     notFound();
   }
 
-  const checklistTemplate = job.site.checklistTemplates[0];
+  const checklistTemplate = job.site.checklistTemplates;
   const checklistResults = job.completion?.checklistResults
     ? (job.completion.checklistResults as Record<
         string,

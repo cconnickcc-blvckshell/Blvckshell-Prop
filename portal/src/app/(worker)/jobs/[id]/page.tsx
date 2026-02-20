@@ -24,11 +24,7 @@ export default async function JobDetailPage({
     include: {
       site: {
         include: {
-          checklistTemplates: {
-            where: { isActive: true },
-            orderBy: { version: "desc" },
-            take: 1,
-          },
+          checklistTemplates: true,
           accessCredentials: {
             where: {
               issuedToWorkerId: user.workerId,
@@ -74,8 +70,8 @@ export default async function JobDetailPage({
     );
   }
 
-  const checklistTemplate = job.site.checklistTemplates[0];
-  if (!checklistTemplate) {
+  const checklistTemplate = job.site.checklistTemplates;
+  if (!checklistTemplate || !checklistTemplate.isActive) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="mx-auto max-w-4xl">

@@ -507,6 +507,28 @@ model AuditLog {
   @@index([createdAt])
 }
 
+model Lead {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  name            String
+  company         String?
+  role            String?
+  phone           String?
+  email           String
+  propertyType    String?
+  sitesCount      Int?
+  message         String?
+  sourcePage      String?
+  honeypot        String?
+  preferredContact String?
+  buildingAddress String?
+  frequency       String?
+  callbackTime    String?
+
+  @@index([createdAt])
+  @@index([email])
+}
+
 enum WorkforceAccountType {
   INTERNAL
   VENDOR

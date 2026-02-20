@@ -85,11 +85,11 @@ export default function PilotsPage() {
       <ScrollReveal>
         <h1 className="text-headline font-bold text-white">Pilot Programs</h1>
         <p className="mt-4 text-lg text-zinc-400">
-          We start with controlled, scope-locked pilots designed to prove value without long-term commitment. Each pilot is time-bound, prepaid or deposit-based, and naturally converts to ongoing service.
+          Scope-locked, time-bound, prepaid or deposit-based. Each pilot converts naturally to ongoing service or ends cleanly.
         </p>
         <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
           <p className="text-sm text-emerald-300">
-            <strong>Why pilots?</strong> We're building deliberately. Pilots let us prove our systems work for your specific sites before scaling. You get proof, we get controlled onboarding.
+            <strong>This is how serious vendors onboard.</strong> You get proof; we get controlled rollout.
           </p>
         </div>
       </ScrollReveal>

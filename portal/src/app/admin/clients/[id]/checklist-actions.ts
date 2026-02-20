@@ -43,25 +43,26 @@ export async function assignChecklistTemplate(formData: FormData) {
     return { error: `Failed to parse checklist ${checklistId}.` };
   }
   
-  // Check if this checklistId is already assigned to this site
+  // One active template per site (schema: siteId unique for active)
   const existing = await prisma.checklistTemplate.findFirst({
-    where: { siteId, checklistId, isActive: true },
+    where: { siteId, isActive: true },
   });
-  
+
   if (existing) {
-    return { error: `Checklist template ${checklistId} is already assigned to this site.` };
+    await prisma.checklistTemplate.update({
+      where: { id: existing.id },
+      data: { items: parsed.items as any, version: existing.version + 1 },
+    });
+  } else {
+    await prisma.checklistTemplate.create({
+      data: {
+        siteId,
+        version: 1,
+        isActive: true,
+        items: parsed.items as any, // Prisma JSON type
+      },
+    });
   }
-  
-  // Create new active template (allow multiple templates per site)
-  await prisma.checklistTemplate.create({
-    data: {
-      siteId,
-      checklistId,
-      version: 1,
-      isActive: true,
-      items: parsed.items as any, // Prisma JSON type
-    },
-  });
   
   // Get client ID from site
   const site = await prisma.site.findUnique({

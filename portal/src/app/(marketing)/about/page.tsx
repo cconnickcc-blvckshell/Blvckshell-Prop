@@ -23,7 +23,10 @@ export default function AboutPage() {
       <ScrollReveal delay={0.1}>
         <div className="mt-8 space-y-4 text-zinc-300">
           <p>
-            Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties—cleaning, turnovers, light maintenance—with consistency, evidence, and ease of review built in from day one. Our operations are structured to produce audit-ready documentation by default.
+            Blvckshell exists because property managers were tired of undocumented work and excuses. We provide facilities services for condos and commercial properties—cleaning, turnovers, light maintenance—with consistency, evidence, and ease of review built in. Our operations are structured to produce audit-ready documentation by default.
+          </p>
+          <p>
+            These standards were designed by operators who have worked inside facilities environments where undocumented work created risk, disputes, and board exposure.
           </p>
           <p>
             <strong className="text-white">Operating region:</strong> We launch in Windsor–Essex and serve Ontario-wide. One consistent footprint—no geographic ambiguity on coverage, staffing, or response times.
@@ -68,7 +71,7 @@ export default function AboutPage() {
         <section className="mt-12">
           <h2 className="text-headline font-semibold text-white">How We're Built</h2>
           <p className="mt-4 text-zinc-400">
-            These aren't promises we'll add later—these are foundations designed into our operations from day one.
+            These aren't promises we'll add later—they're how we operate.
           </p>
           
           <StaggerContainer className="mt-8 space-y-6">

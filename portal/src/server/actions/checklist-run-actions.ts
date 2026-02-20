@@ -23,11 +23,7 @@ export async function createOrGetChecklistRun(jobId: string) {
     include: {
       site: {
         include: {
-          checklistTemplates: {
-            where: { isActive: true },
-            orderBy: { version: "desc" },
-            take: 1,
-          },
+          checklistTemplates: { where: { isActive: true } },
         },
       },
       completion: { include: { evidence: true } },
@@ -48,8 +44,9 @@ export async function createOrGetChecklistRun(jobId: string) {
     return { success: false, error: "Job not in editable state", run: null, runItems: {} };
   }
 
-  const templates = job.site.checklistTemplates;
-  if (!templates || templates.length === 0) {
+  const single = job.site.checklistTemplates;
+  const templates = single ? [single] : [];
+  if (templates.length === 0) {
     return { success: false, error: "No checklist templates for site", run: null, runItems: {} };
   }
 
@@ -58,7 +55,7 @@ export async function createOrGetChecklistRun(jobId: string) {
   const templateItems: Array<{ itemId: string; label: string; required?: boolean; photoRequired?: boolean; photoPointLabel?: string; failConditionText?: string }> = [];
   for (const template of templates) {
     const items = (template.items as Array<{ itemId: string; label: string; required?: boolean; photoRequired?: boolean; photoPointLabel?: string; failConditionText?: string }>) || [];
-    const prefix = template.checklistId ? `${template.checklistId}_` : '';
+    const prefix = '';
     for (const item of items) {
       templateItems.push({
         ...item,

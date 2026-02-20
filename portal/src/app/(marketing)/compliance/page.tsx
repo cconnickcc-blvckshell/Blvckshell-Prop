@@ -14,7 +14,7 @@ export default function CompliancePage() {
       <ScrollReveal>
         <h1 className="text-headline font-bold text-white">Compliance & Risk</h1>
         <p className="mt-4 text-lg text-zinc-400">
-          How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor–Essex launch, Ontario-wide service.
+          How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor–Essex launch, Ontario-wide service. Our documentation exists to protect you during audits, disputes, and board review.
         </p>
       </ScrollReveal>
 

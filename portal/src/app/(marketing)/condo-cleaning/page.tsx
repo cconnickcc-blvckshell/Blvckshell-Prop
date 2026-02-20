@@ -93,7 +93,7 @@ export default function CondoCleaningPage() {
           <div className="mt-12 rounded-lg border border-zinc-800 bg-zinc-900/30 p-6">
             <h3 className="text-lg font-semibold text-white">How It Works</h3>
             <p className="mt-4 text-sm text-zinc-400">
-              Every visit follows a site-specific checklist designed from day one. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee—no hourly billing.
+              Every visit follows a site-specific checklist. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee—no hourly billing. Hourly billing creates disputes and misaligned incentives; we don't use it.
             </p>
           </div>
         </ScrollReveal>

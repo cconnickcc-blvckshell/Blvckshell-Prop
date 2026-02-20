@@ -7,7 +7,7 @@ import { getAvailableChecklistTemplates } from "@/lib/checklist-parser";
 
 interface ChecklistTemplate {
   id: string;
-  checklistId: string | null;
+  checklistId?: string | null; // optional: not in current schema (one template per site)
   version: number;
   isActive: boolean;
   items: any; // Prisma JsonValue type
@@ -34,7 +34,8 @@ export default function ChecklistManager({
   
   // Filter out already assigned templates
   const assignedIds = new Set(currentTemplates.map(t => t.checklistId).filter((id): id is string => id != null));
-  const availableToAssign = availableTemplates.filter(t => !assignedIds.has(t.id));
+  // One template per site: if site has a template, show all as "assigned" for display purposes
+  const availableToAssign = currentTemplates.length > 0 ? [] : availableTemplates;
 
   const handleAssign = async () => {
     if (!selectedChecklistId) {
@@ -89,7 +90,7 @@ export default function ChecklistManager({
           {currentTemplates.length > 0 ? (
             <div className="mt-2 space-y-2">
               {currentTemplates.map((template) => {
-                const templateName = availableTemplates.find(t => t.id === template.checklistId)?.name || template.checklistId || "Custom";
+                const templateName = template.checklistId ? (availableTemplates.find(t => t.id === template.checklistId)?.name || template.checklistId) : "Site checklist";
                 return (
                   <div key={template.id} className="flex items-center justify-between rounded-md bg-zinc-800/50 px-3 py-2">
                     <div>

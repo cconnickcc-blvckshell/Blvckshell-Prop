@@ -124,7 +124,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-4xl">
             <h2 className="text-headline font-semibold text-white">How We Operationalize Quality</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Not generic promises—a systematic flow designed from day one. Every visit is structured to follow a documented process with accountability at every step.
+              Not generic promises—a systematic flow. Every visit is structured to follow a documented process with accountability at every step.
             </p>
             <div className="mt-12">
               <ProcessFlow
@@ -167,7 +167,7 @@ export default function HomePage() {
           <ScrollReveal>
             <h2 className="text-headline font-semibold text-white">Our Services</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Cleaning, unit turnovers, light maintenance, and facilities support. Each service is structured with checklists, evidence, and accountability built in from day one.
+              Cleaning, unit turnovers, light maintenance, and facilities support. Each service is structured with checklists, evidence, and accountability built in.
             </p>
           </ScrollReveal>
           <StaggerContainer className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -223,11 +223,17 @@ export default function HomePage() {
             <p className="mt-4 max-w-2xl text-zinc-400">
               Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review—this isn't added later, it's built in from the start.
             </p>
+            <p className="mt-3 max-w-2xl text-sm font-medium text-zinc-300">
+              If a visit can't be evidenced and reviewed, it isn't considered complete.
+            </p>
+            <p className="mt-2 max-w-2xl text-sm text-zinc-500">
+              Our documentation exists to protect you during audits, disputes, and board review.
+            </p>
             <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-16">
               <div>
                 <StaggerContainer className="space-y-6">
                   {[
-                    { icon: "✓", text: "Site-specific checklists designed from day one so scope is clear and nothing is missed." },
+                    { icon: "✓", text: "Site-specific checklists so scope is clear and nothing is missed." },
                     { icon: "📸", text: "Photo evidence minimums per area—structured to show what was done, not added as an afterthought." },
                     { icon: "⚡", text: "Issue escalation logic: safety and damage reported same day with documented response times." },
                     { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit—accountability designed in, not reactive." },
@@ -358,6 +364,12 @@ export default function HomePage() {
                 </StaggerItem>
               ))}
             </StaggerContainer>
+            <div className="mt-10 rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-4">
+              <p className="text-sm font-medium text-white">When things go wrong</p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Missed visits, quality issues, and incidents have a defined response: make-good or credit, same-day reporting, and documented escalation. We own the process—you get a clear audit trail. <Link href="/compliance" className="font-medium text-zinc-300 underline decoration-zinc-600 underline-offset-2 hover:decoration-white">Full details →</Link>
+              </p>
+            </div>
           </div>
         </section>
       </ScrollReveal>

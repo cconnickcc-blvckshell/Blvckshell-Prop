@@ -1,6 +1,6 @@
 # Portal (App) — CTO Review (All Pages Consolidated)
 
-**Purpose:** Single document for CTO to review every portal page (login, admin, worker/vendor), layout, and styling in one place. Standalone reference only; does not affect the live site.
+**Purpose:** Single document for CTO to review every portal page: **full content word-for-word** (every heading, label, button, table header, empty state, error message) plus styling. Standalone reference only; does not affect the live site. Where content is dynamic (e.g. from DB), marked as [Dynamic].
 
 **Generated:** February 2026.
 
@@ -13,7 +13,13 @@
 - **Worker area:** Light theme. Layout: `min-h-screen bg-gray-50`; nav and content use white/gray.
 - **Login:** Centered card on `bg-zinc-950`; form uses light-theme inputs (gray/blue) for contrast.
 
-### Admin nav (`AdminNav.tsx`)
+### Admin nav (`AdminNav.tsx`) — full content
+
+- **Brand:** **BLVCKSHELL Admin**
+- **Links:** **Locations**, **Workforce**, **Jobs**, **Invoices**, **Work Orders**, **Incidents**, **Payouts**, **Docs**
+- **Log out** | [Dynamic: user name, user role badge]
+
+### Admin nav — styling
 
 - **Container:** `sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950 shadow-lg`, `max-w-[1920px]`, `h-14 md:h-16`
 - **Brand:** `text-lg font-bold tracking-tight text-white md:text-xl`
@@ -22,7 +28,13 @@
 - **Log out:** `rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white`
 - **Mobile:** `border-t border-zinc-800 py-3`, same link styles, full-width Log out
 
-### Worker nav (`WorkerNav.tsx`)
+### Worker nav (`WorkerNav.tsx`) — full content
+
+- **Brand:** **BLVCKSHELL Portal**
+- **Links:** **Jobs** | (Vendor owner only) **Team**, **Vendor Jobs**, **Payout Totals** | **Earnings**, **Profile**
+- **[User name]** [Dynamic] | **Log out**
+
+### Worker nav — styling
 
 - **Container:** `border-b bg-white shadow-sm`, `max-w-7xl`, `h-16`
 - **Brand:** `text-xl font-bold text-gray-900`
@@ -85,6 +97,10 @@
 **File:** `portal/src/app/admin/jobs/page.tsx`  
 **Purpose:** List jobs (optional filter by siteId); table + mobile cards; status badges; link to new job and to job detail.
 
+### Full content (word-for-word)
+
+H1 **Jobs** or **Jobs — [site name]** [Dynamic] | Subtitle **Manage and review job completions** or **Job history for this site** | Button **Create job** | Table headers: **Site**, **Scheduled**, **Assigned To**, **Status**, **Payout**, **Actions** | Cell link **View** | Mobile card link **View →** | Empty: **No jobs yet.**
+
 **Key classes:**
 - Header: `mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`
 - H1: `text-2xl font-bold tracking-tight text-white sm:text-3xl`; subtitle `mt-1 text-zinc-400`
@@ -114,6 +130,10 @@
 
 **File:** `portal/src/app/admin/clients/page.tsx`  
 **Purpose:** Client organizations table (name, contact, site count); Add client CTA; View link to detail.
+
+### Full content (word-for-word)
+
+H1 **Locations** | Subtitle **Client organizations and sites** | Button **Add client** | Table headers: **Client**, **Contact**, **Sites**, **Actions** | Cell link **View** | Mobile **View →**. Rows: [Dynamic: client name, primary contact name/email, site count].
 
 **Key classes:** Same as Jobs list — section `rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl`, table thead/tbody, `hover:text-emerald-400`, mobile cards.
 
@@ -158,6 +178,10 @@
 
 **File:** `portal/src/app/admin/invoices/page.tsx`  
 **Purpose:** Invoices table (number, client, period, status, total); New draft invoice CTA.
+
+### Full content (word-for-word)
+
+H1 **Invoices** | Subtitle **Create and manage client invoices** | Button **New draft invoice** | Table headers: **Number**, **Client**, **Period**, **Status**, **Total**, **Actions** | Status values: Draft, Sent, Paid, Void. Rows: [Dynamic].
 
 **Key classes:** Same section/table; statusClass map (Draft/Sent/Paid/Void) — zinc, amber, emerald, red badge styles.
 
@@ -210,6 +234,10 @@
 **File:** `portal/src/app/admin/docs/page.tsx`  
 **Purpose:** Checklists and SOPs grid; links to view/print.
 
+### Full content (word-for-word)
+
+H1 **Documentation** | **Checklists and standard operating procedures. Open any doc to view or print / save as PDF.** | Section **Checklists** | **Area-specific cleaning checklists for common areas (lobby, hallway, washroom, etc.)** | Empty: **No checklists in content/docs/checklists yet.** | Card label **View & print** | Section **Standard operating procedures** | **Step-by-step procedures for cleaning, access, completion, and incidents** | Empty: **No SOPs in content/docs/sops yet.** | Card label **View & print**. Doc titles [from content files].
+
 **Key classes:**
 - H1: `text-2xl font-bold tracking-tight text-white sm:text-3xl`; subtitle `mt-2 text-zinc-400`
 - Section headings: `text-sm font-semibold uppercase tracking-wider text-zinc-500`
@@ -245,6 +273,10 @@
 **File:** `portal/src/app/(worker)/jobs/page.tsx`  
 **Purpose:** Jobs assigned to current user (or vendor account); list as cards; link to job detail.
 
+### Full content (word-for-word)
+
+H1 **My Jobs** | **View and complete your assigned jobs** | Empty: **No jobs assigned yet.** | Cards: [Dynamic: site name, site address, Scheduled: [date], Status badge, View link]. Status labels: SCHEDULED, COMPLETED PENDING APPROVAL, APPROVED PAYABLE, PAID.
+
 **Key classes:**
 - Wrapper: `min-h-screen bg-gray-50 p-4`; inner `mx-auto max-w-4xl`
 - H1: `text-2xl font-bold text-gray-900`; subtitle `text-gray-600`
@@ -260,6 +292,16 @@
 **File:** `portal/src/app/(worker)/jobs/[id]/page.tsx`  
 **Purpose:** Single job; complete/submit completion; evidence. Same worker card/button styling (white, gray, status badges).
 
+### Full content (word-for-word)
+
+**Vendor-owner (no workerId):** **This job is assigned to your organization. Only the assigned worker can complete the checklist. Please log in as that worker or assign the job to yourself from the admin panel.** | **Job: [site name] — [status]** [Dynamic].
+
+**No checklist:** **No checklist template available for this site. Please contact admin.**
+
+**Run error:** **{runResult.error}** or **Could not load checklist.**
+
+**Success:** Renders JobDetailClient (checklist run, evidence upload, submit). [Client component copy not duplicated here; CTO can open JobDetailClient for labels/buttons.]
+
 ---
 
 ## Page: Earnings (`/earnings`)
@@ -273,6 +315,10 @@
 
 **File:** `portal/src/app/(worker)/profile/page.tsx`  
 **Purpose:** Name, email, phone, role, workforce info.
+
+### Full content (word-for-word)
+
+H1 **Profile** | **Your account information** | Labels: **Name**, **Email**, **Phone**, **Role**; optional **Workforce account**, **Display name**, **Account type**. Values [Dynamic from user/worker].
 
 **Key classes:**
 - Wrapper: `min-h-screen bg-gray-50 p-4`, `mx-auto max-w-4xl`
