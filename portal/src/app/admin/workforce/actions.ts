@@ -6,7 +6,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 
 export async function createWorkforceAccount(formData: FormData) {
-  await requireAdmin();
+  const user = await requireAdmin();
   const type = formData.get("type") as "VENDOR" | "INTERNAL";
   const displayName = (formData.get("displayName") as string)?.trim();
   const legalName = (formData.get("legalName") as string)?.trim() || null;
@@ -33,37 +33,112 @@ export async function createWorkforceAccount(formData: FormData) {
 
   const passwordHash = bcrypt.hashSync(userPassword, 10);
 
-  const account = await prisma.workforceAccount.create({
-    data: {
-      type,
-      displayName,
-      legalName: type === "VENDOR" ? legalName ?? displayName : null,
-      primaryContactName,
-      primaryContactEmail,
-      primaryContactPhone,
-      hstNumber: type === "VENDOR" ? hstNumber : null,
-      wsibAccountNumber: type === "VENDOR" ? wsibAccountNumber : null,
-    },
+  const account = await prisma.$transaction(async (tx) => {
+    const account = await tx.workforceAccount.create({
+      data: {
+        type,
+        displayName,
+        legalName: type === "VENDOR" ? legalName ?? displayName : null,
+        primaryContactName,
+        primaryContactEmail,
+        primaryContactPhone,
+        hstNumber: type === "VENDOR" ? hstNumber : null,
+        wsibAccountNumber: type === "VENDOR" ? wsibAccountNumber : null,
+      },
+    });
+
+    // Audit log: WorkforceAccount creation
+    await tx.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        actorWorkerId: user.workerId ?? null,
+        actorWorkforceAccountId: user.workforceAccountId ?? null,
+        entityType: "WorkforceAccount",
+        entityId: account.id,
+        fromState: null,
+        toState: "CREATED",
+        metadata: {
+          action: "create",
+          type,
+          displayName,
+          createdFields: {
+            type,
+            displayName,
+            legalName: type === "VENDOR" ? legalName ?? displayName : null,
+            primaryContactName,
+            primaryContactEmail,
+            primaryContactPhone,
+            hasHstNumber: type === "VENDOR" && hstNumber !== null,
+            hasWsibNumber: type === "VENDOR" && wsibAccountNumber !== null,
+          },
+        },
+      },
+    });
+
+    return account;
   });
 
   const role = type === "VENDOR" ? "VENDOR_OWNER" : "INTERNAL_WORKER";
-  const user = await prisma.user.create({
-    data: {
-      email: userEmail,
-      passwordHash,
-      role,
-      workforceAccountId: account.id,
-      name: userName,
-      phone: userPhone,
-    },
+  const createdUser = await prisma.$transaction(async (tx) => {
+    const createdUser = await tx.user.create({
+      data: {
+        email: userEmail,
+        passwordHash,
+        role,
+        workforceAccountId: account.id,
+        name: userName,
+        phone: userPhone,
+      },
+    });
+
+    // Audit log: User creation
+    await tx.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        actorWorkerId: user.workerId ?? null,
+        actorWorkforceAccountId: user.workforceAccountId ?? null,
+        entityType: "User",
+        entityId: createdUser.id,
+        fromState: null,
+        toState: "CREATED",
+        metadata: {
+          action: "create",
+          role,
+          email: userEmail,
+          workforceAccountId: account.id,
+        },
+      },
+    });
+
+    return createdUser;
   });
 
   if (type === "INTERNAL") {
-    await prisma.worker.create({
-      data: {
-        userId: user.id,
-        workforceAccountId: account.id,
-      },
+    await prisma.$transaction(async (tx) => {
+      const worker = await tx.worker.create({
+        data: {
+          userId: createdUser.id,
+          workforceAccountId: account.id,
+        },
+      });
+
+      // Audit log: Worker creation
+      await tx.auditLog.create({
+        data: {
+          actorUserId: user.id,
+          actorWorkerId: user.workerId ?? null,
+          actorWorkforceAccountId: user.workforceAccountId ?? null,
+          entityType: "Worker",
+          entityId: worker.id,
+          fromState: null,
+          toState: "CREATED",
+          metadata: {
+            action: "create",
+            userId: createdUser.id,
+            workforceAccountId: account.id,
+          },
+        },
+      });
     });
   }
 

@@ -51,6 +51,14 @@ export default function HomePage() {
               >
                 Checklists, photo verification, and compliance tracking designed into our operations from the start. Built for property managers who value structure over scale.
               </motion.p>
+              <motion.p
+                initial={motionConfig.heroReveal.initial}
+                animate={motionConfig.heroReveal.animate}
+                transition={{ delay: 0.45, ...motionConfig.heroReveal.animate.transition }}
+                className="mt-4 max-w-2xl mx-auto text-base font-medium text-zinc-300 sm:text-lg"
+              >
+                Blvckshell exists to eliminate ambiguity and liability from facilities operations. Every process is designed to produce proof, prevent disputes, and protect you during audits and board review.
+              </motion.p>
               <motion.div
                 initial={motionConfig.heroReveal.initial}
                 animate={motionConfig.heroReveal.animate}

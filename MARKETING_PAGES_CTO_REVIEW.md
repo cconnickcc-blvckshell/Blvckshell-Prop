@@ -56,6 +56,7 @@
 - H1: **Facilities Services Built Deliberately**
 - Sub: **Structured, Accountable, Prepared from Day One**
 - Body: **Checklists, photo verification, and compliance tracking designed into our operations from the start. Built for property managers who value structure over scale.**
+- Authority statement: **Blvckshell exists to eliminate ambiguity and liability from facilities operations. Every process is designed to produce proof, prevent disputes, and protect you during audits and board review.**
 - Buttons: **Request a site evaluation** | **Get in touch** (mobile only)
 
 **Trust strip**
