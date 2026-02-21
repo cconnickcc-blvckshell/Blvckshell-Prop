@@ -36,9 +36,10 @@ npm run db:seed
 | **Vendor workers** | 1 | Bob (worker record for job assignment) |
 | **Internal workforce** | 1 | BLVCKSHELL Internal |
 | **Internal worker** | 1 | Mike (INTERNAL_WORKER) |
-| **Client organizations** | 2 | Maple Condos Inc., Downtown Property Group |
-| **Sites** | 2 | Maple Tower Lobby, Downtown Plaza Common Areas |
-| **Checklist templates** | 2 | One per site (CL_01 Lobby items, CL_02 Hallway items) |
+| **Client portal user** | 1 | sarah@maplecondos.com (CLIENT) — read-only at /client |
+| **Client organizations** | 3 | Maple Condos Inc., Downtown Property Group, Riverside Commercial Ltd. |
+| **Sites** | 3 | Maple Tower Lobby, Downtown Plaza Common Areas, Riverside Tower A |
+| **Checklist templates** | 3 | One per site (CL_01 Lobby, CL_02 Hallway, CL_01 for Riverside) |
 | **Jobs** | 8 | 6 regular (mixed statuses) + 1 missed + 1 make-good |
 | **Work order** | 1 | REQUESTED, assigned to vendor |
 | **Incident report** | 1 | Property damage at site 1, reported by Bob |
@@ -53,6 +54,7 @@ npm run db:seed
 | Vendor owner | jane@cleanpro.example.com | Can use /vendor/team, /vendor/jobs (and worker routes) |
 | Vendor worker | bob@cleanpro.example.com | Sees only jobs where assignedWorkerId = Bob |
 | Internal worker | mike@blvckshell.com | Sees only jobs assigned to Mike |
+| Client | sarah@maplecondos.com | Read-only portal at /client (Maple Condos Inc. data only) |
 
 ---
 

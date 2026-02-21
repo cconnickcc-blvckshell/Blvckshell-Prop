@@ -1,7 +1,7 @@
 /**
  * BLVCKSHELL Portal — Seed script
- * Creates: 1 admin, 1 vendor (2 workers), 1 internal (1 worker), 2 client orgs, 2 sites,
- * 6 jobs, 1 missed + make-good, 1 work order, 1 incident.
+ * Creates: 1 admin, 1 vendor (2 workers), 1 internal (1 worker), 1 client portal user,
+ * 3 client orgs, 3 sites, jobs, 1 missed + make-good, 1 work order, 1 incident.
  * Checklist item IDs from ops-binder/06_Checklists_Library/checklist-manifest.json
  */
 import "dotenv/config";
@@ -175,6 +175,34 @@ async function main() {
     },
   });
 
+  const client3 = await prisma.clientOrganization.upsert({
+    where: { id: "seed-client-3" },
+    update: {},
+    create: {
+      id: "seed-client-3",
+      name: "Riverside Commercial Ltd.",
+      primaryContactName: "Alex Facilities",
+      primaryContactEmail: "alex@riversidecommercial.com",
+      primaryContactPhone: "+1 416 555 3002",
+      notes: "Multi-site portfolio",
+    },
+  });
+
+  // Client portal user (read-only: sites, jobs, evidence, invoices for their org)
+  const clientPortalUser = await prisma.user.upsert({
+    where: { email: "sarah@maplecondos.com" },
+    update: {},
+    create: {
+      email: "sarah@maplecondos.com",
+      passwordHash: HASHED_PASSWORD,
+      role: "CLIENT",
+      clientOrganizationId: client1.id,
+      name: "Sarah PM",
+      phone: "+1 416 555 3000",
+    },
+  });
+  console.log("Created client portal user:", clientPortalUser.email);
+
   const site1 = await prisma.site.upsert({
     where: { id: "seed-site-1" },
     update: {},
@@ -209,6 +237,23 @@ async function main() {
     },
   });
 
+  const site3 = await prisma.site.upsert({
+    where: { id: "seed-site-3" },
+    update: {},
+    create: {
+      id: "seed-site-3",
+      clientOrganizationId: client3.id,
+      name: "Riverside Tower A",
+      address: "300 Riverside Dr, Toronto ON",
+      accessInstructions: "Security desk; sign in required.",
+      serviceWindow: "6:00–11:00",
+      estimatedDurationMinutes: 90,
+      requiredPhotoCount: 6,
+      suppliesProvidedBy: "COMPANY",
+      doNotEnterUnits: true,
+    },
+  });
+
   // 5. Checklist templates (one active per site; use CL_01 and CL_02 item IDs)
   const template1Exists = await prisma.checklistTemplate.findFirst({
     where: { siteId: site1.id, isActive: true },
@@ -234,6 +279,20 @@ async function main() {
         version: 1,
         isActive: true,
         items: CL_02_ITEMS,
+      },
+    });
+  }
+
+  const template3Exists = await prisma.checklistTemplate.findFirst({
+    where: { siteId: site3.id, isActive: true },
+  });
+  if (!template3Exists) {
+    await prisma.checklistTemplate.create({
+      data: {
+        siteId: site3.id,
+        version: 1,
+        isActive: true,
+        items: CL_01_ITEMS,
       },
     });
   }
@@ -357,6 +416,7 @@ async function main() {
   console.log("  Vendor owner: jane@cleanpro.example.com / password123");
   console.log("  Vendor worker: bob@cleanpro.example.com / password123");
   console.log("  Internal worker: mike@blvckshell.com / password123");
+  console.log("  Client portal: sarah@maplecondos.com / password123 → /client");
 }
 
 main()
