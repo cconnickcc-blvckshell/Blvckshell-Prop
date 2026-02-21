@@ -49,7 +49,7 @@ export default function HomePage() {
                 transition={{ delay: 0.35, ...motionConfig.heroReveal.animate.transition }}
                 className="mt-6 text-base leading-relaxed text-zinc-400 sm:text-lg"
               >
-                Checklists, photo verification, and compliance tracking designed into our operations from the start. Built for property managers who value structure over scale.
+                Checklists, photo verification, and compliance tracking designed into our operations from the start. For property managers who need evidence, compliance, and predictable results.
               </motion.p>
               <motion.p
                 initial={motionConfig.heroReveal.initial}
@@ -67,15 +67,15 @@ export default function HomePage() {
               >
                 <Link
                   href="/contact"
-                  className="group rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
+                  className="group inline-flex items-center justify-center rounded-lg bg-white px-8 py-4 text-base font-semibold text-zinc-900 shadow-lg ring-2 ring-white/20 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
                 >
-                  Request a site evaluation
+                  Request a Portfolio Walkthrough
                 </Link>
                 <Link
-                  href="/contact"
-                  className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-center text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50 sm:hidden"
+                  href="/contact?request=quote"
+                  className="inline-flex items-center justify-center rounded-lg border-2 border-zinc-500 bg-zinc-900/80 px-8 py-4 text-base font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-400 hover:bg-zinc-800/80"
                 >
-                  Get in touch
+                  Request a Quote
                 </Link>
               </motion.div>
             </div>
@@ -97,7 +97,7 @@ export default function HomePage() {
         <section className="border-b border-zinc-800 bg-zinc-900/30 px-4 py-12 backdrop-blur-sm sm:px-6">
           <div className="mx-auto max-w-6xl">
             <p className="text-center text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Built for property managers
+              For property managers who need evidence, compliance, and predictable results
             </p>
             <StaggerContainer className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
               {[
@@ -145,7 +145,7 @@ export default function HomePage() {
                   {
                     icon: "⚡",
                     title: "Issue & Escalation",
-                    description: "Automatic alerts for safety, damage, or scope gaps. Reported same day with documented response times.",
+                    description: "We flag safety concerns instantly and deliver documented responses within the same business day.",
                   },
                   {
                     icon: "📋",
@@ -233,7 +233,7 @@ export default function HomePage() {
                   {[
                     { icon: "✓", text: "Site-specific checklists so scope is clear and nothing is missed." },
                     { icon: "📸", text: "Photo evidence minimums per area-structured to show what was done, not added as an afterthought." },
-                    { icon: "⚡", text: "Issue escalation logic: safety and damage reported same day with documented response times." },
+                    { icon: "⚡", text: "We flag safety concerns instantly and deliver documented responses within the same business day." },
                     { icon: "🔄", text: "Re-clean policy: we return to fix it or you get credit-accountability designed in, not reactive." },
                   ].map((item, i) => (
                     <StaggerItem key={i} index={i} className="flex gap-4">
@@ -270,15 +270,38 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
+      {/* Traction & proof (investor-friendly metrics) */}
+      <ScrollReveal>
+        <section className="border-b border-zinc-800 bg-zinc-900/20 px-4 py-12 sm:px-6">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-center text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Positioned to scale as compliance and evidence requirements increase across property portfolios
+            </p>
+            <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4">
+              {[
+                { label: "Pilot sites", value: "Growing" },
+                { label: "Verified visits", value: "Tracked" },
+                { label: "Evidence-first", value: "Built in" },
+                { label: "Ontario coverage", value: "Windsor–Essex base" },
+              ].map((item, i) => (
+                <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-4 text-center">
+                  <p className="text-lg font-semibold text-white">{item.value}</p>
+                  <p className="mt-1 text-xs text-zinc-500">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
+
       {/* Who we serve - Target Audience */}
       <ScrollReveal>
         <section className="border-y border-zinc-800 bg-zinc-950 px-4 py-20 sm:px-6 lg:py-24">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-headline font-semibold text-white">Who We Serve</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Property managers, condo boards, and commercial building operators who need reliable, auditable facilities work. We launch in{" "}
-              <strong className="text-white">Windsor-Essex</strong> and serve{" "}
-              <strong className="text-white">Ontario-wide coverage as we expand</strong> - multi-site portfolios considered case-by-case.
+              Property managers, condo boards, and commercial building operators who need reliable, auditable facilities work. Based in{" "}
+              <strong className="text-white">Windsor-Essex</strong>, serving portfolios across Ontario. Multi-site portfolios considered case-by-case.
             </p>
             <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {["Condo corporations", "Commercial property managers", "Multi-site portfolios"].map((item, i) => (
@@ -301,7 +324,7 @@ export default function HomePage() {
             <StaggerContainer className="mt-12 grid gap-8 sm:grid-cols-3">
               {[
                 { title: "Scope & quote", body: "We align on scope, checklists, and frequency. You get a clear quote and schedule." },
-                { title: "Scheduled service", body: "Assigned crews complete work on schedule. Evidence and checklists are captured in our portal." },
+                { title: "Scheduled service", body: "We deliver verified, scheduled service — every time. Evidence and checklists are captured in our portal." },
                 { title: "Review & approve", body: "You review completions and approve. Invoicing and payouts are handled in one place." },
               ].map(({ title, body }, i) => (
                 <StaggerItem key={i} index={i}>
@@ -346,7 +369,7 @@ export default function HomePage() {
                 },
                 {
                   title: "Where we operate",
-                  items: ["Launch: Windsor-Essex", "Service area: Ontario-wide", "Multi-site portfolios welcome", "Site walks available"],
+                  items: ["Based in Windsor-Essex", "Serving Ontario-wide", "Multi-site portfolios welcome", "Site walks available"],
                 },
                 {
                   title: "Proof & accountability",
@@ -369,6 +392,12 @@ export default function HomePage() {
               ))}
             </StaggerContainer>
             <div className="mt-10 rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-4">
+              <p className="text-sm font-medium text-white">Pricing & engagement</p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Typical contracts start with a site evaluation and scope-based quote. Flat monthly fees per site or per visit — no hourly billing. Ask for a ballpark range when you contact us.
+              </p>
+            </div>
+            <div className="mt-4 rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-4">
               <p className="text-sm font-medium text-white">When things go wrong</p>
               <p className="mt-1 text-sm text-zinc-400">
                 Missed visits, quality issues, and incidents have a defined response: make-good or credit, same-day reporting, and documented escalation. We own the process-you get a clear audit trail. <Link href="/compliance" className="font-medium text-zinc-300 underline decoration-zinc-600 underline-offset-2 hover:decoration-white">Full details →</Link>
@@ -392,13 +421,19 @@ export default function HomePage() {
             <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
               <Link
                 href="/contact"
-                className="group rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
+                className="group inline-flex items-center justify-center rounded-lg bg-white px-8 py-4 text-base font-semibold text-zinc-900 shadow-lg transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
               >
-                Request a site evaluation
+                Request a Portfolio Walkthrough
+              </Link>
+              <Link
+                href="/contact?request=quote"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-zinc-500 bg-zinc-900/80 px-8 py-4 text-base font-medium text-white transition-all duration-200 hover:border-zinc-400 hover:bg-zinc-800/80"
+              >
+                Request a Quote
               </Link>
               <Link
                 href="/contact?request=sample-report"
-                className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
+                className="rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-4 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
               >
                 See a sample report
               </Link>

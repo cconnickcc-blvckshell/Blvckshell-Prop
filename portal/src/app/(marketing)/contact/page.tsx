@@ -13,17 +13,25 @@ export default async function ContactPage({
 }) {
   const params = await searchParams;
   const isSampleRequest = params.request === "sample-report";
+  const isQuoteRequest = params.request === "quote";
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
       <h1 className="text-3xl font-bold tracking-tight text-white">Contact</h1>
       <p className="mt-4 text-zinc-400">
-        Request a quote, book a site walk, or ask a question. We’ll respond within one business day.
+        Request a quote, book a portfolio walkthrough, or ask a question. We’ll respond within one business day.
       </p>
       {isSampleRequest && (
         <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
           <p className="text-sm text-emerald-300">
             <strong>Sample report request.</strong> Share your details below and we'll send you an anonymized example of a completion report.
+          </p>
+        </div>
+      )}
+      {isQuoteRequest && (
+        <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+          <p className="text-sm text-emerald-300">
+            <strong>Request a quote.</strong> Tell us about your sites and we’ll send a ballpark range and next steps.
           </p>
         </div>
       )}
@@ -50,7 +58,13 @@ export default async function ContactPage({
       <h2 className="mt-8 text-xl font-semibold text-white">Send a message</h2>
       <ContactForm
         requestType={params.request}
-        defaultMessage={isSampleRequest ? "I'd like to receive a sample completion report." : undefined}
+        defaultMessage={
+          isSampleRequest
+            ? "I'd like to receive a sample completion report."
+            : isQuoteRequest
+              ? "I'd like a quote for facilities services. Please include ballpark pricing and next steps."
+              : undefined
+        }
       />
 
       <div className="mt-10 rounded-lg border border-zinc-800/80 bg-zinc-900/30 px-4 py-4">

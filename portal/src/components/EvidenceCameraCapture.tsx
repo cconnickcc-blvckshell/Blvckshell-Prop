@@ -20,6 +20,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
   const [step, setStep] = useState<"camera" | "redact" | "error">("camera");
   const [error, setError] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
   const [rects, setRects] = useState<Rect[]>([]);
   const [drawing, setDrawing] = useState<Rect | null>(null);
@@ -28,24 +29,46 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Start camera
+  // Start camera and mark ready when video has dimensions (so capture works)
   useEffect(() => {
     let s: MediaStream | null = null;
+    let pollId: ReturnType<typeof setInterval> | null = null;
+    setVideoReady(false);
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" }, audio: false })
       .then((stream) => {
         s = stream;
         setStream(stream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+          const onReady = () => {
+            if (video.videoWidth > 0 && video.videoHeight > 0) setVideoReady(true);
+          };
+          video.addEventListener("loadeddata", onReady, { once: true });
+          video.addEventListener("loadedmetadata", onReady, { once: true });
+          video.addEventListener("canplay", onReady, { once: true });
+          if (video.videoWidth > 0 && video.videoHeight > 0) setVideoReady(true);
+          pollId = setInterval(() => {
+            if (video.videoWidth > 0 && video.videoHeight > 0) {
+              setVideoReady(true);
+              if (pollId) clearInterval(pollId);
+              pollId = null;
+            }
+          }, 150);
+          setTimeout(() => {
+            if (pollId) clearInterval(pollId);
+            pollId = null;
+          }, 6000);
         }
         setError(null);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Camera access denied or unavailable.");
         setStep("error");
       });
     return () => {
+      if (pollId) clearInterval(pollId);
       if (s) s.getTracks().forEach((t) => t.stop());
     };
   }, []);
@@ -61,16 +84,20 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas || !stream) return;
-    video.pause();
-    stopStream();
     const w = video.videoWidth;
     const h = video.videoHeight;
+    if (w === 0 || h === 0) {
+      setError("Camera not ready. Wait a moment and try again.");
+      return;
+    }
+    stopStream();
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, w, h);
     setCapturedUrl(canvas.toDataURL("image/jpeg", 0.92));
+    setError(null);
     setStep("redact");
   }, [stream, stopStream]);
 
@@ -78,13 +105,22 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     setCapturedUrl(null);
     setRects([]);
     setDrawing(null);
+    setError(null);
     setStep("camera");
+    setVideoReady(false);
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" }, audio: false })
       .then((newStream) => {
         setStream(newStream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = newStream;
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = newStream;
+          const onReady = () => {
+            if (video.videoWidth > 0 && video.videoHeight > 0) setVideoReady(true);
+          };
+          video.addEventListener("loadeddata", onReady, { once: true });
+          video.addEventListener("canplay", onReady, { once: true });
+          if (video.videoWidth > 0 && video.videoHeight > 0) setVideoReady(true);
         }
       })
       .catch(() => setError("Camera unavailable"));
@@ -236,11 +272,17 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
               muted
               className="h-full w-full object-contain"
             />
+            {!videoReady && (
+              <p className="absolute left-2 right-2 top-2 rounded bg-zinc-800/90 px-3 py-2 text-center text-sm text-zinc-300">
+                Preparing camera…
+              </p>
+            )}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center">
               <button
                 type="button"
                 onClick={capture}
-                className="h-14 w-14 rounded-full border-4 border-white bg-white/20 shadow-lg"
+                disabled={!videoReady}
+                className="h-14 w-14 rounded-full border-4 border-white bg-white/20 shadow-lg disabled:opacity-50 disabled:pointer-events-none"
                 aria-label="Capture"
               />
             </div>
