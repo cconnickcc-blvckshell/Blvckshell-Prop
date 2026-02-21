@@ -23,8 +23,8 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero - Portfolio-Ready Facility Operations */}
-      <section className="relative min-h-[75vh] border-b border-zinc-800">
-        <ImageTreatment src={IMAGES.hero} alt="Premium commercial building lobby" priority className="absolute inset-0 h-full min-h-[75vh] w-full">
+      <section className="relative h-[75vh] min-h-[400px] w-full border-b border-zinc-800">
+        <ImageTreatment src={IMAGES.hero} alt="Premium commercial building lobby" priority className="absolute inset-0 h-full w-full">
           <div className="flex w-full flex-1 flex-col items-center justify-center px-4 py-24 sm:px-6 lg:py-32">
             <div className="mx-auto max-w-4xl text-center">
               <motion.h1

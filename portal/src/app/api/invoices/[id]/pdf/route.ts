@@ -20,10 +20,39 @@ export async function GET(
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        clientId: true,
+        invoiceNumber: true,
+        periodStart: true,
+        periodEnd: true,
+        status: true,
+        issuedAt: true,
+        dueAt: true,
+        notes: true,
+        subtotalCents: true,
+        taxCents: true,
+        totalCents: true,
         client: { select: { name: true } },
-        lineItems: { include: { site: { select: { name: true } } } },
-        adjustments: { where: { status: { in: ["Approved", "Applied"] } } },
+        lineItems: {
+          select: {
+            id: true,
+            description: true,
+            qty: true,
+            unitPriceCents: true,
+            amountCents: true,
+            site: { select: { name: true } },
+          },
+        },
+        adjustments: {
+          where: { status: { in: ["Approved", "Applied"] } },
+          select: {
+            id: true,
+            type: true,
+            amountCents: true,
+            notes: true,
+          },
+        },
       },
     });
 

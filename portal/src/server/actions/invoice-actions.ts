@@ -101,20 +101,61 @@ export async function createDraftInvoice(
     : { success: false, error: result.error, invoiceId: null };
 }
 
-/** Get invoice with line items, adjustments, and related jobs */
+/** Get invoice with line items, adjustments, and related jobs. Uses explicit select so it works before Category A migration. */
 export async function getInvoiceWithDetails(invoiceId: string) {
   await requireAdmin();
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    include: {
+    select: {
+      id: true,
+      clientId: true,
+      invoiceNumber: true,
+      periodStart: true,
+      periodEnd: true,
+      status: true,
+      issuedAt: true,
+      dueAt: true,
+      notes: true,
+      subtotalCents: true,
+      taxCents: true,
+      totalCents: true,
+      createdById: true,
+      createdAt: true,
+      updatedAt: true,
       client: { select: { name: true, id: true } },
       createdBy: { select: { name: true } },
       lineItems: {
-        include: {
+        select: {
+          id: true,
+          invoiceId: true,
+          jobId: true,
+          checklistRunId: true,
+          contractId: true,
+          description: true,
+          qty: true,
+          unitPriceCents: true,
+          amountCents: true,
+          siteId: true,
           site: { select: { name: true } },
         },
       },
-      adjustments: { where: { status: { in: ["Proposed", "Approved", "Applied"] } } },
+      adjustments: {
+        where: { status: { in: ["Proposed", "Approved", "Applied"] } },
+        select: {
+          id: true,
+          invoiceId: true,
+          siteId: true,
+          jobId: true,
+          type: true,
+          amountCents: true,
+          reasonCode: true,
+          notes: true,
+          createdById: true,
+          createdAt: true,
+          status: true,
+          evidencePhotoIds: true,
+        },
+      },
       jobs: { select: { id: true, siteId: true, scheduledStart: true } },
     },
   });

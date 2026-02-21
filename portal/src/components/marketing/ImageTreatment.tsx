@@ -23,13 +23,14 @@ export default function ImageTreatment({
   children,
 }: ImageTreatmentProps) {
   return (
-    <div className={`relative min-h-full overflow-hidden ${className}`}>
+    <div className={`relative h-full min-h-0 overflow-hidden ${className}`}>
       {/* Image layer: absolute so content can sit on top and scale with hero */}
       <img
         src={src}
         alt={alt}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover bg-zinc-900"
         loading={priority ? "eager" : "lazy"}
+        sizes="100vw"
       />
       {/* Color grading overlay (consistent warm neutral overlay) */}
       <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/40 via-zinc-950/10 to-zinc-950/35" />
