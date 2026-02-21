@@ -106,7 +106,7 @@ export default async function AdminJobDetailPage({
     notFound();
   }
 
-  const checklistTemplate = job.site.checklistTemplates;
+  const checklistTemplate = job.site.checklistTemplates?.[0] ?? null;
   const checklistResults = job.completion?.checklistResults
     ? (job.completion.checklistResults as Record<
         string,

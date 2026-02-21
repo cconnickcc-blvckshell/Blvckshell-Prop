@@ -101,20 +101,15 @@ export async function submitCompletion(input: {
   }
 
   try {
-    // Check job access and get site requirements
+    // Check job access and get site requirements (explicit select: omit Category A Job columns)
     const job = await prisma.job.findUnique({
       where: { id: input.jobId },
-      include: {
-        site: {
-          select: {
-            requiredPhotoCount: true,
-          },
-        },
-        completion: {
-          include: {
-            evidence: true,
-          },
-        },
+      select: {
+        id: true,
+        assignedWorkerId: true,
+        status: true,
+        site: { select: { requiredPhotoCount: true } },
+        completion: { select: { id: true, evidence: true } },
       },
     });
 

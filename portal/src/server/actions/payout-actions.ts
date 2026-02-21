@@ -36,11 +36,16 @@ export async function createPayoutBatch(input: {
       scheduledStart: { gte: start, lte: end },
       id: { notIn: paidJobIds.size > 0 ? Array.from(paidJobIds) : undefined },
     },
-    include: {
+    select: {
+      id: true,
+      scheduledStart: true,
+      payoutAmountCents: true,
+      assignedWorkforceAccountId: true,
+      assignedWorkerId: true,
       site: { select: { name: true, id: true } },
       assignedWorkforceAccount: { select: { id: true } },
       assignedWorker: {
-        include: { workforceAccount: { select: { id: true } } },
+        select: { workforceAccount: { select: { id: true } } },
       },
       checklistRuns: {
         orderBy: { updatedAt: "desc" },

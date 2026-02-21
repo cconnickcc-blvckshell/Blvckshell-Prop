@@ -135,29 +135,29 @@ model ComplianceDocument {
 }
 
 model Site {
-  id                       String              @id @default(cuid())
+  id                       String               @id @default(cuid())
   clientOrganizationId     String
   name                     String
   address                  String
   accessInstructions       String?
   serviceWindow            String?
   estimatedDurationMinutes Int?
-  requiredPhotoCount       Int                 @default(4)
+  requiredPhotoCount       Int                  @default(4)
   suppliesProvidedBy       SuppliesProvidedBy
-  doNotEnterUnits          Boolean             @default(true)
-  isActive                 Boolean             @default(true)
+  doNotEnterUnits          Boolean              @default(true)
+  isActive                 Boolean              @default(true)
   siteTemplateId           String?
   siteTemplateVersion      Int?
   accessCredentials        AccessCredential[]
   billingAdjustments       BillingAdjustment[]
-  checklistTemplates       ChecklistTemplate?
+  checklistTemplates       ChecklistTemplate[]
   contracts                Contract[]
   incidentReports          IncidentReport[]
   invoiceLineItems         InvoiceLineItem[]
   jobs                     Job[]
-  clientOrganization       ClientOrganization  @relation(fields: [clientOrganizationId], references: [id])
+  clientOrganization       ClientOrganization   @relation(fields: [clientOrganizationId], references: [id])
   siteAssignments          SiteAssignment[]
-  siteTemplate             SiteTemplate?       @relation(fields: [siteTemplateId], references: [id])
+  siteTemplate             SiteTemplate?        @relation(fields: [siteTemplateId], references: [id])
   workOrders               WorkOrder[]
 
   @@index([clientOrganizationId])
@@ -206,7 +206,8 @@ model AccessCredential {
 
 model ChecklistTemplate {
   id            String         @id @default(cuid())
-  siteId        String         @unique(map: "checklisttemplate_one_active_per_site") // DB enforces partial: one active per site
+  siteId        String
+  checklistId   String?        // optional logical id for stackable templates (from add_checklist_id_to_template)
   version       Int            @default(1)
   isActive      Boolean        @default(true)
   items         Json
@@ -214,8 +215,10 @@ model ChecklistTemplate {
   checklistRuns ChecklistRun[]
   site          Site           @relation(fields: [siteId], references: [id])
 
+  @@unique([siteId, version])
   @@index([siteId])
   @@index([isActive])
+  @@index([checklistId])
 }
 
 model ChecklistRun {

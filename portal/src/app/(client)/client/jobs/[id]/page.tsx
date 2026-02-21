@@ -16,10 +16,14 @@ export default async function ClientJobDetailPage({
       id,
       site: { clientOrganizationId: user.clientOrganizationId! },
     },
-    include: {
+    select: {
+      id: true,
+      scheduledStart: true,
+      status: true,
       site: { select: { name: true, address: true } },
       completion: {
-        include: {
+        select: {
+          id: true,
           evidence: { orderBy: { uploadedAt: "asc" } },
         },
       },

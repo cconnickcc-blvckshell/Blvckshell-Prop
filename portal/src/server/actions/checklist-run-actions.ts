@@ -18,20 +18,24 @@ export async function createOrGetChecklistRun(jobId: string) {
     return { success: false, error: "Worker identity required", run: null, runItems: {} };
   }
 
+  // Explicit select: omit Job columns not in production (approvalFlaggedAt, jobTemplateId, jobTemplateVersion); Site without siteTemplateId/siteTemplateVersion
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    include: {
+    select: {
+      id: true,
+      assignedWorkerId: true,
+      status: true,
       site: {
-        include: {
+        select: {
           checklistTemplates: { where: { isActive: true } },
         },
       },
-      completion: { include: { evidence: true } },
+      completion: { select: { id: true, evidence: true } },
       checklistRuns: {
         where: { status: "InProgress" },
         orderBy: { updatedAt: "desc" },
         take: 1,
-        include: { items: true },
+        select: { id: true, status: true, templateVersion: true, items: true },
       },
     },
   });
@@ -44,8 +48,9 @@ export async function createOrGetChecklistRun(jobId: string) {
     return { success: false, error: "Job not in editable state", run: null, runItems: {} };
   }
 
-  const single = job.site.checklistTemplates;
-  const templates = single ? [single] : [];
+  const templates = Array.isArray(job.site.checklistTemplates)
+    ? job.site.checklistTemplates.filter((t) => t.isActive)
+    : [];
   if (templates.length === 0) {
     return { success: false, error: "No checklist templates for site", run: null, runItems: {} };
   }
@@ -198,13 +203,18 @@ export async function submitChecklistRun(runId: string) {
 
   const run = await prisma.checklistRun.findUnique({
     where: { id: runId },
-    include: {
+    select: {
+      id: true,
+      status: true,
       items: true,
-      checklistTemplate: true,
+      checklistTemplate: { select: { items: true } },
       job: {
-        include: {
+        select: {
+          id: true,
+          assignedWorkerId: true,
+          status: true,
           site: { select: { requiredPhotoCount: true } },
-          completion: { include: { evidence: true } },
+          completion: { select: { id: true, evidence: true } },
         },
       },
     },

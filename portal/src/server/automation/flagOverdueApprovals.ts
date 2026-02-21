@@ -15,10 +15,10 @@ export async function flagOverdueApprovals(actorUserId: string): Promise<{
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - OVERDUE_DAYS);
 
+  // Omit approvalFlaggedAt from where/update so this runs before Category A migration (column may not exist)
   const jobs = await prisma.job.findMany({
     where: {
       status: "COMPLETED_PENDING_APPROVAL",
-      approvalFlaggedAt: null,
       scheduledStart: { lt: cutoff },
     },
     select: { id: true },
@@ -30,10 +30,20 @@ export async function flagOverdueApprovals(actorUserId: string): Promise<{
   for (const job of jobs) {
     try {
       await prisma.$transaction(async (tx) => {
-        await tx.job.update({
-          where: { id: job.id },
-          data: { approvalFlaggedAt: new Date() },
-        });
+        // Skip job.update when approvalFlaggedAt column does not exist (pre-migration)
+        try {
+          await tx.job.update({
+            where: { id: job.id },
+            data: { approvalFlaggedAt: new Date() } as { approvalFlaggedAt: Date },
+          });
+        } catch (e: unknown) {
+          const err = e as { code?: string };
+          if (err?.code === "P2022") {
+            // ColumnNotFound - skip update; still write audit below
+          } else {
+            throw e;
+          }
+        }
         await tx.auditLog.create({
           data: {
             actorUserId,

@@ -12,10 +12,29 @@ export default async function ClientInvoiceDetailPage({
   const { id } = await params;
   const invoice = await prisma.invoice.findFirst({
     where: { id, clientId: user.clientOrganizationId! },
-    include: {
+    select: {
+      id: true,
+      invoiceNumber: true,
+      periodStart: true,
+      periodEnd: true,
+      status: true,
+      subtotalCents: true,
+      taxCents: true,
+      totalCents: true,
       client: { select: { name: true } },
-      lineItems: { include: { site: { select: { name: true } } } },
-      adjustments: { where: { status: { in: ["Approved", "Applied"] } } },
+      lineItems: {
+        select: {
+          id: true,
+          description: true,
+          qty: true,
+          amountCents: true,
+          site: { select: { name: true } },
+        },
+      },
+      adjustments: {
+        where: { status: { in: ["Approved", "Applied"] } },
+        select: { id: true, type: true, amountCents: true, notes: true, reasonCode: true },
+      },
     },
   });
 

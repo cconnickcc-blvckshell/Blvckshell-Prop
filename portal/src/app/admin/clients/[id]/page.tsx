@@ -76,7 +76,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <ChecklistManager
                 siteId={site.id}
                 siteName={site.name}
-                currentTemplates={site.checklistTemplates ? [site.checklistTemplates] : []}
+                currentTemplates={site.checklistTemplates ?? []}
               />
             </div>
           ))}

@@ -26,7 +26,9 @@ export async function getUninvoicedApprovedJobs(
       ],
       scheduledStart: { gte: periodStart, lte: periodEnd },
     },
-    include: {
+    select: {
+      id: true,
+      scheduledStart: true,
       site: { select: { name: true, id: true } },
       completion: { select: { completedAt: true } },
     },
@@ -177,7 +179,14 @@ export async function addJobToInvoiceInternal(
 
   const job = await prisma.job.findUnique({
     where: { id: jobId, invoiceId: null },
-    include: { site: { select: { clientOrganizationId: true, name: true } } },
+    select: {
+      id: true,
+      siteId: true,
+      scheduledStart: true,
+      payoutAmountCents: true,
+      billableAmountCents: true,
+      site: { select: { clientOrganizationId: true, name: true } },
+    },
   });
   if (!job) return { success: false, error: "Job not found or already invoiced" };
   if (job.site.clientOrganizationId !== invoice.clientId) {
