@@ -14,9 +14,9 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  // Use DIRECT_URL for migrate/db pull (bypasses pooler). Runtime uses DATABASE_URL via PrismaClient.
+  // Path 2: pooler-first. Runtime & CI use DATABASE_URL; directUrl only when available (e.g. local IPv6).
   datasource: {
-    url: process.env["DIRECT_URL"],
-    directUrl: process.env["DIRECT_URL"],
+    url: process.env["DATABASE_URL"],
+    directUrl: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 } as Parameters<typeof defineConfig>[0]);

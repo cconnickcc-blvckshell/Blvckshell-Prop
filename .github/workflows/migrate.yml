@@ -1,0 +1,73 @@
+name: Migrate Supabase (Prisma)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "portal/prisma/**"
+      - "portal/prisma.config.ts"
+
+concurrency:
+  group: prisma-migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: portal/package-lock.json
+
+      - name: Install dependencies
+        working-directory: portal
+        run: npm ci
+
+      - name: Prisma migrate deploy (POOLER) with retries
+        working-directory: portal
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL is missing/empty. Check GitHub Environment secrets (Production)."
+            exit 1
+          fi
+
+          echo "DATABASE_URL is set (length: ${#DATABASE_URL})"
+
+          success=false
+          for i in 1 2 3 4 5; do
+            echo "Attempt $i: prisma migrate deploy"
+            if npx prisma migrate deploy; then
+              echo "migrate deploy succeeded"
+              success=true
+              break
+            fi
+            echo "migrate deploy failed. sleeping 12s..."
+            sleep 12
+          done
+
+          if [ "$success" != "true" ]; then
+            echo "All 5 attempts failed. Failing job."
+            exit 1
+          fi
+
+          npx prisma migrate status
+          npx prisma generate
+
+      - name: Verify migrate status
+        working-directory: portal
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate status
