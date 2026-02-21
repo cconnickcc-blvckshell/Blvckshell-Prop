@@ -10,7 +10,9 @@ export default async function AdminJobsPage({
   searchParams: Promise<{ siteId?: string }>;
 }) {
   await requireAdmin();
-  await runFlagOverdueApprovals();
+  // Non-blocking: flag overdue approvals (skip if migration not run — avoids 500)
+  void runFlagOverdueApprovals().catch(() => {});
+
   const { siteId } = await searchParams;
 
   const jobs = await prisma.job.findMany({
@@ -18,7 +20,15 @@ export default async function AdminJobsPage({
       status: { not: "CANCELLED" },
       ...(siteId ? { siteId } : {}),
     },
-    include: {
+    select: {
+      id: true,
+      siteId: true,
+      scheduledStart: true,
+      scheduledEnd: true,
+      status: true,
+      payoutAmountCents: true,
+      assignedWorkforceAccountId: true,
+      assignedWorkerId: true,
       site: { select: { name: true, address: true } },
       assignedWorker: {
         include: {

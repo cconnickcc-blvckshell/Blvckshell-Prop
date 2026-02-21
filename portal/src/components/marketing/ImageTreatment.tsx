@@ -23,11 +23,12 @@ export default function ImageTreatment({
   children,
 }: ImageTreatmentProps) {
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative min-h-full overflow-hidden ${className}`}>
+      {/* Image layer: absolute so content can sit on top and scale with hero */}
       <img
         src={src}
         alt={alt}
-        className="h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
         loading={priority ? "eager" : "lazy"}
       />
       {/* Color grading overlay (consistent warm neutral overlay) */}
@@ -47,8 +48,12 @@ export default function ImageTreatment({
         }}
       />
       
-      {/* Content overlay */}
-      {children && <div className="relative z-10">{children}</div>}
+      {/* Content overlay: fills hero and scales with it */}
+      {children && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
