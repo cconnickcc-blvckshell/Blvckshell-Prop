@@ -37,7 +37,7 @@ jobs:
         working-directory: portal
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK: "1"
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "DATABASE_URL is missing/empty. Check GitHub Environment secrets (Production)."
@@ -70,4 +70,5 @@ jobs:
         working-directory: portal
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK: "1"
         run: npx prisma migrate status
