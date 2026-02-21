@@ -126,6 +126,12 @@ export async function transitionJob(
       });
     });
 
+    // A3: After APPROVED_PAYABLE, ensure job is on a draft invoice (idempotent, audited)
+    if (toState === "APPROVED_PAYABLE") {
+      const { ensureJobOnDraftInvoice } = await import("@/server/automation/ensureJobOnDraftInvoice");
+      await ensureJobOnDraftInvoice(user, jobId);
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Error transitioning job:", error);

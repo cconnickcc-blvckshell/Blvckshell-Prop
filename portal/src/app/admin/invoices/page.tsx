@@ -1,10 +1,15 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { listInvoices } from "@/server/actions/invoice-actions";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import BulkGenerateDraftsPanel from "@/components/admin/BulkGenerateDraftsPanel";
 
 export default async function AdminInvoicesPage() {
   await requireAdmin();
-  const invoices = await listInvoices();
+  const [invoices, clients] = await Promise.all([
+    listInvoices(),
+    prisma.clientOrganization.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+  ]);
 
   const statusClass: Record<string, string> = {
     Draft: "bg-zinc-600/30 text-zinc-300 border-zinc-500/40",
@@ -15,6 +20,8 @@ export default async function AdminInvoicesPage() {
 
   return (
     <div className="w-full">
+      <BulkGenerateDraftsPanel clients={clients} />
+
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Invoices</h1>

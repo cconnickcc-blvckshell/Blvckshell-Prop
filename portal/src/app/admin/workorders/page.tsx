@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import BulkWorkOrderPanel from "@/components/admin/BulkWorkOrderPanel";
 
 export default async function WorkOrdersPage() {
   await requireAdmin();
@@ -13,6 +14,7 @@ export default async function WorkOrdersPage() {
     orderBy: { id: "desc" },
     take: 50,
   });
+  const workOrderItems = workOrders.map((w) => ({ id: w.id, status: w.status }));
 
   const statusColor: Record<string, string> = {
     REQUESTED: "bg-zinc-500/20 text-zinc-300 border-zinc-500/40",
@@ -25,6 +27,8 @@ export default async function WorkOrdersPage() {
 
   return (
     <div className="w-full">
+      <BulkWorkOrderPanel workOrders={workOrderItems} />
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Work Orders</h1>
         <p className="mt-1 text-zinc-400">Add-ons and change orders</p>

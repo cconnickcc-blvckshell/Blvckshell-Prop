@@ -83,6 +83,11 @@ model User {
   workforceAccount          WorkforceAccount?   @relation(fields: [workforceAccountId], references: [id])
   clientOrganization        ClientOrganization? @relation(fields: [clientOrganizationId], references: [id])
   worker                    Worker?
+  siteTemplatesCreated      SiteTemplate[]      @relation("SiteTemplatesCreated")
+  jobTemplatesCreated       JobTemplate[]       @relation("JobTemplatesCreated")
+  contractTemplatesCreated   ContractTemplate[]  @relation("ContractTemplatesCreated")
+  invoiceTemplatesCreated   InvoiceTemplate[]   @relation("InvoiceTemplatesCreated")
+  makeGoodRuleTemplatesCreated MakeGoodRuleTemplate[] @relation("MakeGoodRuleTemplatesCreated")
 
   @@index([email])
   @@index([role])
@@ -141,6 +146,8 @@ model Site {
   suppliesProvidedBy       SuppliesProvidedBy
   doNotEnterUnits          Boolean             @default(true)
   isActive                 Boolean             @default(true)
+  siteTemplateId           String?
+  siteTemplateVersion      Int?
   accessCredentials        AccessCredential[]
   billingAdjustments       BillingAdjustment[]
   checklistTemplates       ChecklistTemplate?
@@ -150,10 +157,12 @@ model Site {
   jobs                     Job[]
   clientOrganization       ClientOrganization  @relation(fields: [clientOrganizationId], references: [id])
   siteAssignments          SiteAssignment[]
+  siteTemplate             SiteTemplate?       @relation(fields: [siteTemplateId], references: [id])
   workOrders               WorkOrder[]
 
   @@index([clientOrganizationId])
   @@index([isActive])
+  @@index([siteTemplateId])
 }
 
 model SiteAssignment {
@@ -233,6 +242,97 @@ model ChecklistRun {
   @@index([status])
 }
 
+// --- Versioned templates (A2): immutable once referenced; instances snapshot templateId + version ---
+enum TemplateStatus {
+  Draft
+  Active
+  Archived
+}
+
+model SiteTemplate {
+  id           String         @id @default(cuid())
+  logicalId    String
+  version      Int
+  status       TemplateStatus @default(Draft)
+  body         Json
+  createdById  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdBy    User           @relation("SiteTemplatesCreated", fields: [createdById], references: [id])
+  sites        Site[]
+
+  @@unique([logicalId, version])
+  @@index([logicalId])
+  @@index([status])
+}
+
+model JobTemplate {
+  id           String         @id @default(cuid())
+  logicalId    String
+  version      Int
+  status       TemplateStatus @default(Draft)
+  body         Json
+  createdById  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdBy    User           @relation("JobTemplatesCreated", fields: [createdById], references: [id])
+  jobs         Job[]
+
+  @@unique([logicalId, version])
+  @@index([logicalId])
+  @@index([status])
+}
+
+model ContractTemplate {
+  id           String         @id @default(cuid())
+  logicalId    String
+  version      Int
+  status       TemplateStatus @default(Draft)
+  body         Json
+  createdById  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  contracts    Contract[]
+  createdBy    User           @relation("ContractTemplatesCreated", fields: [createdById], references: [id])
+
+  @@unique([logicalId, version])
+  @@index([logicalId])
+  @@index([status])
+}
+
+model InvoiceTemplate {
+  id           String         @id @default(cuid())
+  logicalId    String
+  version      Int
+  status       TemplateStatus @default(Draft)
+  body         Json
+  createdById  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdBy    User           @relation("InvoiceTemplatesCreated", fields: [createdById], references: [id])
+  invoices     Invoice[]
+
+  @@unique([logicalId, version])
+  @@index([logicalId])
+  @@index([status])
+}
+
+model MakeGoodRuleTemplate {
+  id           String         @id @default(cuid())
+  logicalId    String
+  version      Int
+  status       TemplateStatus @default(Draft)
+  body         Json
+  createdById  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdBy    User           @relation("MakeGoodRuleTemplatesCreated", fields: [createdById], references: [id])
+
+  @@unique([logicalId, version])
+  @@index([logicalId])
+  @@index([status])
+}
+
 model ChecklistRunItem {
   id                  String       @id @default(cuid())
   checklistRunId      String
@@ -272,11 +372,15 @@ model Job {
   invoiceId                  String?
   approvedAt                 DateTime?
   approvedById               String?
+  approvalFlaggedAt          DateTime?
+  jobTemplateId              String?
+  jobTemplateVersion         Int?
   checklistRuns              ChecklistRun[]
   approvedBy                 User?             @relation("ApprovedJobs", fields: [approvedById], references: [id])
   assignedWorker             Worker?           @relation("AssignedWorker", fields: [assignedWorkerId], references: [id])
   assignedWorkforceAccount   WorkforceAccount? @relation(fields: [assignedWorkforceAccountId], references: [id])
   invoice                    Invoice?          @relation(fields: [invoiceId], references: [id])
+  jobTemplate                JobTemplate?      @relation(fields: [jobTemplateId], references: [id])
   makeGoodJob                Job?              @relation("MakeGoodJob", fields: [makeGoodJobId], references: [id])
   makeGoodJobs               Job[]             @relation("MakeGoodJob")
   site                       Site              @relation(fields: [siteId], references: [id])
@@ -290,6 +394,7 @@ model Job {
   @@index([isMissed])
   @@index([invoiceId])
   @@index([billableStatus])
+  @@index([jobTemplateId])
 }
 
 model JobCompletion {
@@ -411,41 +516,49 @@ model Contract {
   effectiveStart         DateTime
   effectiveEnd           DateTime?
   status                 ContractStatus     @default(Active)
+  contractTemplateId     String?
+  contractTemplateVersion Int?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   clientOrganization     ClientOrganization @relation(fields: [clientOrganizationId], references: [id])
+  contractTemplate       ContractTemplate?  @relation(fields: [contractTemplateId], references: [id])
   site                   Site               @relation(fields: [siteId], references: [id])
 
   @@index([clientOrganizationId])
   @@index([siteId])
   @@index([status])
+  @@index([contractTemplateId])
 }
 
 model Invoice {
-  id            String              @id @default(cuid())
-  clientId      String
-  invoiceNumber String              @unique
-  periodStart   DateTime
-  periodEnd     DateTime
-  status        InvoiceStatus       @default(Draft)
-  issuedAt      DateTime?
-  dueAt         DateTime?
-  notes         String?
-  subtotalCents Int                 @default(0)
-  taxCents      Int                 @default(0)
-  totalCents    Int                 @default(0)
-  createdById   String
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  adjustments   BillingAdjustment[]
-  client        ClientOrganization  @relation(fields: [clientId], references: [id])
-  createdBy     User                @relation(fields: [createdById], references: [id])
-  lineItems     InvoiceLineItem[]
-  jobs          Job[]
+  id                  String              @id @default(cuid())
+  clientId            String
+  invoiceNumber       String              @unique
+  periodStart         DateTime
+  periodEnd           DateTime
+  status              InvoiceStatus       @default(Draft)
+  issuedAt            DateTime?
+  dueAt               DateTime?
+  notes               String?
+  subtotalCents       Int                 @default(0)
+  taxCents            Int                 @default(0)
+  totalCents          Int                 @default(0)
+  invoiceTemplateId   String?
+  invoiceTemplateVersion Int?
+  createdById         String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  adjustments         BillingAdjustment[]
+  client              ClientOrganization  @relation(fields: [clientId], references: [id])
+  createdBy           User                @relation(fields: [createdById], references: [id])
+  invoiceTemplate     InvoiceTemplate?    @relation(fields: [invoiceTemplateId], references: [id])
+  lineItems           InvoiceLineItem[]
+  jobs                Job[]
 
   @@index([clientId])
   @@index([status])
   @@index([periodStart, periodEnd])
+  @@index([invoiceTemplateId])
 }
 
 model InvoiceLineItem {

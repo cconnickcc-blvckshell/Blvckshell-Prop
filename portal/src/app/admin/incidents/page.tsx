@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import BulkResolveIncidentsPanel from "@/components/admin/BulkResolveIncidentsPanel";
 
 export default async function IncidentsPage() {
   await requireAdmin();
@@ -16,6 +17,7 @@ export default async function IncidentsPage() {
     orderBy: { reportedAt: "desc" },
     take: 50,
   });
+  const incidentItems = incidents.map((i) => ({ id: i.id, resolvedAt: i.resolvedAt }));
 
   const typeColor: Record<string, string> = {
     SAFETY: "bg-red-500/20 text-red-300 border-red-500/40",
@@ -27,6 +29,8 @@ export default async function IncidentsPage() {
 
   return (
     <div className="w-full">
+      <BulkResolveIncidentsPanel incidents={incidentItems} />
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Incidents</h1>
         <p className="mt-1 text-zinc-400">Safety, property damage, and other reports</p>

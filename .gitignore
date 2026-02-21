@@ -33,6 +33,7 @@ yarn-debug.log*
 # Testing
 coverage/
 .nyc_output/
+playwright-report/
 
 # Misc
 *.log

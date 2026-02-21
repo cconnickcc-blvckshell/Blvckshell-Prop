@@ -1,6 +1,8 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import BulkJobActionsPanel from "@/components/admin/BulkJobActionsPanel";
+import { runFlagOverdueApprovals } from "@/server/actions/bulk-actions";
 
 export default async function AdminJobsPage({
   searchParams,
@@ -8,6 +10,7 @@ export default async function AdminJobsPage({
   searchParams: Promise<{ siteId?: string }>;
 }) {
   await requireAdmin();
+  await runFlagOverdueApprovals();
   const { siteId } = await searchParams;
 
   const jobs = await prisma.job.findMany({
@@ -56,6 +59,8 @@ export default async function AdminJobsPage({
 
   return (
     <div className="w-full">
+      <BulkJobActionsPanel jobs={jobs.map((j) => ({ id: j.id, status: j.status }))} />
+
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">

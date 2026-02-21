@@ -49,18 +49,18 @@ async function getNextInvoiceNumber(clientId: string): Promise<string> {
   return `${prefix}-${seq}`;
 }
 
-/** Create a draft invoice for client + period. Auto-adds monthly base from active contracts per D1. */
-export async function createDraftInvoice(
+/** Internal: create draft invoice (no audit, no revalidate). For bulk or single use. */
+export async function createDraftInvoiceInternal(
   clientId: string,
   periodStart: Date,
-  periodEnd: Date
-) {
-  const user = await requireAdmin();
+  periodEnd: Date,
+  createdById: string
+): Promise<{ success: boolean; invoiceId: string | null; error: string | null }> {
   const client = await prisma.clientOrganization.findUnique({
     where: { id: clientId },
     select: { id: true },
   });
-  if (!client) return { success: false, error: "Client not found", invoiceId: null };
+  if (!client) return { success: false, invoiceId: null, error: "Client not found" };
 
   const invoiceNumber = await getNextInvoiceNumber(clientId);
   const netTermsDays = 30;
@@ -78,16 +78,27 @@ export async function createDraftInvoice(
       subtotalCents: 0,
       taxCents: 0,
       totalCents: 0,
-      createdById: user.id,
+      createdById,
     },
   });
 
-  // D1: Auto-add monthly base from active contracts
   await addContractBaseToInvoice(invoice.id);
+  return { success: true, invoiceId: invoice.id, error: null };
+}
 
+/** Create a draft invoice for client + period. Auto-adds monthly base from active contracts per D1. */
+export async function createDraftInvoice(
+  clientId: string,
+  periodStart: Date,
+  periodEnd: Date
+) {
+  const user = await requireAdmin();
+  const result = await createDraftInvoiceInternal(clientId, periodStart, periodEnd, user.id);
   revalidatePath("/admin/invoices");
   revalidatePath("/admin/clients");
-  return { success: true, error: null, invoiceId: invoice.id };
+  return result.success
+    ? { success: true, error: null, invoiceId: result.invoiceId }
+    : { success: false, error: result.error, invoiceId: null };
 }
 
 /** Get invoice with line items, adjustments, and related jobs */
@@ -110,9 +121,13 @@ export async function getInvoiceWithDetails(invoiceId: string) {
   return invoice;
 }
 
-/** Add a job as a line item to the invoice (Draft only). Uses billableAmountCents or payoutAmountCents. */
-export async function addJobToInvoice(invoiceId: string, jobId: string) {
-  await requireAdmin();
+/** Internal: add job to draft invoice and write audit (no RBAC/revalidate). For automation. */
+export async function addJobToInvoiceInternal(
+  actorUserId: string,
+  invoiceId: string,
+  jobId: string,
+  metadata?: Record<string, unknown>
+) {
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId, status: "Draft" },
     select: { id: true, clientId: true },
@@ -131,25 +146,46 @@ export async function addJobToInvoice(invoiceId: string, jobId: string) {
   const amountCents = job.billableAmountCents ?? job.payoutAmountCents;
   const description = `${job.site.name} — ${new Date(job.scheduledStart).toLocaleDateString()}`;
 
-  await prisma.invoiceLineItem.create({
-    data: {
-      invoiceId,
-      jobId: job.id,
-      siteId: job.siteId,
-      description,
-      qty: 1,
-      unitPriceCents: amountCents,
-      amountCents,
-    },
-  });
-  await prisma.job.update({
-    where: { id: jobId },
-    data: { invoiceId },
+  await prisma.$transaction(async (tx) => {
+    await tx.invoiceLineItem.create({
+      data: {
+        invoiceId,
+        jobId: job.id,
+        siteId: job.siteId,
+        description,
+        qty: 1,
+        unitPriceCents: amountCents,
+        amountCents,
+      },
+    });
+    await tx.job.update({
+      where: { id: jobId },
+      data: { invoiceId },
+    });
+    await tx.auditLog.create({
+      data: {
+        actorUserId,
+        entityType: "Invoice",
+        entityId: invoiceId,
+        fromState: null,
+        toState: null,
+        metadata: { action: "JobAddedByAutomation", jobId, ...metadata },
+      },
+    });
   });
   await recomputeInvoiceTotals(invoiceId);
-  revalidatePath(`/admin/invoices/${invoiceId}`);
-  revalidatePath("/admin/invoices");
   return { success: true, error: null };
+}
+
+/** Add a job as a line item to the invoice (Draft only). Uses billableAmountCents or payoutAmountCents. */
+export async function addJobToInvoice(invoiceId: string, jobId: string) {
+  const user = await requireAdmin();
+  const result = await addJobToInvoiceInternal(user.id, invoiceId, jobId);
+  if (result.success) {
+    revalidatePath(`/admin/invoices/${invoiceId}`);
+    revalidatePath("/admin/invoices");
+  }
+  return result;
 }
 
 /** Remove job line item and unlink job from invoice */

@@ -33,6 +33,15 @@ beforeEach(async () => {
     await testDb.incidentReport.deleteMany();
     await testDb.checklistTemplate.deleteMany();
     await testDb.contract.deleteMany();
+    try {
+      await testDb.siteTemplate.deleteMany();
+      await testDb.jobTemplate.deleteMany();
+      await testDb.contractTemplate.deleteMany();
+      await testDb.invoiceTemplate.deleteMany();
+      await testDb.makeGoodRuleTemplate.deleteMany();
+    } catch {
+      // Tables may not exist if migration not yet applied
+    }
   } catch (e) {
     // DB unreachable (e.g. no network, no TEST_DATABASE_URL) - skip cleanup
   }
