@@ -18,12 +18,38 @@ export default async function JobDetailPage({
     notFound();
   }
 
-  // Get job with all related data
+  // Get job with related data; explicit select avoids Category A columns (approvalFlaggedAt, jobTemplateId, jobTemplateVersion; siteTemplateId, siteTemplateVersion)
   const job = await prisma.job.findUnique({
     where: { id: params.id },
-    include: {
+    select: {
+      id: true,
+      siteId: true,
+      scheduledStart: true,
+      scheduledEnd: true,
+      status: true,
+      payoutAmountCents: true,
+      assignedWorkforceAccountId: true,
+      assignedWorkerId: true,
+      isMissed: true,
+      missedReason: true,
+      makeGoodJobId: true,
+      startedAt: true,
+      endedAt: true,
+      actualDurationMinutes: true,
+      checkInMethod: true,
+      createdAt: true,
+      pricingModel: true,
+      billableAmountCents: true,
+      billableStatus: true,
+      invoiceId: true,
+      approvedAt: true,
+      approvedById: true,
       site: {
-        include: {
+        select: {
+          name: true,
+          address: true,
+          accessInstructions: true,
+          requiredPhotoCount: true,
           checklistTemplates: true,
           accessCredentials: {
             where: {
@@ -34,7 +60,14 @@ export default async function JobDetailPage({
         },
       },
       completion: {
-        include: {
+        select: {
+          id: true,
+          jobId: true,
+          completedByWorkerId: true,
+          completedAt: true,
+          checklistResults: true,
+          notes: true,
+          isDraft: true,
           evidence: {
             orderBy: { uploadedAt: "asc" },
           },

@@ -14,10 +14,13 @@ export default async function VendorJobsPage() {
 
   const jobs = await prisma.job.findMany({
     where: { assignedWorkforceAccountId: user.workforceAccountId },
-    include: {
+    select: {
+      id: true,
+      scheduledStart: true,
+      status: true,
       site: { select: { name: true } },
       assignedWorker: {
-        include: { user: { select: { name: true } } },
+        select: { user: { select: { name: true } } },
       },
     },
     orderBy: { scheduledStart: "desc" },

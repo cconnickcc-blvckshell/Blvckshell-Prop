@@ -12,16 +12,16 @@ export default async function EarningsPage() {
         in: ["APPROVED_PAYABLE", "PAID"],
       },
     },
-    include: {
+    select: {
+      id: true,
+      status: true,
+      payoutAmountCents: true,
+      createdAt: true,
       site: {
-        select: {
-          name: true,
-        },
+        select: { name: true },
       },
       completion: {
-        select: {
-          completedAt: true,
-        },
+        select: { completedAt: true },
       },
     },
     orderBy: {

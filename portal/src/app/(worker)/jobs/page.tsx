@@ -14,7 +14,10 @@ export default async function JobsPage() {
 
   const jobs = await prisma.job.findMany({
     where: whereClause,
-    include: {
+    select: {
+      id: true,
+      scheduledStart: true,
+      status: true,
       site: {
         select: {
           name: true,
