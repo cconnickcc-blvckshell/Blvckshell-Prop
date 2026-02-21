@@ -10,7 +10,19 @@ export default async function NewJobPage() {
   const [sites, workers] = await Promise.all([
     prisma.site.findMany({
       where: { isActive: true },
-      include: { clientOrganization: { select: { name: true } } },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        clientOrganizationId: true,
+        serviceWindow: true,
+        estimatedDurationMinutes: true,
+        requiredPhotoCount: true,
+        suppliesProvidedBy: true,
+        doNotEnterUnits: true,
+        isActive: true,
+        clientOrganization: { select: { name: true } },
+      },
       orderBy: [{ clientOrganization: { name: "asc" } }, { name: "asc" }],
     }),
     prisma.worker.findMany({

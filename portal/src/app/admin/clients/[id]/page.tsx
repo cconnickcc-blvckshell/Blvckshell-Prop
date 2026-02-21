@@ -10,11 +10,24 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   const client = await prisma.clientOrganization.findUnique({
     where: { id: params.id },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      primaryContactName: true,
+      primaryContactEmail: true,
+      primaryContactPhone: true,
+      notes: true,
+      createdAt: true,
       sites: {
         where: { isActive: true },
         orderBy: { name: "asc" },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+          serviceWindow: true,
+          estimatedDurationMinutes: true,
+          requiredPhotoCount: true,
           checklistTemplates: { where: { isActive: true } },
         },
       },

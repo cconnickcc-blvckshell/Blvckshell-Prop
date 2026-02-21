@@ -32,7 +32,14 @@ export default async function PayoutsPage() {
       status: "APPROVED_PAYABLE",
       ...(paidSet.size > 0 ? { id: { notIn: Array.from(paidSet) } } : {}),
     },
-    include: {
+    select: {
+      id: true,
+      siteId: true,
+      scheduledStart: true,
+      status: true,
+      payoutAmountCents: true,
+      assignedWorkforceAccountId: true,
+      assignedWorkerId: true,
       site: { select: { name: true } },
       assignedWorkforceAccount: { select: { displayName: true, id: true } },
       assignedWorker: {

@@ -334,12 +334,27 @@ async function recomputeInvoiceTotals(invoiceId: string) {
   });
 }
 
-/** List invoices for admin (optional client filter) */
+/** List invoices for admin (optional client filter). Uses explicit select so it works before Category A migration. */
 export async function listInvoices(clientId?: string) {
   await requireAdmin();
   const invoices = await prisma.invoice.findMany({
     where: clientId ? { clientId } : undefined,
-    include: {
+    select: {
+      id: true,
+      clientId: true,
+      invoiceNumber: true,
+      periodStart: true,
+      periodEnd: true,
+      status: true,
+      issuedAt: true,
+      dueAt: true,
+      notes: true,
+      subtotalCents: true,
+      taxCents: true,
+      totalCents: true,
+      createdById: true,
+      createdAt: true,
+      updatedAt: true,
       client: { select: { name: true } },
     },
     orderBy: { createdAt: "desc" },

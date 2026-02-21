@@ -13,15 +13,41 @@ export default async function AdminJobDetailPage({
 
   const job = await prisma.job.findUnique({
     where: { id: params.id },
-    include: {
+    select: {
+      id: true,
+      siteId: true,
+      scheduledStart: true,
+      scheduledEnd: true,
+      status: true,
+      payoutAmountCents: true,
+      assignedWorkforceAccountId: true,
+      assignedWorkerId: true,
+      isMissed: true,
+      missedReason: true,
+      makeGoodJobId: true,
+      startedAt: true,
+      endedAt: true,
+      actualDurationMinutes: true,
+      checkInMethod: true,
+      createdAt: true,
+      pricingModel: true,
+      billableAmountCents: true,
+      billableStatus: true,
+      invoiceId: true,
+      approvedAt: true,
+      approvedById: true,
       site: {
-        include: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
           clientOrganization: { select: { name: true, id: true } },
-          checklistTemplates: { where: { isActive: true } },
+          checklistTemplates: { where: { isActive: true }, select: { id: true, version: true, items: true } },
         },
       },
       assignedWorker: {
-        include: {
+        select: {
+          id: true,
           user: { select: { name: true, email: true } },
         },
       },
@@ -29,9 +55,17 @@ export default async function AdminJobDetailPage({
         select: { displayName: true, id: true },
       },
       completion: {
-        include: {
+        select: {
+          id: true,
+          jobId: true,
+          completedByWorkerId: true,
+          completedAt: true,
+          checklistResults: true,
+          notes: true,
+          isDraft: true,
           completedByWorker: {
-            include: {
+            select: {
+              id: true,
               user: { select: { name: true } },
             },
           },
@@ -40,9 +74,23 @@ export default async function AdminJobDetailPage({
       },
       checklistRuns: {
         orderBy: { updatedAt: "desc" },
-        include: {
+        select: {
+          id: true,
+          jobId: true,
+          checklistTemplateId: true,
+          templateVersion: true,
+          status: true,
+          completedByWorkerId: true,
+          submittedAt: true,
+          approvedAt: true,
+          approvedById: true,
+          createdAt: true,
+          updatedAt: true,
           completedByWorker: {
-            include: { user: { select: { name: true } } },
+            select: {
+              id: true,
+              user: { select: { name: true } },
+            },
           },
           items: { orderBy: { itemId: "asc" } },
           evidence: { orderBy: { uploadedAt: "asc" } },
