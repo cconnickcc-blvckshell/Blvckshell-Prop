@@ -51,6 +51,7 @@ export async function GET(
             type: true,
             amountCents: true,
             notes: true,
+            reasonCode: true,
           },
         },
       },

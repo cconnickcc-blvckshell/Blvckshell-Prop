@@ -43,41 +43,6 @@ export default function HomePage() {
               >
                 Structured, Accountable, Prepared from Day One
               </motion.p>
-              <motion.p
-                initial={motionConfig.heroReveal.initial}
-                animate={motionConfig.heroReveal.animate}
-                transition={{ delay: 0.35, ...motionConfig.heroReveal.animate.transition }}
-                className="mt-6 text-base leading-relaxed text-zinc-400 sm:text-lg"
-              >
-                Checklists, photo verification, and compliance tracking designed into our operations from the start. For property managers who need evidence, compliance, and predictable results.
-              </motion.p>
-              <motion.p
-                initial={motionConfig.heroReveal.initial}
-                animate={motionConfig.heroReveal.animate}
-                transition={{ delay: 0.45, ...motionConfig.heroReveal.animate.transition }}
-                className="mt-4 max-w-2xl mx-auto text-base font-medium text-zinc-300 sm:text-lg"
-              >
-                Blvckshell exists to eliminate ambiguity and liability from facilities operations. Every process is designed to produce proof, prevent disputes, and protect you during audits and board review.
-              </motion.p>
-              <motion.div
-                initial={motionConfig.heroReveal.initial}
-                animate={motionConfig.heroReveal.animate}
-                transition={{ delay: 0.35, ...motionConfig.heroReveal.animate.transition }}
-                className="mt-10 flex flex-col justify-center gap-4 sm:flex-row"
-              >
-                <Link
-                  href="/contact"
-                  className="group inline-flex items-center justify-center rounded-lg bg-white px-8 py-4 text-base font-semibold text-zinc-900 shadow-lg ring-2 ring-white/20 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
-                >
-                  Request a Portfolio Walkthrough
-                </Link>
-                <Link
-                  href="/contact?request=quote"
-                  className="inline-flex items-center justify-center rounded-lg border-2 border-zinc-500 bg-zinc-900/80 px-8 py-4 text-base font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-400 hover:bg-zinc-800/80"
-                >
-                  Request a Quote
-                </Link>
-              </motion.div>
             </div>
             {/* Subtle scroll indicator */}
             <motion.div
@@ -91,6 +56,34 @@ export default function HomePage() {
           </div>
         </ImageTreatment>
       </section>
+
+      {/* Hero intro + CTAs - solid background for readability */}
+      <ScrollReveal>
+        <section className="border-b border-zinc-800 bg-zinc-950 px-4 py-16 sm:px-6 lg:py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-base leading-relaxed text-zinc-400 sm:text-lg">
+              Checklists, photo verification, and compliance tracking designed into our operations from the start. For property managers who need evidence, compliance, and predictable results.
+            </p>
+            <p className="mt-4 text-base font-medium text-zinc-300 sm:text-lg">
+              Blvckshell exists to eliminate ambiguity and liability from facilities operations. Every process is designed to produce proof, prevent disputes, and protect you during audits and board review.
+            </p>
+            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+              <Link
+                href="/contact"
+                className="group inline-flex items-center justify-center rounded-lg bg-white px-8 py-4 text-base font-semibold text-zinc-900 shadow-lg ring-2 ring-white/20 transition-all duration-200 hover:bg-zinc-100 hover:shadow-xl hover:scale-[1.02]"
+              >
+                Request a Portfolio Walkthrough
+              </Link>
+              <Link
+                href="/contact?request=quote"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-zinc-500 bg-zinc-900/80 px-8 py-4 text-base font-medium text-white transition-all duration-200 hover:border-zinc-400 hover:bg-zinc-800/80"
+              >
+                Request a Quote
+              </Link>
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* Built for property managers - trust strip */}
       <ScrollReveal>
