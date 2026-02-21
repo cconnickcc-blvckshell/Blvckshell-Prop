@@ -6,6 +6,7 @@ on:
 jobs:
   migrate:
     runs-on: ubuntu-latest
+    environment: Production
     timeout-minutes: 15
 
     steps:
@@ -27,6 +28,11 @@ jobs:
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          if [ -z "$DIRECT_URL" ]; then
+            echo "DIRECT_URL is missing/empty. This means Secrets were not injected."
+            exit 1
+          fi
+          echo "DIRECT_URL is set (length: ${#DIRECT_URL})"
           npx prisma migrate deploy
           npx prisma generate
 
@@ -34,6 +40,5 @@ jobs:
         working-directory: portal
         env:
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           npx prisma migrate status
