@@ -37,6 +37,7 @@ jobs:
         working-directory: portal
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ""
           PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK: "1"
         run: |
           if [ -z "$DATABASE_URL" ]; then
@@ -70,5 +71,13 @@ jobs:
         working-directory: portal
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ""
           PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK: "1"
         run: npx prisma migrate status
+
+      - name: Verify Prisma schema matches DB (no drift)
+        working-directory: portal
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ""
+        run: npm run db:verify

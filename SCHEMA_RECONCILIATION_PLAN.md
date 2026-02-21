@@ -45,6 +45,7 @@ You are **truly aligned** when all of the following are true:
 | Check | How to verify |
 |-------|----------------|
 | **All migrations applied** | `npx prisma migrate status` shows no pending migrations; no drift. |
+| **Schema matches DB (no drift)** | Run `npm run db:verify` (exits 0 when Prisma schema and DB match). In CI this runs automatically after deploy (uses pooler). Locally you may get P1001 if `DIRECT_URL` points at the direct host; run in CI or temporarily unset `DIRECT_URL` so the diff uses the pooler. |
 | **DB pull succeeds** | `npx prisma db pull` runs without error; schema matches. |
 | **Template tables exist in Supabase** | `SiteTemplate`, `JobTemplate`, `ContractTemplate`, `InvoiceTemplate`, `MakeGoodRuleTemplate` are present (e.g. in Supabase Table Editor or `\dt` in psql). |
 | **Snapshot + flag columns exist** | `Job.approvalFlaggedAt`; `Site.siteTemplateId` / `siteTemplateVersion`; `Job.jobTemplateId` / `jobTemplateVersion`; `Contract.contractTemplateId` / `contractTemplateVersion`; `Invoice.invoiceTemplateId` / `invoiceTemplateVersion`. |
@@ -91,11 +92,51 @@ npx prisma generate
 
 Apply in order: all pending migrations, including `20260221120000_category_a_templates_and_snapshots` and `20260221130000_fix_checklist_template_versioning`.
 
-### 3.4 Validate after deploy
+### 3.4 Resolve failed migrations (Lead table/columns already exist)
+
+If you hit **P3018** because the DB already has the table or columns (e.g. Lead was created or altered outside migrations), mark the failing migration as applied and rerun deploy. Repeat for each failed migration until deploy succeeds.
+
+**Example — Lead table exists:**
+```bash
+cd portal
+npx prisma migrate resolve --applied 20260217210000_add_lead
+npx prisma migrate deploy
+```
+
+**If next migration fails (e.g. column "preferredContact" already exists):**
+```bash
+npx prisma migrate resolve --applied 20260218120000_add_lead_preferred_contact
+npx prisma migrate deploy
+```
+
+**If 20260218130000_update_lead_fields fails (buildingAddress / frequency / callbackTime already exist):**
+```bash
+npx prisma migrate resolve --applied 20260218130000_update_lead_fields
+npx prisma migrate deploy
+```
+
+**If 20260218170000_evidence_item_redaction fails (constraint Evidence_checklistRunId_fkey already exists):**
+```bash
+npx prisma migrate resolve --applied 20260218170000_evidence_item_redaction
+npx prisma migrate deploy
+```
+
+**Generic:** For any P3018 where the DB already has the table/column/constraint, run `npx prisma migrate resolve --applied <migration_folder_name>` then `npx prisma migrate deploy` again. Repeat until deploy succeeds.
+
+Optional: confirm in Supabase SQL before resolving:
+```sql
+SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Lead' ORDER BY ordinal_position;
+```
+
+### 3.5 Validate after deploy
 
 ```bash
 npx prisma migrate status
 # Expect: "Database schema is up to date."
+
+npm run db:verify
+# Exits 0 if Prisma schema and DB match (no drift). Exits 2 if there is drift (fix schema or migrations).
+# Locally: if you get P1001 (direct host unreachable), the diff is using DIRECT_URL. Run in CI (where DIRECT_URL is ""), or temporarily unset DIRECT_URL and use pooler only.
 
 npx prisma db pull
 # Then diff prisma/schema.prisma with the pulled schema (or re-pull and overwrite to confirm no drift).
@@ -161,6 +202,9 @@ npx prisma generate
 npx prisma migrate status
 # Expected: "Database schema is up to date." (all migrations applied)
 
+npm run db:verify
+# Exits 0 when schema and DB match (in CI; locally use pooler only or run in CI)
+
 npx prisma db pull
 # Optional: compare or overwrite schema to confirm pull matches schema.prisma
 ```
@@ -168,8 +212,9 @@ npx prisma db pull
 ### Proof steps
 
 1. **`prisma migrate status`** — No pending migrations after deploy; no “drift” warning.
-2. **`prisma db pull`** — Succeeds; schema matches (or can be diffed).
-3. **Runtime** — No query selects missing columns: all Job/Invoice/Site reads use explicit `select` or are covered by the audit in `PRISMA_SCHEMA_CTO_AUDIT.md`.
+2. **`npm run db:verify`** — Exits 0 (Prisma schema and DB match). Run in CI after deploy, or locally with pooler only (DIRECT_URL unset) to avoid P1001.
+3. **`prisma db pull`** — Succeeds; schema matches (or can be diffed).
+4. **Runtime** — No query selects missing columns: all Job/Invoice/Site reads use explicit `select` or are covered by the audit in `PRISMA_SCHEMA_CTO_AUDIT.md`.
 
 ---
 

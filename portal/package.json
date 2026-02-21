@@ -13,6 +13,7 @@
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "db:verify": "prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code",
     "test": "vitest",
     "test:unit:pure": "vitest run src/__tests__/unit/state-machine/pure-transitions.test.ts",
     "test:ui": "vitest --ui",
