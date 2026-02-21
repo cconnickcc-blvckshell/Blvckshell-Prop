@@ -8,6 +8,7 @@ export interface SessionUser {
   role: UserRole;
   workforceAccountId?: string;
   workerId?: string;
+  clientOrganizationId?: string;
 }
 
 /**
@@ -24,6 +25,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     role: session.user.role,
     workforceAccountId: session.user.workforceAccountId,
     workerId: session.user.workerId,
+    clientOrganizationId: session.user.clientOrganizationId,
   };
 }
 
@@ -45,6 +47,17 @@ export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireAuth();
   if (user.role !== "ADMIN") {
     throw new Error("Forbidden: Admin access required");
+  }
+  return user;
+}
+
+/**
+ * Require client portal role (read-only access to their organization's data).
+ */
+export async function requireClient(): Promise<SessionUser> {
+  const user = await requireAuth();
+  if (user.role !== "CLIENT" || !user.clientOrganizationId) {
+    throw new Error("Forbidden: Client access required");
   }
   return user;
 }
@@ -79,6 +92,7 @@ export async function requireWorker(): Promise<SessionUser> {
 /**
  * Check if user can access job
  * - ADMIN: can access all jobs
+ * - CLIENT: can access jobs for sites belonging to their clientOrganizationId
  * - VENDOR_OWNER: can access jobs assigned to their WorkforceAccount
  * - VENDOR_WORKER/INTERNAL_WORKER: can access jobs assigned to them
  */
@@ -92,11 +106,16 @@ export async function canAccessJob(user: SessionUser, jobId: string): Promise<bo
     select: {
       assignedWorkforceAccountId: true,
       assignedWorkerId: true,
+      site: { select: { clientOrganizationId: true } },
     },
   });
 
   if (!job) {
     return false;
+  }
+
+  if (user.role === "CLIENT") {
+    return job.site.clientOrganizationId === user.clientOrganizationId;
   }
 
   // VENDOR_OWNER: check if job assigned to their WorkforceAccount
@@ -110,6 +129,25 @@ export async function canAccessJob(user: SessionUser, jobId: string): Promise<bo
     return job.assignedWorkerId === user.workerId;
   }
 
+  return false;
+}
+
+/**
+ * Check if user can access invoice (for client portal: invoice must belong to their org).
+ * - ADMIN: can access all
+ * - CLIENT: invoice.clientId must equal user.clientOrganizationId
+ */
+export async function canAccessInvoice(user: SessionUser, invoiceId: string): Promise<boolean> {
+  if (user.role === "ADMIN") {
+    return true;
+  }
+  if (user.role === "CLIENT" && user.clientOrganizationId) {
+    const inv = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      select: { clientId: true },
+    });
+    return inv?.clientId === user.clientOrganizationId ?? false;
+  }
   return false;
 }
 

@@ -248,9 +248,15 @@ export default function HomePage() {
                   <ImageTreatment src={IMAGES.evidence} alt="Documented visit example - timestamped evidence and checklist sign-off" />
                 </div>
                 <p className="text-center text-sm text-zinc-500">
-                  Every visit produces timestamped evidence and checklist sign-off. Request a sample report below.
+                  Every visit produces timestamped evidence and checklist sign-off. See what proof looks like: sample checklist and evidence flow on our Compliance & Risk page.
                 </p>
-                <div className="flex justify-center">
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link
+                    href="/compliance"
+                    className="rounded-lg border border-zinc-600 bg-zinc-800/50 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:bg-zinc-800"
+                  >
+                    How we handle risk & proof
+                  </Link>
                   <Link
                     href="/contact?request=sample-report"
                     className="rounded-lg border border-zinc-600 bg-zinc-800/50 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:bg-zinc-800"

@@ -16,6 +16,9 @@ export default function CompliancePage() {
         <p className="mt-4 text-lg text-zinc-400">
           How we handle insurance, keys, incidents, and remediation. One consistent region: Windsor-Essex launch, Ontario-wide coverage as we expand. Our documentation exists to protect you during audits, disputes, and board review.
         </p>
+        <p className="mt-3 text-sm text-zinc-500">
+          Proof we surface: site-specific checklists, photo evidence minimums per job, completion sign-off and re-clean/credit policy. Request a sample report or checklist via <Link href="/contact?request=sample-report" className="text-zinc-400 underline hover:text-white">contact</Link>.
+        </p>
       </ScrollReveal>
 
       <ScrollReveal delay={0.1}>

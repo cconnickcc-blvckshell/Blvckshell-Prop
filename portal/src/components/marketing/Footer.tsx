@@ -16,7 +16,7 @@ export default function MarketingFooter() {
               Services
             </Link>
             <Link href="/compliance" className="text-zinc-400 hover:text-white">
-              Compliance
+              Compliance & Risk
             </Link>
             <Link href="/about" className="text-zinc-400 hover:text-white">
               About

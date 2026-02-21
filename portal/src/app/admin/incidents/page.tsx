@@ -92,7 +92,11 @@ export default async function IncidentsPage() {
           </table>
         </div>
         {incidents.length === 0 && (
-          <div className="p-8 text-center text-sm text-zinc-500">No incidents reported yet.</div>
+          <div className="p-8 text-center text-sm text-zinc-500">
+            No incidents reported yet. Incidents appear when workers report safety, property damage, lost key, or other issues.
+            <br />
+            <span className="mt-2 inline-block text-zinc-400">Review jobs and evidence from the Jobs page.</span>
+          </div>
         )}
       </section>
     </div>

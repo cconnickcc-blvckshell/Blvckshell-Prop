@@ -1,44 +1,41 @@
 import { beforeAll, afterAll, beforeEach, afterEach } from "vitest";
-import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
 
-// Test database client
-export const testDb = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL,
-    },
-  },
-});
+// Use app's Prisma client (reads DATABASE_URL / TEST_DATABASE_URL from env)
+export const testDb = prisma;
 
-// Clean up database before each test
+// Clean up database before each test (skip if DB unreachable, e.g. offline or no TEST_DATABASE_URL)
 beforeEach(async () => {
-  // Clean up in reverse order of dependencies
-  await testDb.auditLog.deleteMany();
-  await testDb.evidence.deleteMany();
-  await testDb.checklistRunItem.deleteMany();
-  await testDb.checklistRun.deleteMany();
-  await testDb.jobCompletion.deleteMany();
-  await testDb.job.deleteMany();
-  await testDb.workOrder.deleteMany();
-  await testDb.invoiceLineItem.deleteMany();
-  await testDb.billingAdjustment.deleteMany();
-  await testDb.invoice.deleteMany();
-  await testDb.payoutLine.deleteMany();
-  await testDb.payoutBatch.deleteMany();
-  await testDb.accessCredential.deleteMany();
-  await testDb.siteAssignment.deleteMany();
-  await testDb.complianceDocument.deleteMany();
-  await testDb.worker.deleteMany();
-  await testDb.user.deleteMany();
-  await testDb.workforceAccount.deleteMany();
-  await testDb.clientContact.deleteMany();
-  await testDb.site.deleteMany();
-  await testDb.clientOrganization.deleteMany();
-  await testDb.lead.deleteMany();
-  await testDb.incidentReport.deleteMany();
-  await testDb.checklistTemplate.deleteMany();
-  await testDb.contract.deleteMany();
+  try {
+    await testDb.auditLog.deleteMany();
+    await testDb.evidence.deleteMany();
+    await testDb.checklistRunItem.deleteMany();
+    await testDb.checklistRun.deleteMany();
+    await testDb.jobCompletion.deleteMany();
+    await testDb.job.deleteMany();
+    await testDb.workOrder.deleteMany();
+    await testDb.invoiceLineItem.deleteMany();
+    await testDb.billingAdjustment.deleteMany();
+    await testDb.invoice.deleteMany();
+    await testDb.payoutLine.deleteMany();
+    await testDb.payoutBatch.deleteMany();
+    await testDb.accessCredential.deleteMany();
+    await testDb.siteAssignment.deleteMany();
+    await testDb.complianceDocument.deleteMany();
+    await testDb.worker.deleteMany();
+    await testDb.user.deleteMany();
+    await testDb.workforceAccount.deleteMany();
+    await testDb.clientContact.deleteMany();
+    await testDb.site.deleteMany();
+    await testDb.clientOrganization.deleteMany();
+    await testDb.lead.deleteMany();
+    await testDb.incidentReport.deleteMany();
+    await testDb.checklistTemplate.deleteMany();
+    await testDb.contract.deleteMany();
+  } catch (e) {
+    // DB unreachable (e.g. no network, no TEST_DATABASE_URL) - skip cleanup
+  }
 });
 
 afterAll(async () => {
@@ -49,12 +46,13 @@ afterAll(async () => {
 export async function createTestUser(overrides: {
   email: string;
   password?: string;
-  role?: "ADMIN" | "VENDOR_OWNER" | "VENDOR_WORKER" | "INTERNAL_WORKER";
+  role?: "ADMIN" | "CLIENT" | "VENDOR_OWNER" | "VENDOR_WORKER" | "INTERNAL_WORKER";
   workforceAccountId?: string;
+  clientOrganizationId?: string;
   name?: string;
 }) {
   const passwordHash = bcrypt.hashSync(overrides.password || "test123456", 10);
-  
+
   return await testDb.user.create({
     data: {
       email: overrides.email,
@@ -62,6 +60,7 @@ export async function createTestUser(overrides: {
       role: overrides.role || "INTERNAL_WORKER",
       name: overrides.name || "Test User",
       workforceAccountId: overrides.workforceAccountId,
+      clientOrganizationId: overrides.clientOrganizationId,
     },
   });
 }

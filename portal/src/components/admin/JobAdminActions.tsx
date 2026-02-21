@@ -40,6 +40,7 @@ export default function JobAdminActions({
       setError("Please provide a rejection reason.");
       return;
     }
+    if (!confirm("Reject this completion and request resubmission? This will be audited.")) return;
     setError(null);
     startTransition(async () => {
       const result = await rejectCompletion(jobId, rejectReason.trim());
@@ -52,7 +53,7 @@ export default function JobAdminActions({
   };
 
   const handleCancel = () => {
-    if (!confirm("Cancel this job? This action can be audited.")) return;
+    if (!confirm("Cancel this job? This cannot be undone and will be audited.")) return;
     setError(null);
     startTransition(async () => {
       // We need to call transitionJob from client - use a server action

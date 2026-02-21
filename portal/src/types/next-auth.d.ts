@@ -10,6 +10,7 @@ declare module "next-auth" {
       role: UserRole;
       workforceAccountId?: string;
       workerId?: string;
+      clientOrganizationId?: string;
     };
   }
 
@@ -20,6 +21,7 @@ declare module "next-auth" {
     role: UserRole;
     workforceAccountId?: string;
     workerId?: string;
+    clientOrganizationId?: string;
   }
 }
 
@@ -29,5 +31,6 @@ declare module "next-auth/jwt" {
     role: UserRole;
     workforceAccountId?: string;
     workerId?: string;
+    clientOrganizationId?: string;
   }
 }

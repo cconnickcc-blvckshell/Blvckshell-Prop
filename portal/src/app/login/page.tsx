@@ -50,9 +50,11 @@ export default async function LoginPage() {
   if (session) {
     if (session.user.role === "ADMIN") {
       redirect("/admin/jobs");
-    } else {
-      redirect("/jobs");
     }
+    if (session.user.role === "CLIENT") {
+      redirect("/client");
+    }
+    redirect("/jobs");
   }
 
   return (

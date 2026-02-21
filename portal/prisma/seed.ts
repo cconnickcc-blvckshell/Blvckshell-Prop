@@ -5,7 +5,7 @@
  * Checklist item IDs from ops-binder/06_Checklists_Library/checklist-manifest.json
  */
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type UserRole } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import * as bcrypt from "bcryptjs";
 
@@ -195,7 +195,7 @@ async function main() {
     create: {
       email: "sarah@maplecondos.com",
       passwordHash: HASHED_PASSWORD,
-      role: "CLIENT",
+      role: "CLIENT" as UserRole,
       clientOrganizationId: client1.id,
       name: "Sarah PM",
       phone: "+1 416 555 3000",

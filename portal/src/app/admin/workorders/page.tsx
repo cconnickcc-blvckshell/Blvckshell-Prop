@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function WorkOrdersPage() {
   await requireAdmin();
@@ -81,7 +82,13 @@ export default async function WorkOrdersPage() {
           </table>
         </div>
         {workOrders.length === 0 && (
-          <div className="p-8 text-center text-sm text-zinc-500">No work orders yet.</div>
+          <div className="p-8 text-center text-sm text-zinc-500">
+            No work orders yet. Work orders are add-ons and change orders; create them from a site or job when needed.
+            <br />
+            <Link href="/admin/clients" className="mt-2 inline-block text-emerald-400 hover:text-emerald-300">
+              View clients and sites →
+            </Link>
+          </div>
         )}
       </section>
     </div>

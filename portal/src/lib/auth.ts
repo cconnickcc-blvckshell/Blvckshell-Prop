@@ -30,6 +30,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             workforceAccount: true,
           },
         });
+        // clientOrganizationId is on User; no need to include relation for JWT
 
         if (!user || !user.isActive) {
           return null;
@@ -48,6 +49,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           role: user.role,
           workforceAccountId: user.workforceAccountId ?? undefined,
           workerId: user.worker?.id,
+          clientOrganizationId: user.clientOrganizationId ?? undefined,
         };
       },
     }),
@@ -63,6 +65,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.workforceAccountId = user.workforceAccountId;
         token.workerId = user.workerId;
+        token.clientOrganizationId = user.clientOrganizationId;
       }
       return token;
     },
@@ -72,6 +75,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.role = token.role as UserRole;
         session.user.workforceAccountId = token.workforceAccountId as string | undefined;
         session.user.workerId = token.workerId as string | undefined;
+        session.user.clientOrganizationId = token.clientOrganizationId as string | undefined;
       }
       return session;
     },

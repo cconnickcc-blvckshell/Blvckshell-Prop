@@ -77,6 +77,7 @@ export default function JobDetailClient({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [lastFailedAction, setLastFailedAction] = useState<"submit" | "upload" | null>(null);
   const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Parse checklist items
@@ -190,14 +191,17 @@ export default function JobDetailClient({
       try {
         const res = await fetch("/api/evidence/upload", { method: "POST", body: formData });
         if (!res.ok) {
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           setError(data.error || "Upload failed");
+          setLastFailedAction("upload");
         } else {
+          setLastFailedAction(null);
           setCameraOpen(null);
           router.refresh();
         }
       } catch {
-        setError("Upload failed");
+        setError("Upload failed. Check your connection and take the photo again.");
+        setLastFailedAction("upload");
       }
       setUploading(false);
     },
@@ -223,6 +227,7 @@ export default function JobDetailClient({
   const handleSaveDraft = async () => {
     setError(null);
     setSuccess(null);
+    setLastFailedAction(null);
 
     if (checklistRunId) {
       // Flush all current item state to the run (autosave each)
@@ -261,6 +266,7 @@ export default function JobDetailClient({
   const handleSubmit = async () => {
     setError(null);
     setSuccess(null);
+    setLastFailedAction(null);
 
     // Validate checklist
     const requiredItems = checklistItems.filter((item: any) => item.required);
@@ -291,11 +297,13 @@ export default function JobDetailClient({
       if (checklistRunId) {
         const result = await submitChecklistRun(checklistRunId);
         if (result.success) {
+          setLastFailedAction(null);
           setSuccess("Completion submitted successfully");
           router.push("/jobs");
           router.refresh();
         } else {
           setError(result.error || "Failed to submit completion");
+          setLastFailedAction("submit");
         }
       } else {
         const result = await submitCompletion({
@@ -304,11 +312,13 @@ export default function JobDetailClient({
           notes: "",
         });
         if (result.success) {
+          setLastFailedAction(null);
           setSuccess("Completion submitted successfully");
           router.push("/jobs");
           router.refresh();
         } else {
           setError(result.error || "Failed to submit completion");
+          setLastFailedAction("submit");
         }
       }
     });
@@ -357,6 +367,26 @@ export default function JobDetailClient({
         {error && (
           <div className="mb-6 rounded-xl border border-red-500/40 bg-red-500/10 p-4">
             <p className="text-sm font-medium text-red-300">{error}</p>
+            {lastFailedAction === "submit" && (
+              <p className="mt-2 text-xs text-red-200/80">
+                Connection issue? Your progress is saved. Try again when you have a stable connection.
+              </p>
+            )}
+            {lastFailedAction === "submit" && (
+              <button
+                type="button"
+                onClick={() => { setError(null); setLastFailedAction(null); handleSubmit(); }}
+                disabled={isPending || !canSubmit}
+                className="mt-3 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50"
+              >
+                Retry submit
+              </button>
+            )}
+            {lastFailedAction === "upload" && (
+              <p className="mt-2 text-xs text-red-200/80">
+                Take the photo again when you have a stable connection.
+              </p>
+            )}
           </div>
         )}
 

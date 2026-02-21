@@ -18,6 +18,7 @@ model ClientOrganization {
   clientContacts      ClientContact[]
   contracts           Contract[]
   invoices            Invoice[]
+  portalUsers         User[]
   sites               Site[]
 
   @@index([name])
@@ -70,6 +71,7 @@ model User {
   passwordHash              String
   role                      UserRole
   workforceAccountId        String?
+  clientOrganizationId      String?
   name                      String
   phone                     String?
   isActive                  Boolean             @default(true)
@@ -79,11 +81,13 @@ model User {
   invoicesCreated           Invoice[]
   approvedJobs              Job[]               @relation("ApprovedJobs")
   workforceAccount          WorkforceAccount?   @relation(fields: [workforceAccountId], references: [id])
+  clientOrganization        ClientOrganization? @relation(fields: [clientOrganizationId], references: [id])
   worker                    Worker?
 
   @@index([email])
   @@index([role])
   @@index([workforceAccountId])
+  @@index([clientOrganizationId])
   @@index([isActive])
 }
 
@@ -536,6 +540,7 @@ enum WorkforceAccountType {
 
 enum UserRole {
   ADMIN
+  CLIENT
   VENDOR_OWNER
   VENDOR_WORKER
   INTERNAL_WORKER

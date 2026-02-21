@@ -131,7 +131,12 @@ export default async function WorkforcePage() {
           </div>
         </div>
         {accounts.length === 0 && (
-          <div className="p-8 text-center text-sm text-zinc-500">No workforce accounts yet.</div>
+          <div className="p-8 text-center text-sm text-zinc-500">
+            No workforce accounts yet.{" "}
+            <Link href="/admin/workforce/new" className="text-emerald-400 hover:text-emerald-300">
+              Add your first account
+            </Link>
+          </div>
         )}
       </section>
     </div>

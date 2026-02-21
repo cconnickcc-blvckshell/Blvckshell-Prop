@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/server/guards/rbac";
+import { getCurrentUser, canAccessInvoice } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
 
@@ -9,11 +9,15 @@ export async function GET(
 ) {
   try {
     const user = await getCurrentUser();
-    if (!user || user.role !== "ADMIN") {
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const { id } = await context.params;
+    const allowed = await canAccessInvoice(user, id);
+    if (!allowed) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = await context.params;
     const invoice = await prisma.invoice.findUnique({
       where: { id },
       include: {
