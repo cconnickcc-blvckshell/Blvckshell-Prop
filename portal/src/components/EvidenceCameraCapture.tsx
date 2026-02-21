@@ -82,8 +82,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
 
   const capture = useCallback(() => {
     const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas || !stream) return;
+    if (!video || !stream) return;
     const w = video.videoWidth;
     const h = video.videoHeight;
     if (w === 0 || h === 0) {
@@ -91,6 +90,8 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
       return;
     }
     stopStream();
+    // Use offscreen canvas — the ref canvas is only mounted in the redact step
+    const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d");
