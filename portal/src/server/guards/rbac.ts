@@ -146,7 +146,7 @@ export async function canAccessInvoice(user: SessionUser, invoiceId: string): Pr
       where: { id: invoiceId },
       select: { clientId: true },
     });
-    return inv?.clientId === user.clientOrganizationId ?? false;
+    return inv != null ? inv.clientId === user.clientOrganizationId : false;
   }
   return false;
 }
