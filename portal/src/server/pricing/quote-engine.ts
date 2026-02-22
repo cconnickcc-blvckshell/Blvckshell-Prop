@@ -3,7 +3,6 @@
  * No manual final monthly price; quotes are derived → validated → snapshot → frozen.
  */
 import { prisma } from "@/lib/prisma";
-import { Decimal } from "@prisma/client/runtime/library";
 
 const WEEKS_PER_MONTH = 4.33;
 const STRESS_REVENUE_FACTOR = 0.9;
@@ -21,8 +20,8 @@ export type QuoteSnapshotDraft = {
   minutesPerVisitTravel: number;
   minutesPerVisitWinterDelta: number;
   minutesPerVisitTotal: number;
-  hoursPerVisit: Decimal;
-  monthlyHours: Decimal;
+  hoursPerVisit: number;
+  monthlyHours: number;
   baseRevenueCents: number;
   riskAdjustedRevenueCents: number;
   monthlySupplyCostCents: number;
@@ -152,8 +151,8 @@ export async function computeQuoteSnapshot(quoteId: string): Promise<ComputeQuot
     minutesPerVisitTravel: travelMinutes,
     minutesPerVisitWinterDelta: winterDelta,
     minutesPerVisitTotal: totalMinutesPerVisit,
-    hoursPerVisit: new Decimal(hoursPerVisit.toFixed(4)),
-    monthlyHours: new Decimal(monthlyHours.toFixed(4)),
+    hoursPerVisit: Math.round(hoursPerVisit * 10000) / 10000,
+    monthlyHours: Math.round(monthlyHours * 10000) / 10000,
     baseRevenueCents,
     riskAdjustedRevenueCents,
     monthlySupplyCostCents,

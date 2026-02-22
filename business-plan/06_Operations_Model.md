@@ -42,6 +42,23 @@ Capacity planning uses the appropriate column so that teams are not over-committ
 
 ---
 
+## Organization and Role Evolution
+
+Roles and structure evolve with scale. The following is a fully structured org-chart evolution plan; no role is added ahead of revenue and capacity need.
+
+| Scale stage | Sites | Cities | Roles / structure | Notes |
+|-------------|-------|--------|--------------------|--------|
+| **Year 1** | 0–4 | 1 | Founder (sales, ops, finance); subcontractors only | No dedicated staff; founder does coordination, QA, billing. |
+| **Year 2 (early)** | 4–6 | 1 | Founder + optional part-time coordinator or lead subcontractor | First delegation of scheduling or site coordination. |
+| **Year 2 (mid)** | 6–10 | 1–2 | Founder + 0.5–1 FTE operations/coordination | Second city possible; one person cannot cover two cities alone. |
+| **Year 3** | 10–18 | 2–3 | Founder + operations (1 FTE); subcontractors; optional part-time admin | Dedicated ops role; QA and client management structured. |
+| **Year 4–5** | 18–30 | 3–5 | Founder + ops manager + optional city/regional lead; admin support | Management layer; possible regional or city-level lead for scheduling and QA. |
+| **Scale (15+ cities)** | 75+ | 15+ | Central ops; regional/city leads; finance/reporting; field teams | Multi-layer; finance and reporting bank- and investor-ready. See Section 14. |
+
+**Principles:** Contract-first and capacity-led; hiring follows signed work. Maintenance and multi-service require scope-trained subcontractors and clear oversight; the same structure supports cleaning and light maintenance with appropriate QA. Full org chart detail is in Appendix I.
+
+---
+
 ## Route Density Strategy
 
 - **Same city first.** All Year 1 sites are in Windsor (or one city) to minimize travel and simplify scheduling.

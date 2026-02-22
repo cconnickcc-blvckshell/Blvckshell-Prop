@@ -178,6 +178,44 @@ Balance sheet strength improves with scale because of low fixed overhead, high c
 
 ---
 
+## Five-Year Blended Model (Maintenance Ramp)
+
+The following extends the base case to Years 4 and 5 with an explicit **maintenance ramp**: maintenance revenue grows as a share of total revenue, improving blended gross margin. Revenue categories are tracked; no hockey-stick assumptions.
+
+### Revenue Mix Assumptions (Years 4–5, Base Case)
+
+| Revenue category | Year 3 share | Year 4 share | Year 5 share | Note |
+|------------------|--------------|--------------|-------------|------|
+| Recurring cleaning | 70% | 65% | 60% | Core; share declines as other tiers grow. |
+| Turnover cleaning | 10% | 12% | 12% | Stable or slight growth with site count. |
+| Maintenance | 12% | 18% | 22% | Ramp as capacity and client uptake allow. |
+| Facilities support | 5% | 4% | 4% | Modest; retainer where sold. |
+| Pilot revenue | 3% | 1% | 2% | Pipeline; small share of total as recurring base grows. |
+
+### Blended Margin (Years 4–5)
+
+| Year | Blended gross margin | Driver |
+|------|----------------------|--------|
+| 3 | 25% | Cleaning-dominated. |
+| 4 | ~26.5% | Maintenance ~18% of revenue at 32% margin. |
+| 5 | ~27.5% | Maintenance ~22% of revenue at 32% margin. |
+
+Formula (illustrative Y5): (0.60 × 25%) + (0.12 × 27%) + (0.22 × 32%) + (0.04 × 25%) + (0.02 × 35%) ≈ **27.5%**.
+
+### Five-Year Revenue and EBITDA (Base Case Extension)
+
+| Year | Sites (end) | Revenue | Gross margin (blended) | Overhead | Founder/ops salary | EBITDA (approx) |
+|------|-------------|---------|------------------------|----------|-------------------|-----------------|
+| 1 | 3 | 54,400 | 25% | 8,400 | 0 | 5,200 |
+| 2 | 8 | 155,000 | 25% | 28,000 | 36,000 | 2,750 |
+| 3 | 14 | 260,000 | 25% | 52,000 | 52,000 | 13,000 |
+| 4 | 20 | 365,000 | 26.5% | 68,000 | 65,000 | 25,000 |
+| 5 | 28 | 480,000 | 27.5% | 88,000 | 78,000 | 38,000 |
+
+**Year 4–5 assumptions:** Site growth remains stepped (density and contract-triggered). Overhead and salary scale with geography and management layer. Maintenance ramp is capacity- and sales-led; the 22% maintenance share by Y5 is a target, not a guarantee. All figures are illustrative and depend on execution.
+
+---
+
 ## Summary
 
-Three-year forecast uses low, base, and high scenarios with conservative site counts and density-first expansion. EBITDA ranges from negative (low case Y2–Y3) to modestly positive (base and high). No hockey stick; growth is stepped and Ontario-focused.
+Three-year forecast uses low, base, and high scenarios with conservative site counts and density-first expansion. The five-year extension adds a blended model with maintenance ramp and improved blended margin. EBITDA ranges from negative (low case Y2–Y3) to modestly positive (base and high). No hockey stick; growth is stepped and Ontario-focused.

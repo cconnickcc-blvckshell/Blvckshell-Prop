@@ -139,6 +139,68 @@ This dashboard supports predictability and is the basis for monthly operational 
 
 ---
 
+## H. Pilot Conversion Funnel (Summary)
+
+Abbreviated funnel for pilot-to-recurring pipeline. Full description and assumptions are in Section 07.
+
+| Stage | Output | Conversion to next (conservative) |
+|-------|--------|-----------------------------------|
+| Lead | Inquiry / contact | — |
+| Qualified | Margin and scope confirmed | 40–60% |
+| Pilot proposed | Proposal sent | 50–70% |
+| Pilot signed | Contract + prepaid/deposit | 40–60% |
+| Pilot delivered | Scope completed; evidence delivered | 95%+ |
+| Converted to recurring | Recurring contract within 12 months | **30–50%** |
+
+**Use:** Pipeline planning and pilot conversion KPI. Revenue from pilots is recognized at delivery; recurring revenue when conversion contract is signed.
+
+---
+
+## I. Organization Chart Evolution (Structured Plan)
+
+Expansion of Section 06 organization and role evolution. Roles are added only when revenue and geography justify.
+
+| Phase | Approx. sites | Approx. cities | Structure (roles) |
+|-------|----------------|----------------|-------------------|
+| Launch | 0–4 | 1 | Founder only (sales, ops, finance); 100% subcontractor delivery. |
+| Ramp | 4–8 | 1–2 | Founder + 0.5 FTE coordination (scheduling, QA support). |
+| Growth | 8–14 | 2–3 | Founder + 1 FTE operations (coordination, QA, client contact); subcontractors. |
+| Scale | 14–28 | 3–5 | Founder + ops manager + optional part-time admin; optional city/regional lead; subcontractors. |
+| Regional | 28–75 | 5–15 | Central ops; 1–2 regional/city leads; admin; finance/reporting capability; field teams (subcontractor or employee). |
+
+**Reporting:** Founder retains client relationship and P&L ownership through scale; ops/regional roles report to founder until a formal management layer is added at regional scale. Maintenance and multi-service do not require a separate org layer; they are delivered within the same structure with scope-trained labour and clear QA.
+
+---
+
+## J. Lender-Ready Risk Disclosure Addendum
+
+This addendum is intended for use in bank or lender discussions. It does not replace Section 08 (Risk Management and Compliance) but provides a consolidated, lender-facing summary of material risks and mitigations. Lenders should conduct their own due diligence.
+
+### Purpose
+
+To disclose material risks associated with Blvckshell's operations and financing request, and to summarize mitigation. Risk cannot be eliminated; this document does not constitute a guarantee of repayment or performance.
+
+### Material Risks (Summary)
+
+| Risk category | Description | Mitigation summary |
+|---------------|-------------|---------------------|
+| **Revenue concentration** | Early-stage reliance on a small number of sites; loss of one or two contracts has material revenue impact. | Strict contract terms, scope clarity, retention focus; pilot pipeline for diversification; LOC and working capital for timing. |
+| **Margin compression** | Labour or supply cost increase, or client price pressure, could reduce gross margin below target. | Margin governance (target 25%, floor 20%); payout ceiling; add-on and maintenance minimum 30%; reprice or exit at renewal if margin cannot be restored. |
+| **Slow ramp** | Revenue may grow more slowly than projected; break-even delayed. | Conservative forecast; no speculative hiring or geography; zero founder salary in Year 1; LOC for working capital. |
+| **Liquidity** | AR timing (30–45 days) and seasonal variation may create cash shortfalls. | Working capital planning; LOC request (Section 13); no net-30 on pilot work (prepaid/deposit). |
+| **Regulatory** | WSIB, HST, insurance non-compliance would create liability and contract risk. | WSIB and insurance in place before first work; HST registered; subcontractor compliance verified; no work outside scope (e.g. no licensed or permit work). |
+| **Maintenance and facilities** | Light maintenance could expose company to claims if scope is exceeded or work is misclassified. | Explicit exclusions (no licensed, permit, or structural work); scope documentation; evidence logging; insurance and subcontractor requirements (Section 08). |
+| **Key person** | Founder carries sales, operations, and financial oversight in Year 1–2. | Documentation and systems; plan does not assume irreplaceability in long term. |
+
+### Acknowledgment
+
+- The company has disclosed known material risks and mitigations to the best of its current knowledge.
+- Projections and forecasts are conservative and subject to change; actual results will vary.
+- The lender is encouraged to conduct independent due diligence and to obtain legal, accounting, or other professional advice as appropriate.
+- This addendum is part of the business plan and is not a separate legal or contractual document unless otherwise agreed in writing.
+
+---
+
 ## F. Document Index
 
 | File | Title |
@@ -159,5 +221,7 @@ This dashboard supports predictability and is the basis for monthly operational 
 | 14 | Scalability Model — Ontario |
 | 15 | Exit Optionality and Long-Term Value |
 | 16 | Appendices (this document) |
+
+Appendices include: A (Financial Definitions), B (Margin Formulas), C (Capacity Formulas), D (Regulatory Summary), E (Assumption Glossary), F (Document Index), G (KPI Dashboard), H (Pilot Conversion Funnel), I (Org Chart Evolution), J (Lender-Ready Risk Disclosure Addendum).
 
 All documents are standalone Markdown files and may be concatenated for PDF compilation. No internal reference assumes a specific page order beyond this index.

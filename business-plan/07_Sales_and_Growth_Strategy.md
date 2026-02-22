@@ -102,6 +102,21 @@ Pilots reduce friction in vendor switching: limited scope, fixed price, and clea
 
 Pilots do not inflate Year 1 revenue unrealistically. They are pipeline tools; conversion is modeled conservatively.
 
+### Pilot Conversion Funnel Model
+
+The funnel tracks leads from first contact through pilot delivery to recurring conversion. Conversion rates are conservative; no stage assumes 100% pass-through.
+
+| Stage | Definition | Conservative pass-through (to next stage) | Notes |
+|-------|------------|--------------------------------------------|--------|
+| **1. Lead** | Inquiry or outbound contact; building/property identified | — | Volume depends on outreach and referrals; not forecast in revenue. |
+| **2. Qualified** | Building type and budget confirmed; margin achievable; scope in focus | 40–60% of leads | Disqualify if margin cannot be met or scope is out of focus. |
+| **3. Pilot proposed** | Written pilot proposal sent; scope and price defined | 50–70% of qualified | Proposal includes fixed scope and prepaid/deposit terms. |
+| **4. Pilot signed** | Contract or PO signed; prepaid or deposit received | 40–60% of proposed | No work starts without signed agreement and payment. |
+| **5. Pilot delivered** | Pilot completed; evidence and report delivered | 95%+ of signed | Rare failure; scope-locked delivery. |
+| **6. Converted to recurring** | Recurring contract (cleaning, maintenance, or turnover) signed within 12 months | **30–50%** of delivered pilots | Separate contract event; tracked as pilot conversion rate (KPI). |
+
+**Funnel math (illustrative):** 20 leads → 10 qualified → 6 proposed → 3 signed → 3 delivered → 1–1.5 converted (30–50%). So 20 leads yield 1–1.5 recurring clients under conservative assumptions. Revenue from pilots is recognized at delivery; recurring revenue when conversion contract is signed. See Appendix H for a summary funnel view.
+
 ---
 
 ## Target Customer

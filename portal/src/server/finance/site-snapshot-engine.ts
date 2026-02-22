@@ -97,16 +97,22 @@ export async function computeSiteSnapshot(params: {
   const netRevenueCents =
     baseRevenueCents + addOnRevenueCents + otherRevenueCents - creditsCents;
 
-  // Payout COGS: PayoutLine for jobs at this site in month
-  const payoutLines = await prisma.payoutLine.findMany({
+  // Payout COGS: PayoutLine for jobs at this site in month (PayoutLine has jobId, no Job relation)
+  const jobIdsInMonth = await prisma.job.findMany({
     where: {
-      job: {
-        siteId,
-        scheduledStart: { gte: monthStart, lte: monthEnd },
-      },
+      siteId,
+      scheduledStart: { gte: monthStart, lte: monthEnd },
     },
-    select: { amountCents: true },
+    select: { id: true },
   });
+  const ids = jobIdsInMonth.map((j) => j.id);
+  const payoutLines =
+    ids.length > 0
+      ? await prisma.payoutLine.findMany({
+          where: { jobId: { in: ids } },
+          select: { amountCents: true },
+        })
+      : [];
   const payoutCogsCents = payoutLines.reduce((s, p) => s + p.amountCents, 0);
 
   // Add-on payout: could be from line items tagged ADD_ON and associated payout; simplified as 0 here unless we track add-on jobs

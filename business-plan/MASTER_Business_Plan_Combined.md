@@ -575,6 +575,23 @@ Capacity planning uses the appropriate column so that teams are not over-committ
 
 ---
 
+## Organization and Role Evolution
+
+Roles and structure evolve with scale. The following is a fully structured org-chart evolution plan; no role is added ahead of revenue and capacity need.
+
+| Scale stage | Sites | Cities | Roles / structure | Notes |
+|-------------|-------|--------|--------------------|--------|
+| **Year 1** | 0–4 | 1 | Founder (sales, ops, finance); subcontractors only | No dedicated staff; founder does coordination, QA, billing. |
+| **Year 2 (early)** | 4–6 | 1 | Founder + optional part-time coordinator or lead subcontractor | First delegation of scheduling or site coordination. |
+| **Year 2 (mid)** | 6–10 | 1–2 | Founder + 0.5–1 FTE operations/coordination | Second city possible; one person cannot cover two cities alone. |
+| **Year 3** | 10–18 | 2–3 | Founder + operations (1 FTE); subcontractors; optional part-time admin | Dedicated ops role; QA and client management structured. |
+| **Year 4–5** | 18–30 | 3–5 | Founder + ops manager + optional city/regional lead; admin support | Management layer; possible regional or city-level lead for scheduling and QA. |
+| **Scale (15+ cities)** | 75+ | 15+ | Central ops; regional/city leads; finance/reporting; field teams | Multi-layer; finance and reporting bank- and investor-ready. See Section 14. |
+
+**Principles:** Contract-first and capacity-led; hiring follows signed work. Maintenance and multi-service require scope-trained subcontractors and clear oversight; the same structure supports cleaning and light maintenance with appropriate QA. Full org chart detail is in Appendix I.
+
+---
+
 ## Route Density Strategy
 
 - **Same city first.** All Year 1 sites are in Windsor (or one city) to minimize travel and simplify scheduling.
@@ -806,6 +823,21 @@ Pilots reduce friction in vendor switching: limited scope, fixed price, and clea
 | Pilot-to-recurring logic | Pilot revenue is not inflated in Year 1. Pilots feed pipeline; recurring revenue is recognized when contract is signed. Forecast uses blended ramp: early revenue may include one-time/pilot; recurring share grows as conversions occur. |
 
 Pilots do not inflate Year 1 revenue unrealistically. They are pipeline tools; conversion is modeled conservatively.
+
+### Pilot Conversion Funnel Model
+
+The funnel tracks leads from first contact through pilot delivery to recurring conversion. Conversion rates are conservative; no stage assumes 100% pass-through.
+
+| Stage | Definition | Conservative pass-through (to next stage) | Notes |
+|-------|------------|--------------------------------------------|--------|
+| **1. Lead** | Inquiry or outbound contact; building/property identified | — | Volume depends on outreach and referrals; not forecast in revenue. |
+| **2. Qualified** | Building type and budget confirmed; margin achievable; scope in focus | 40–60% of leads | Disqualify if margin cannot be met or scope is out of focus. |
+| **3. Pilot proposed** | Written pilot proposal sent; scope and price defined | 50–70% of qualified | Proposal includes fixed scope and prepaid/deposit terms. |
+| **4. Pilot signed** | Contract or PO signed; prepaid or deposit received | 40–60% of proposed | No work starts without signed agreement and payment. |
+| **5. Pilot delivered** | Pilot completed; evidence and report delivered | 95%+ of signed | Rare failure; scope-locked delivery. |
+| **6. Converted to recurring** | Recurring contract (cleaning, maintenance, or turnover) signed within 12 months | **30–50%** of delivered pilots | Separate contract event; tracked as pilot conversion rate (KPI). |
+
+**Funnel math (illustrative):** 20 leads → 10 qualified → 6 proposed → 3 signed → 3 delivered → 1–1.5 converted (30–50%). So 20 leads yield 1–1.5 recurring clients under conservative assumptions. Revenue from pilots is recognized at delivery; recurring revenue when conversion contract is signed. See Appendix H for a summary funnel view.
 
 ---
 
@@ -1640,9 +1672,47 @@ Balance sheet strength improves with scale because of low fixed overhead, high c
 
 ---
 
+## Five-Year Blended Model (Maintenance Ramp)
+
+The following extends the base case to Years 4 and 5 with an explicit **maintenance ramp**: maintenance revenue grows as a share of total revenue, improving blended gross margin. Revenue categories are tracked; no hockey-stick assumptions.
+
+### Revenue Mix Assumptions (Years 4–5, Base Case)
+
+| Revenue category | Year 3 share | Year 4 share | Year 5 share | Note |
+|------------------|--------------|--------------|-------------|------|
+| Recurring cleaning | 70% | 65% | 60% | Core; share declines as other tiers grow. |
+| Turnover cleaning | 10% | 12% | 12% | Stable or slight growth with site count. |
+| Maintenance | 12% | 18% | 22% | Ramp as capacity and client uptake allow. |
+| Facilities support | 5% | 4% | 4% | Modest; retainer where sold. |
+| Pilot revenue | 3% | 1% | 2% | Pipeline; small share of total as recurring base grows. |
+
+### Blended Margin (Years 4–5)
+
+| Year | Blended gross margin | Driver |
+|------|----------------------|--------|
+| 3 | 25% | Cleaning-dominated. |
+| 4 | ~26.5% | Maintenance ~18% of revenue at 32% margin. |
+| 5 | ~27.5% | Maintenance ~22% of revenue at 32% margin. |
+
+Formula (illustrative Y5): (0.60 × 25%) + (0.12 × 27%) + (0.22 × 32%) + (0.04 × 25%) + (0.02 × 35%) ≈ **27.5%**.
+
+### Five-Year Revenue and EBITDA (Base Case Extension)
+
+| Year | Sites (end) | Revenue | Gross margin (blended) | Overhead | Founder/ops salary | EBITDA (approx) |
+|------|-------------|---------|------------------------|----------|-------------------|-----------------|
+| 1 | 3 | 54,400 | 25% | 8,400 | 0 | 5,200 |
+| 2 | 8 | 155,000 | 25% | 28,000 | 36,000 | 2,750 |
+| 3 | 14 | 260,000 | 25% | 52,000 | 52,000 | 13,000 |
+| 4 | 20 | 365,000 | 26.5% | 68,000 | 65,000 | 25,000 |
+| 5 | 28 | 480,000 | 27.5% | 88,000 | 78,000 | 38,000 |
+
+**Year 4–5 assumptions:** Site growth remains stepped (density and contract-triggered). Overhead and salary scale with geography and management layer. Maintenance ramp is capacity- and sales-led; the 22% maintenance share by Y5 is a target, not a guarantee. All figures are illustrative and depend on execution.
+
+---
+
 ## Summary
 
-Three-year forecast uses low, base, and high scenarios with conservative site counts and density-first expansion. EBITDA ranges from negative (low case Y2–Y3) to modestly positive (base and high). No hockey stick; growth is stepped and Ontario-focused.
+Three-year forecast uses low, base, and high scenarios with conservative site counts and density-first expansion. The five-year extension adds a blended model with maintenance ramp and improved blended margin. EBITDA ranges from negative (low case Y2–Y3) to modestly positive (base and high). No hockey stick; growth is stepped and Ontario-focused.
 
 
 ---
@@ -2279,6 +2349,68 @@ This dashboard supports predictability and is the basis for monthly operational 
 
 ---
 
+## H. Pilot Conversion Funnel (Summary)
+
+Abbreviated funnel for pilot-to-recurring pipeline. Full description and assumptions are in Section 07.
+
+| Stage | Output | Conversion to next (conservative) |
+|-------|--------|-----------------------------------|
+| Lead | Inquiry / contact | — |
+| Qualified | Margin and scope confirmed | 40–60% |
+| Pilot proposed | Proposal sent | 50–70% |
+| Pilot signed | Contract + prepaid/deposit | 40–60% |
+| Pilot delivered | Scope completed; evidence delivered | 95%+ |
+| Converted to recurring | Recurring contract within 12 months | **30–50%** |
+
+**Use:** Pipeline planning and pilot conversion KPI. Revenue from pilots is recognized at delivery; recurring revenue when conversion contract is signed.
+
+---
+
+## I. Organization Chart Evolution (Structured Plan)
+
+Expansion of Section 06 organization and role evolution. Roles are added only when revenue and geography justify.
+
+| Phase | Approx. sites | Approx. cities | Structure (roles) |
+|-------|----------------|----------------|-------------------|
+| Launch | 0–4 | 1 | Founder only (sales, ops, finance); 100% subcontractor delivery. |
+| Ramp | 4–8 | 1–2 | Founder + 0.5 FTE coordination (scheduling, QA support). |
+| Growth | 8–14 | 2–3 | Founder + 1 FTE operations (coordination, QA, client contact); subcontractors. |
+| Scale | 14–28 | 3–5 | Founder + ops manager + optional part-time admin; optional city/regional lead; subcontractors. |
+| Regional | 28–75 | 5–15 | Central ops; 1–2 regional/city leads; admin; finance/reporting capability; field teams (subcontractor or employee). |
+
+**Reporting:** Founder retains client relationship and P&L ownership through scale; ops/regional roles report to founder until a formal management layer is added at regional scale. Maintenance and multi-service do not require a separate org layer; they are delivered within the same structure with scope-trained labour and clear QA.
+
+---
+
+## J. Lender-Ready Risk Disclosure Addendum
+
+This addendum is intended for use in bank or lender discussions. It does not replace Section 08 (Risk Management and Compliance) but provides a consolidated, lender-facing summary of material risks and mitigations. Lenders should conduct their own due diligence.
+
+### Purpose
+
+To disclose material risks associated with Blvckshell's operations and financing request, and to summarize mitigation. Risk cannot be eliminated; this document does not constitute a guarantee of repayment or performance.
+
+### Material Risks (Summary)
+
+| Risk category | Description | Mitigation summary |
+|---------------|-------------|---------------------|
+| **Revenue concentration** | Early-stage reliance on a small number of sites; loss of one or two contracts has material revenue impact. | Strict contract terms, scope clarity, retention focus; pilot pipeline for diversification; LOC and working capital for timing. |
+| **Margin compression** | Labour or supply cost increase, or client price pressure, could reduce gross margin below target. | Margin governance (target 25%, floor 20%); payout ceiling; add-on and maintenance minimum 30%; reprice or exit at renewal if margin cannot be restored. |
+| **Slow ramp** | Revenue may grow more slowly than projected; break-even delayed. | Conservative forecast; no speculative hiring or geography; zero founder salary in Year 1; LOC for working capital. |
+| **Liquidity** | AR timing (30–45 days) and seasonal variation may create cash shortfalls. | Working capital planning; LOC request (Section 13); no net-30 on pilot work (prepaid/deposit). |
+| **Regulatory** | WSIB, HST, insurance non-compliance would create liability and contract risk. | WSIB and insurance in place before first work; HST registered; subcontractor compliance verified; no work outside scope (e.g. no licensed or permit work). |
+| **Maintenance and facilities** | Light maintenance could expose company to claims if scope is exceeded or work is misclassified. | Explicit exclusions (no licensed, permit, or structural work); scope documentation; evidence logging; insurance and subcontractor requirements (Section 08). |
+| **Key person** | Founder carries sales, operations, and financial oversight in Year 1–2. | Documentation and systems; plan does not assume irreplaceability in long term. |
+
+### Acknowledgment
+
+- The company has disclosed known material risks and mitigations to the best of its current knowledge.
+- Projections and forecasts are conservative and subject to change; actual results will vary.
+- The lender is encouraged to conduct independent due diligence and to obtain legal, accounting, or other professional advice as appropriate.
+- This addendum is part of the business plan and is not a separate legal or contractual document unless otherwise agreed in writing.
+
+---
+
 ## F. Document Index
 
 | File | Title |
@@ -2299,6 +2431,8 @@ This dashboard supports predictability and is the basis for monthly operational 
 | 14 | Scalability Model — Ontario |
 | 15 | Exit Optionality and Long-Term Value |
 | 16 | Appendices (this document) |
+
+Appendices include: A (Financial Definitions), B (Margin Formulas), C (Capacity Formulas), D (Regulatory Summary), E (Assumption Glossary), F (Document Index), G (KPI Dashboard), H (Pilot Conversion Funnel), I (Org Chart Evolution), J (Lender-Ready Risk Disclosure Addendum).
 
 All documents are standalone Markdown files and may be concatenated for PDF compilation. No internal reference assumes a specific page order beyond this index.
 
