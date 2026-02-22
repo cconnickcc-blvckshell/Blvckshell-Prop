@@ -10,7 +10,7 @@ declare global {
   var __testDbReachable: boolean | undefined;
 }
 
-// One-time check: can we reach the DB? (so we can skip DB-dependent tests when offline/unreachable)
+// One-time check: can we reach the DB? In CI, fail if unreachable; locally skip when offline.
 beforeAll(async () => {
   if (globalThis.__testDbReachable !== undefined) return;
   try {
@@ -18,6 +18,11 @@ beforeAll(async () => {
     globalThis.__testDbReachable = true;
   } catch {
     globalThis.__testDbReachable = false;
+    if (process.env.CI === "true") {
+      throw new Error(
+        "CI requires a reachable test database. Set TEST_DATABASE_URL or DATABASE_URL and ensure Postgres is running (e.g. service container)."
+      );
+    }
   }
 });
 

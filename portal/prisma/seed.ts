@@ -4,13 +4,22 @@
  * 3 client orgs, 3 sites, jobs, 1 missed + make-good, 1 work order, 1 incident.
  * Checklist item IDs from ops-binder/06_Checklists_Library/checklist-manifest.json
  */
-import "dotenv/config";
+import * as dotenv from "dotenv";
+import * as path from "path";
 import { PrismaClient, type UserRole } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import * as bcrypt from "bcryptjs";
 
+// Load .env from portal/ or repo root so DATABASE_URL is set when running from portal
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
+
+// Allow self-signed TLS certs for this process so seed can connect to Supabase (or behind corporate proxy).
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is not set");
+
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
@@ -149,6 +158,36 @@ async function main() {
     },
   });
 
+  // 3b. Default pricing policy for quotes (Toronto)
+  const policyExists = await prisma.pricingPolicy.findFirst({
+    where: { cityCode: "YYZ", effectiveDate: new Date("2025-01-01"), version: 1 },
+  });
+  if (!policyExists) {
+    await prisma.pricingPolicy.create({
+      data: {
+        cityCode: "YYZ",
+        effectiveDate: new Date("2025-01-01"),
+        version: 1,
+        anchorBillingRateCentsPerHour: 10000, // $100/hr
+        minimumMonthlyRevenueCents: 50000, // $500/mo floor
+        defaultTravelMinutesPerVisit: 15,
+        defaultMonthlySupplyCostCents: 0,
+        defaultWinterMinutesPerVisitDelta: 5,
+        winterStartMonth: 10,
+        winterEndMonth: 3,
+        daysValid: 30,
+        targetMarginBps: 2500, // 25%
+        stressMarginBps: 2000,
+        minStressMarginBps: 1500,
+        subPayoutCeilingCentsPerHour: 3000, // $30/hr ceiling
+        addonBillingRateCentsPerHour: 5000, // $50/hr add-ons
+        addonMinMarginBps: 3000, // 30%
+        riskRules: {},
+      },
+    });
+    console.log("Created default pricing policy: YYZ 2025-01-01 v1");
+  }
+
   // 4. Client orgs + sites
   const client1 = await prisma.clientOrganization.upsert({
     where: { id: "seed-client-1" },
@@ -254,9 +293,9 @@ async function main() {
     },
   });
 
-  // 5. Checklist templates (one active per site; use CL_01 and CL_02 item IDs)
-  const template1Exists = await prisma.checklistTemplate.findFirst({
-    where: { siteId: site1.id, isActive: true },
+  // 5. Checklist templates (unique on siteId+version; use CL_01 and CL_02 item IDs)
+  const template1Exists = await prisma.checklistTemplate.findUnique({
+    where: { siteId_version: { siteId: site1.id, version: 1 } },
   });
   if (!template1Exists) {
     await prisma.checklistTemplate.create({
@@ -269,8 +308,8 @@ async function main() {
     });
   }
 
-  const template2Exists = await prisma.checklistTemplate.findFirst({
-    where: { siteId: site2.id, isActive: true },
+  const template2Exists = await prisma.checklistTemplate.findUnique({
+    where: { siteId_version: { siteId: site2.id, version: 1 } },
   });
   if (!template2Exists) {
     await prisma.checklistTemplate.create({
@@ -283,8 +322,8 @@ async function main() {
     });
   }
 
-  const template3Exists = await prisma.checklistTemplate.findFirst({
-    where: { siteId: site3.id, isActive: true },
+  const template3Exists = await prisma.checklistTemplate.findUnique({
+    where: { siteId_version: { siteId: site3.id, version: 1 } },
   });
   if (!template3Exists) {
     await prisma.checklistTemplate.create({

@@ -1,0 +1,632 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  createQuoteAreaLine,
+  updateQuoteAreaLine,
+  deleteQuoteAreaLine,
+  createQuoteAddOnLine,
+  updateQuoteAddOnLine,
+  deleteQuoteAddOnLine,
+  updateQuoteHeader,
+  updateQuoteRiskFactors,
+  type CreateQuoteAreaLinePayload,
+  type UpdateQuoteAreaLinePayload,
+  type CreateQuoteAddOnLinePayload,
+  type UpdateQuoteAddOnLinePayload,
+  type UpdateQuoteHeaderPayload,
+} from "@/server/actions/quote-actions";
+import type { QuoteAreaType, BuildingClass } from "@prisma/client";
+
+const AREA_TYPES: { value: QuoteAreaType; label: string }[] = [
+  { value: "LOBBY", label: "Lobby" },
+  { value: "HALLWAYS", label: "Hallways" },
+  { value: "STAIRWELLS", label: "Stairwells" },
+  { value: "ELEVATORS", label: "Elevators" },
+  { value: "GARBAGE", label: "Garbage" },
+  { value: "WASHROOMS", label: "Washrooms" },
+  { value: "GLASS", label: "Glass" },
+  { value: "OTHER", label: "Other" },
+];
+
+const PRESETS = [
+  { value: "S", label: "S" },
+  { value: "M", label: "M" },
+  { value: "L", label: "L" },
+] as const;
+
+const FINISHES = [
+  { value: "carpet", label: "Carpet" },
+  { value: "tile", label: "Tile" },
+  { value: "vinyl", label: "Vinyl" },
+  { value: "mixed", label: "Mixed" },
+  { value: "glass-heavy", label: "Glass-heavy" },
+  { value: "chrome", label: "Chrome" },
+  { value: "concrete", label: "Concrete" },
+  { value: "premium", label: "Premium" },
+];
+
+type AreaLine = {
+  id: string;
+  type: QuoteAreaType;
+  measurements: Record<string, unknown>;
+  computedMinutes: number;
+  overrideMinutes: number | null;
+  overrideReason: string | null;
+};
+
+type AddOnLine = {
+  id: string;
+  name: string;
+  estimatedLaborMinutes: number;
+  priceCents: number;
+  marginBps: number;
+  includedInProposal: boolean;
+};
+
+const BUILDING_CLASSES: { value: BuildingClass | ""; label: string }[] = [
+  { value: "", label: "—" },
+  { value: "POOR", label: "Poor" },
+  { value: "AVERAGE", label: "Average" },
+  { value: "PREMIUM", label: "Premium" },
+];
+
+type WalkthroughScopeClientProps = {
+  quoteId: string;
+  areaLines: AreaLine[];
+  addOnLines: AddOnLine[];
+  travelMinutesPerVisit: number;
+  winterMinutesPerVisitDelta: number;
+  visitsPerWeek: number;
+  monthlySupplyCostCents: number;
+  expectedSubcontractorRateCentsPerHour: number | null;
+  riskFactors: string[] | null;
+  buildingClass: BuildingClass | null;
+  riskRulesKeys: string[];
+};
+
+function baseMinutesFromLines(lines: AreaLine[]): number {
+  return lines.reduce(
+    (sum, l) => sum + (l.overrideMinutes ?? l.computedMinutes),
+    0
+  );
+}
+
+export default function WalkthroughScopeClient({
+  quoteId,
+  areaLines: initialAreaLines,
+  addOnLines: initialAddOnLines,
+  travelMinutesPerVisit: initialTravel,
+  winterMinutesPerVisitDelta: initialWinter,
+  visitsPerWeek: initialVisits,
+  monthlySupplyCostCents: initialSupply,
+  expectedSubcontractorRateCentsPerHour: initialSubRate,
+  riskFactors: initialRiskFactors,
+  buildingClass: initialBuildingClass,
+  riskRulesKeys,
+}: WalkthroughScopeClientProps) {
+  const router = useRouter();
+  const [areaLines, setAreaLines] = useState<AreaLine[]>(initialAreaLines);
+  const [addOnLines, setAddOnLines] = useState<AddOnLine[]>(initialAddOnLines);
+  const [travelMinutesPerVisit, setTravelMinutesPerVisit] = useState(initialTravel);
+  const [winterMinutesPerVisitDelta, setWinterMinutesPerVisitDelta] = useState(initialWinter);
+  const [visitsPerWeek, setVisitsPerWeek] = useState(initialVisits);
+  const [monthlySupplyCostCents, setMonthlySupplyCostCents] = useState(initialSupply);
+  const [expectedSubcontractorRateCentsPerHour, setExpectedSubcontractorRateCentsPerHour] = useState<string>(
+    initialSubRate != null ? String(initialSubRate) : ""
+  );
+  const [riskFactors, setRiskFactors] = useState<string[]>(initialRiskFactors ?? []);
+  const [buildingClass, setBuildingClass] = useState<BuildingClass | null>(initialBuildingClass);
+  useEffect(() => {
+    setAreaLines(initialAreaLines);
+    setAddOnLines(initialAddOnLines);
+  }, [initialAreaLines, initialAddOnLines]);
+  useEffect(() => {
+    setTravelMinutesPerVisit(initialTravel);
+    setWinterMinutesPerVisitDelta(initialWinter);
+    setVisitsPerWeek(initialVisits);
+    setMonthlySupplyCostCents(initialSupply);
+    setExpectedSubcontractorRateCentsPerHour(initialSubRate != null ? String(initialSubRate) : "");
+    setRiskFactors(initialRiskFactors ?? []);
+    setBuildingClass(initialBuildingClass);
+  }, [initialTravel, initialWinter, initialVisits, initialSupply, initialSubRate, initialRiskFactors, initialBuildingClass]);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  const baseMinutes = baseMinutesFromLines(areaLines);
+  const totalMinutesPerVisit = baseMinutes + travelMinutesPerVisit + winterMinutesPerVisitDelta;
+  const canGoToPricing = areaLines.length >= 1 && totalMinutesPerVisit > 0;
+
+  const refresh = () => router.refresh();
+
+  // --- Area line form state ---
+  const [areaForm, setAreaForm] = useState<{
+    type: QuoteAreaType;
+    preset: "S" | "M" | "L";
+    finish: string;
+    overrideMinutes: string;
+    overrideReason: string;
+  }>({ type: "HALLWAYS", preset: "M", finish: "", overrideMinutes: "", overrideReason: "" });
+
+  async function handleAddAreaLine(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+    const measurements: Record<string, unknown> = { preset: areaForm.preset };
+    if (areaForm.finish) measurements.finish = areaForm.finish;
+    const payload: CreateQuoteAreaLinePayload = {
+      type: areaForm.type,
+      measurements,
+    };
+    if (areaForm.overrideMinutes.trim()) {
+      const ov = parseInt(areaForm.overrideMinutes, 10);
+      if (!Number.isFinite(ov)) {
+        setError("Override minutes must be a number");
+        setPending(false);
+        return;
+      }
+      payload.overrideMinutes = ov;
+      payload.overrideReason = areaForm.overrideReason.trim() || undefined;
+      if (!payload.overrideReason) {
+        setError("Override reason required when override minutes are set");
+        setPending(false);
+        return;
+      }
+    }
+    const result = await createQuoteAreaLine(quoteId, payload);
+    setPending(false);
+    if (result.ok) {
+      refresh();
+      setAreaForm({ type: "HALLWAYS", preset: "M", finish: "", overrideMinutes: "", overrideReason: "" });
+    } else {
+      setError(result.error ?? "Failed");
+    }
+  }
+
+  async function handleUpdateAreaLine(lineId: string, payload: UpdateQuoteAreaLinePayload) {
+    setError(null);
+    setPending(true);
+    const result = await updateQuoteAreaLine(lineId, payload);
+    setPending(false);
+    if (result.ok) {
+      refresh();
+      setEditingAreaId(null);
+    } else {
+      setError(result.error ?? "Failed");
+    }
+  }
+
+  async function handleDeleteAreaLine(lineId: string) {
+    setError(null);
+    setPending(true);
+    const result = await deleteQuoteAreaLine(lineId);
+    setPending(false);
+    if (result.ok) refresh();
+    else setError(result.error ?? "Failed");
+  }
+
+  // --- Add-on form state ---
+  const [addOnForm, setAddOnForm] = useState({ name: "", estimatedLaborMinutes: "30", includedInProposal: true });
+
+  async function handleAddAddOnLine(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+    const minutes = parseInt(addOnForm.estimatedLaborMinutes, 10);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      setError("Estimated labor minutes must be a positive number");
+      setPending(false);
+      return;
+    }
+    const result = await createQuoteAddOnLine(quoteId, {
+      name: addOnForm.name.trim() || "Add-on",
+      estimatedLaborMinutes: minutes,
+      includedInProposal: addOnForm.includedInProposal,
+    });
+    setPending(false);
+    if (result.ok) {
+      refresh();
+      setAddOnForm({ name: "", estimatedLaborMinutes: "30", includedInProposal: true });
+    } else {
+      setError(result.error ?? "Failed");
+    }
+  }
+
+  async function handleUpdateAddOnLine(lineId: string, payload: UpdateQuoteAddOnLinePayload) {
+    setError(null);
+    setPending(true);
+    const result = await updateQuoteAddOnLine(lineId, payload);
+    setPending(false);
+    if (result.ok) {
+      refresh();
+    } else {
+      setError(result.error ?? "Failed");
+    }
+  }
+
+  async function handleDeleteAddOnLine(lineId: string) {
+    setError(null);
+    setPending(true);
+    const result = await deleteQuoteAddOnLine(lineId);
+    setPending(false);
+    if (result.ok) refresh();
+    else setError(result.error ?? "Failed");
+  }
+
+  async function handleSaveHeader(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+    const payload: UpdateQuoteHeaderPayload = {
+      visitsPerWeek,
+      travelMinutesPerVisit,
+      winterMinutesPerVisitDelta,
+      monthlySupplyCostCents,
+      expectedSubcontractorRateCentsPerHour: expectedSubcontractorRateCentsPerHour.trim() === ""
+        ? null
+        : parseInt(expectedSubcontractorRateCentsPerHour, 10),
+    };
+    if (Number.isNaN(payload.expectedSubcontractorRateCentsPerHour as number)) {
+      payload.expectedSubcontractorRateCentsPerHour = null;
+    }
+    const result = await updateQuoteHeader(quoteId, payload);
+    setPending(false);
+    if (result.ok) refresh();
+    else setError(result.error ?? "Failed");
+  }
+
+  async function handleSaveRisk(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+    const result = await updateQuoteRiskFactors(
+      quoteId,
+      riskFactors,
+      buildingClass
+    );
+    setPending(false);
+    if (result.ok) refresh();
+    else setError(result.error ?? "Failed");
+  }
+
+  function toggleRiskFactor(key: string) {
+    setRiskFactors((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div className="flex-1 space-y-6">
+        {error && (
+          <div className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm text-red-400">
+            {error}
+          </div>
+        )}
+
+        {/* Quote header & risk */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-white">Quote header & risk</h2>
+          <form onSubmit={handleSaveHeader} className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+            <div>
+              <label className="block text-xs text-zinc-400">Visits/week</label>
+              <input
+                type="number"
+                min={1}
+                max={14}
+                value={visitsPerWeek}
+                onChange={(e) => setVisitsPerWeek(parseInt(e.target.value, 10) || 1)}
+                className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Travel min/visit</label>
+              <input
+                type="number"
+                min={0}
+                max={999}
+                value={travelMinutesPerVisit}
+                onChange={(e) => setTravelMinutesPerVisit(parseInt(e.target.value, 10) || 0)}
+                className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Winter delta min</label>
+              <input
+                type="number"
+                min={-999}
+                max={999}
+                value={winterMinutesPerVisitDelta}
+                onChange={(e) => setWinterMinutesPerVisitDelta(parseInt(e.target.value, 10) || 0)}
+                className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Supply cost ¢/mo</label>
+              <input
+                type="number"
+                min={0}
+                value={monthlySupplyCostCents}
+                onChange={(e) => setMonthlySupplyCostCents(parseInt(e.target.value, 10) || 0)}
+                className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Expected sub ¢/hr</label>
+              <input
+                type="number"
+                min={0}
+                value={expectedSubcontractorRateCentsPerHour}
+                onChange={(e) => setExpectedSubcontractorRateCentsPerHour(e.target.value)}
+                placeholder="Optional"
+                className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                type="submit"
+                disabled={pending}
+                className="rounded bg-zinc-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-500 disabled:opacity-50"
+              >
+                Save header
+              </button>
+            </div>
+          </form>
+          <form onSubmit={handleSaveRisk} className="flex flex-wrap items-end gap-4">
+            <div>
+              <label className="block text-xs text-zinc-400">Building class</label>
+              <select
+                value={buildingClass ?? ""}
+                onChange={(e) => setBuildingClass((e.target.value || null) as BuildingClass | null)}
+                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              >
+                {BUILDING_CLASSES.map((c) => (
+                  <option key={c.value || "none"} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+            {riskRulesKeys.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-zinc-400">Risk factors:</span>
+                {riskRulesKeys.map((key) => (
+                  <label key={key} className="flex items-center gap-1.5 text-sm text-zinc-300">
+                    <input
+                      type="checkbox"
+                      checked={riskFactors.includes(key)}
+                      onChange={() => toggleRiskFactor(key)}
+                      className="rounded border-zinc-600"
+                    />
+                    {key}
+                  </label>
+                ))}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded bg-zinc-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-500 disabled:opacity-50"
+            >
+              Save risk
+            </button>
+          </form>
+        </div>
+
+        {/* Area lines */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-white">Area lines</h2>
+          <ul className="mb-4 divide-y divide-zinc-800">
+            {areaLines.length === 0 ? (
+              <li className="py-3 text-sm text-zinc-500">No area lines. Add one below.</li>
+            ) : (
+              areaLines.map((line) => (
+                <li key={line.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0">
+                  <div>
+                    <span className="font-medium text-white">{line.type}</span>
+                    <span className="ml-2 text-zinc-400">
+                      ({(line.measurements as { preset?: string })?.preset ?? "—"})
+                    </span>
+                    <span className="ml-2 text-zinc-500">
+                      {line.overrideMinutes ?? line.computedMinutes} min
+                      {line.overrideMinutes != null && line.overrideReason && (
+                        <span className="ml-1 text-xs">override: {line.overrideReason}</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAreaLine(line.id)}
+                      disabled={pending}
+                      className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))
+            )}
+          </ul>
+
+          <form onSubmit={handleAddAreaLine} className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-4">
+            <div>
+              <label className="block text-xs text-zinc-400">Type</label>
+              <select
+                value={areaForm.type}
+                onChange={(e) => setAreaForm((f) => ({ ...f, type: e.target.value as QuoteAreaType }))}
+                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              >
+                {AREA_TYPES.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Preset</label>
+              <select
+                value={areaForm.preset}
+                onChange={(e) => setAreaForm((f) => ({ ...f, preset: e.target.value as "S" | "M" | "L" }))}
+                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              >
+                {PRESETS.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Finish</label>
+              <select
+                value={areaForm.finish}
+                onChange={(e) => setAreaForm((f) => ({ ...f, finish: e.target.value }))}
+                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              >
+                <option value="">—</option>
+                {FINISHES.map((f) => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Override min (optional)</label>
+              <input
+                type="number"
+                min={0}
+                max={999}
+                value={areaForm.overrideMinutes}
+                onChange={(e) => setAreaForm((f) => ({ ...f, overrideMinutes: e.target.value }))}
+                className="mt-0.5 w-20 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            {areaForm.overrideMinutes.trim() && (
+              <div className="min-w-[160px]">
+                <label className="block text-xs text-zinc-400">Override reason (required)</label>
+                <input
+                  type="text"
+                  value={areaForm.overrideReason}
+                  onChange={(e) => setAreaForm((f) => ({ ...f, overrideReason: e.target.value }))}
+                  placeholder="Reason"
+                  className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+                />
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            >
+              Add area line
+            </button>
+          </form>
+        </div>
+
+        {/* Add-on lines */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-white">Add-on lines</h2>
+          <ul className="mb-4 divide-y divide-zinc-800">
+            {addOnLines.length === 0 ? (
+              <li className="py-3 text-sm text-zinc-500">No add-ons. Add one below.</li>
+            ) : (
+              addOnLines.map((line) => (
+                <li key={line.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0">
+                  <div>
+                    <span className="font-medium text-white">{line.name}</span>
+                    <span className="ml-2 text-zinc-400">{line.estimatedLaborMinutes} min</span>
+                    <span className="ml-2 text-zinc-500">
+                      ${(line.priceCents / 100).toFixed(2)} · margin {(line.marginBps / 100).toFixed(1)}%
+                    </span>
+                    {line.includedInProposal && (
+                      <span className="ml-2 rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs text-emerald-300">
+                        In proposal
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAddOnLine(line.id)}
+                      disabled={pending}
+                      className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))
+            )}
+          </ul>
+
+          <form onSubmit={handleAddAddOnLine} className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-4">
+            <div>
+              <label className="block text-xs text-zinc-400">Name</label>
+              <input
+                type="text"
+                value={addOnForm.name}
+                onChange={(e) => setAddOnForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Add-on name"
+                className="mt-0.5 w-40 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Est. minutes</label>
+              <input
+                type="number"
+                min={1}
+                max={999}
+                value={addOnForm.estimatedLaborMinutes}
+                onChange={(e) => setAddOnForm((f) => ({ ...f, estimatedLaborMinutes: e.target.value }))}
+                className="mt-0.5 w-24 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="includedInProposal"
+                checked={addOnForm.includedInProposal}
+                onChange={(e) => setAddOnForm((f) => ({ ...f, includedInProposal: e.target.checked }))}
+                className="rounded border-zinc-600"
+              />
+              <label htmlFor="includedInProposal" className="text-sm text-zinc-400">Include in proposal</label>
+            </div>
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+            >
+              Add add-on
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Sidebar: minutes summary + Go to pricing */}
+      <aside className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 lg:w-72 lg:shrink-0">
+        <h3 className="mb-3 text-sm font-semibold text-zinc-300">Minutes per visit</h3>
+        <ul className="space-y-1 text-sm text-zinc-400">
+          <li>Base (areas): {baseMinutes} min</li>
+          <li>Travel: {travelMinutesPerVisit} min</li>
+          <li>Winter delta: {winterMinutesPerVisitDelta} min</li>
+          <li className="border-t border-zinc-700 pt-2 font-medium text-white">
+            Total: {totalMinutesPerVisit} min
+          </li>
+        </ul>
+        <p className="mt-2 text-xs text-zinc-500">
+          {visitsPerWeek} visits/week → ~{((totalMinutesPerVisit / 60) * visitsPerWeek * 4.33).toFixed(1)} hrs/mo
+        </p>
+        <div className="mt-4">
+          {!canGoToPricing ? (
+            <p className="text-sm text-amber-400">
+              Add at least one area line and ensure total minutes &gt; 0 to unlock pricing.
+            </p>
+          ) : (
+            <a
+              href={`/admin/quotes/${quoteId}/pricing`}
+              className="inline-block rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+            >
+              Go to pricing
+            </a>
+          )}
+        </div>
+      </aside>
+    </div>
+  );
+}

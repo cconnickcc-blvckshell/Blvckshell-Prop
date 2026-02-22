@@ -94,6 +94,11 @@ export async function transitionJob(
     where: { id: jobId },
     select: {
       status: true,
+      approvedAt: true,
+      approvedBillableCents: true,
+      approvedPayoutCents: true,
+      billableAmountCents: true,
+      payoutAmountCents: true,
       checklistRuns: {
         where: { status: "Submitted" },
         select: { id: true },
@@ -120,14 +125,33 @@ export async function transitionJob(
           "Job cannot be approved without a submitted checklist run. Worker must complete and submit the checklist first.",
       };
     }
+    if (job.approvedAt == null) {
+      const billable = job.billableAmountCents ?? job.payoutAmountCents;
+      if (billable == null || job.payoutAmountCents == null) {
+        return {
+          success: false,
+          error: "Job must have billableAmountCents or payoutAmountCents set before approval.",
+        };
+      }
+    }
   }
 
   try {
     await prisma.$transaction(async (tx) => {
-      // Update job status
+      const updateData: { status: JobStatus; approvedAt?: Date; approvedById?: string; approvedBillableCents?: number; approvedPayoutCents?: number; approvedPolicyVersion?: number } = { status: toState };
+
+      if (toState === "APPROVED_PAYABLE" && job.approvedAt == null) {
+        const billable = job.billableAmountCents ?? job.payoutAmountCents;
+        updateData.approvedAt = new Date();
+        updateData.approvedById = user.id;
+        updateData.approvedBillableCents = billable!;
+        updateData.approvedPayoutCents = job.payoutAmountCents!;
+        updateData.approvedPolicyVersion = 1;
+      }
+
       await tx.job.update({
         where: { id: jobId },
-        data: { status: toState },
+        data: updateData,
       });
 
       // Write audit log

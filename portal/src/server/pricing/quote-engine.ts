@@ -3,14 +3,17 @@
  * No manual final monthly price; quotes are derived → validated → snapshot → frozen.
  */
 import { prisma } from "@/lib/prisma";
+import { AREA_PRESETS_VERSION } from "@/server/pricing/area-presets";
 
 const WEEKS_PER_MONTH = 4.33;
+const RATE_CARD_REF_PREFIX = "area-presets";
 const STRESS_REVENUE_FACTOR = 0.9;
 const STRESS_HOURS_FACTOR = 1.1;
 
 export type QuoteSnapshotDraft = {
   quoteId: string;
   snapshotVersion: number;
+  rateCardRef: string;
   pricingPolicyCityCode: string;
   pricingPolicyEffectiveDate: Date;
   pricingPolicyVersion: number;
@@ -142,6 +145,7 @@ export async function computeQuoteSnapshot(quoteId: string): Promise<ComputeQuot
   const draft: QuoteSnapshotDraft = {
     quoteId,
     snapshotVersion: nextVersion + 1,
+    rateCardRef: `${RATE_CARD_REF_PREFIX}:${AREA_PRESETS_VERSION}`,
     pricingPolicyCityCode: policy.cityCode,
     pricingPolicyEffectiveDate: policy.effectiveDate,
     pricingPolicyVersion: policy.version,
@@ -172,14 +176,25 @@ export async function computeQuoteSnapshot(quoteId: string): Promise<ComputeQuot
 }
 
 function getRiskMultiplierBps(
-  quote: { id: string },
+  quote: { riskFactors?: unknown; buildingClass?: string | null },
   policy: { riskRules: unknown }
 ): number {
   const rules = policy.riskRules as Record<string, number> | null;
   if (!rules || typeof rules !== "object") return 0;
-  // Default factor key if not specified on quote; could be extended
-  const factor = "default";
-  return typeof rules[factor] === "number" ? rules[factor] : 0;
+  let totalBps = 0;
+  const factors = Array.isArray(quote.riskFactors)
+    ? (quote.riskFactors as string[])
+    : quote.riskFactors && typeof quote.riskFactors === "object" && "factors" in (quote.riskFactors as object)
+      ? ((quote.riskFactors as { factors: string[] }).factors ?? [])
+      : [];
+  for (const key of factors) {
+    if (typeof key === "string" && typeof rules[key] === "number") totalBps += rules[key];
+  }
+  if (quote.buildingClass && typeof rules[`buildingClass_${quote.buildingClass}`] === "number") {
+    totalBps += rules[`buildingClass_${quote.buildingClass}`];
+  }
+  if (totalBps === 0 && typeof rules.default === "number") totalBps = rules.default;
+  return totalBps;
 }
 
 function computeConfidence(quote: {

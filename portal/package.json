@@ -12,6 +12,7 @@
     "db:migrate:direct": "node -e \"require('dotenv').config({path:require('path').resolve(process.cwd(),'../.env')}); process.env.DATABASE_URL=process.env.DIRECT_URL; require('child_process').execSync('npx prisma migrate deploy', {stdio:'inherit', env:process.env})\"",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
+    "seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:verify": "prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code",
     "test": "vitest",

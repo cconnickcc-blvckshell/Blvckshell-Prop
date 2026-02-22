@@ -9,12 +9,14 @@ export default function QuotePricingClient({
   status,
   hasSnapshot,
   expired,
+  hasScope,
   gatesPassed,
 }: {
   quoteId: string;
   status: string;
   hasSnapshot: boolean;
   expired: boolean;
+  hasScope: boolean;
   gatesPassed: boolean;
 }) {
   const router = useRouter();
@@ -46,11 +48,14 @@ export default function QuotePricingClient({
         <button
           type="button"
           onClick={handleComputeSnapshot}
-          disabled={pending}
+          disabled={pending || !hasScope}
           className="rounded-lg bg-zinc-600 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-500 disabled:opacity-50"
         >
           {pending ? "Computing…" : "Compute snapshot"}
         </button>
+      )}
+      {!hasScope && !hasSnapshot && (
+        <p className="text-sm text-amber-400">Add scope in walkthrough first.</p>
       )}
       {hasSnapshot && !expired && gatesPassed && (status === "DRAFT" || status === "READY_FOR_REVIEW") && (
         <button

@@ -445,6 +445,9 @@ model Job {
   invoiceId                  String?
   approvedAt                 DateTime?
   approvedById               String?
+  approvedBillableCents      Int?      // Frozen at approval; invoice lines copy this
+  approvedPayoutCents       Int?      // Frozen at approval; payout lines copy this
+  approvedPolicyVersion      Int?      // Policy version at approval (audit)
   approvalFlaggedAt          DateTime?
   jobTemplateId              String?
   jobTemplateVersion         Int?
@@ -642,19 +645,20 @@ model Invoice {
 }
 
 model InvoiceLineItem {
-  id              String          @id @default(cuid())
-  invoiceId       String
-  jobId           String?
-  checklistRunId  String?
-  contractId      String?
-  description     String
-  qty             Int             @default(1)
-  unitPriceCents  Int
-  amountCents     Int
-  siteId          String
-  revenueCategory RevenueCategory @default(BASE_RECURRING)
-  invoice         Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  site            Site            @relation(fields: [siteId], references: [id])
+  id                  String          @id @default(cuid())
+  invoiceId           String
+  jobId               String?
+  checklistRunId      String?
+  contractId          String?
+  description         String
+  qty                 Int             @default(1)
+  unitPriceCents      Int
+  amountCents         Int
+  siteId              String
+  revenueCategory     RevenueCategory @default(BASE_RECURRING)
+  isSystemPlaceholder Boolean         @default(false) // If true, invoice cannot be Sent
+  invoice             Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  site                Site            @relation(fields: [siteId], references: [id])
 
   @@index([invoiceId])
   @@index([jobId])
@@ -772,6 +776,8 @@ model Quote {
   monthlySupplyCostCents            Int
   winterMinutesPerVisitDelta        Int
   revenueFloorOverrideReason       String?
+  riskFactors                       Json?     // enabled factor keys (e.g. ["overflow","noStorage"])
+  buildingClass                     BuildingClass?
   createdAt                         DateTime  @default(now())
   updatedAt                         DateTime  @updatedAt
   site                              Site      @relation(fields: [siteId], references: [id])
@@ -818,6 +824,7 @@ model QuoteSnapshot {
   id                            String   @id @default(cuid())
   quoteId                       String
   snapshotVersion               Int
+  rateCardRef                   String?  // e.g. "area-presets:2026-02-22-v1"
   pricingPolicyCityCode         String
   pricingPolicyEffectiveDate    DateTime
   pricingPolicyVersion          Int
@@ -932,6 +939,12 @@ enum QuoteAreaType {
   WASHROOMS
   GLASS
   OTHER
+}
+
+enum BuildingClass {
+  POOR
+  AVERAGE
+  PREMIUM
 }
 
 enum SuppliesProvidedBy {

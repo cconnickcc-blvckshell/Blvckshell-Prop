@@ -159,5 +159,68 @@ describe("Quote engine", () => {
     expect(saved).not.toBeNull();
     expect(saved?.pricingPolicyCityCode).toBe("YVR");
     expect(saved?.snapshotVersion).toBe(1);
+    expect(saved?.rateCardRef).toBeDefined();
+    expect(saved?.rateCardRef).toContain("area-presets:");
+  });
+
+  it("returns error when total monthly hours are not positive (e.g. zero area lines)", async () => {
+    const client = await testDb.clientOrganization.create({
+      data: {
+        name: "Quote Zero Scope Client",
+        primaryContactName: "C",
+        primaryContactEmail: "z@test.com",
+        primaryContactPhone: "1",
+      },
+    });
+    const site = await testDb.site.create({
+      data: {
+        clientOrganizationId: client.id,
+        name: "Quote Zero Scope Site",
+        address: "Zero",
+        requiredPhotoCount: 4,
+        suppliesProvidedBy: "COMPANY",
+        lifecycleStatus: "PROSPECT",
+      },
+    });
+    const policy = await testDb.pricingPolicy.create({
+      data: {
+        cityCode: "ZERO",
+        effectiveDate: new Date("2025-01-01"),
+        version: 1,
+        anchorBillingRateCentsPerHour: 10_000,
+        minimumMonthlyRevenueCents: 5_000,
+        defaultTravelMinutesPerVisit: 0,
+        defaultWinterMinutesPerVisitDelta: 0,
+        winterStartMonth: 10,
+        winterEndMonth: 3,
+        daysValid: 30,
+        targetMarginBps: 2500,
+        stressMarginBps: 2000,
+        minStressMarginBps: 1500,
+        subPayoutCeilingCentsPerHour: 3000,
+        addonBillingRateCentsPerHour: 5000,
+        addonMinMarginBps: 3000,
+        riskRules: {},
+      },
+    });
+    const quote = await testDb.quote.create({
+      data: {
+        siteId: site.id,
+        pricingPolicyId: policy.id,
+        status: "DRAFT",
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        visitsPerWeek: 4,
+        billingRateCentsPerHour: policy.anchorBillingRateCentsPerHour,
+        travelMinutesPerVisit: 0,
+        monthlySupplyCostCents: 0,
+        winterMinutesPerVisitDelta: 0,
+      },
+    });
+    // No area lines
+
+    const result = await computeQuoteSnapshot(quote.id);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("monthly hours");
   });
 });

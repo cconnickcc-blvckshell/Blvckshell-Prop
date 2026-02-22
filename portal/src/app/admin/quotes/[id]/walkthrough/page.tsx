@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/server/guards/rbac";
 import { getQuote } from "@/server/actions/quote-actions";
 import Link from "next/link";
+import WalkthroughScopeClient from "./WalkthroughScopeClient";
 
 export default async function QuoteWalkthroughPage({
   params,
@@ -22,19 +23,21 @@ export default async function QuoteWalkthroughPage({
         </h1>
         <p className="text-zinc-400">Measurements → minutes (override requires reason)</p>
       </div>
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <p className="text-zinc-400">
-          Area lines: {quote.areaLines.length}. Add-on lines: {quote.addOnLines.length}.
-        </p>
-        <div className="mt-4 flex gap-3">
-          <Link
-            href={`/admin/quotes/${id}/pricing`}
-            className="rounded-lg bg-zinc-600 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-500"
-          >
-            Go to pricing
-          </Link>
-        </div>
-      </div>
+      <WalkthroughScopeClient
+        quoteId={id}
+        areaLines={quote.areaLines}
+        addOnLines={quote.addOnLines}
+        travelMinutesPerVisit={quote.travelMinutesPerVisit}
+        winterMinutesPerVisitDelta={quote.winterMinutesPerVisitDelta}
+        visitsPerWeek={quote.visitsPerWeek}
+        monthlySupplyCostCents={quote.monthlySupplyCostCents}
+        expectedSubcontractorRateCentsPerHour={quote.expectedSubcontractorRateCentsPerHour}
+        riskFactors={quote.riskFactors as string[] | null}
+        buildingClass={quote.buildingClass}
+        riskRulesKeys={quote.pricingPolicy?.riskRules && typeof quote.pricingPolicy.riskRules === "object"
+          ? Object.keys(quote.pricingPolicy.riskRules as object).filter((k) => !k.startsWith("buildingClass_"))
+          : []}
+      />
     </div>
   );
 }
