@@ -81,7 +81,8 @@ export function canTransitionJob(
 }
 
 /**
- * Transition job state with audit log
+ * Transition job state with audit log.
+ * Gold Standard: Approval requires exactly one submitted ChecklistRun.
  */
 export async function transitionJob(
   user: SessionUser,
@@ -91,7 +92,13 @@ export async function transitionJob(
 ): Promise<{ success: boolean; error?: string }> {
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { status: true },
+    select: {
+      status: true,
+      checklistRuns: {
+        where: { status: "Submitted" },
+        select: { id: true },
+      },
+    },
   });
 
   if (!job) {
@@ -101,6 +108,18 @@ export async function transitionJob(
   const validation = canTransitionJob(user, job.status, toState);
   if (!validation.allowed) {
     return { success: false, error: validation.error };
+  }
+
+  // Gold Standard: Cannot approve job without a submitted checklist run.
+  if (toState === "APPROVED_PAYABLE") {
+    const submittedRuns = job.checklistRuns ?? [];
+    if (submittedRuns.length === 0) {
+      return {
+        success: false,
+        error:
+          "Job cannot be approved without a submitted checklist run. Worker must complete and submit the checklist first.",
+      };
+    }
   }
 
   try {

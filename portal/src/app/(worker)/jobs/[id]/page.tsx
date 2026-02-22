@@ -132,10 +132,16 @@ export default async function JobDetailPage({
     );
   }
 
+  // Gold Standard: Prefer run snapshot for checklist items so template edits don't affect in-progress run.
+  const checklistItemsForRun =
+    runResult.templateSnapshot && Array.isArray(runResult.templateSnapshot)
+      ? runResult.templateSnapshot
+      : checklistTemplate.items;
+
   return (
     <JobDetailClient
       job={job}
-      checklistTemplate={checklistTemplate}
+      checklistTemplate={{ ...checklistTemplate, items: checklistItemsForRun }}
       checklistRunId={runResult.run.id}
       initialRunItems={runResult.runItems}
       currentWorkerId={user.workerId}

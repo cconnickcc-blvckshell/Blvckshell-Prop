@@ -4,6 +4,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import type { BillingAdjustmentType } from "@prisma/client";
+import type { AdjustmentCategory } from "@prisma/client";
 
 /** Uninvoiced approved jobs for a client (and optional site) in a period */
 export async function getUninvoicedApprovedJobs(
@@ -263,12 +264,12 @@ export async function removeJobFromInvoice(invoiceId: string, jobId: string) {
   return { success: true, error: null };
 }
 
-/** Add a billing adjustment to the invoice (Draft only) */
+/** Add a billing adjustment to the invoice (Draft only). siteId required (per-site attribution). */
 export async function addBillingAdjustment(
   invoiceId: string,
   type: BillingAdjustmentType,
   amountCents: number,
-  options?: { notes?: string; reasonCode?: string; siteId?: string; jobId?: string }
+  options: { siteId: string; notes?: string; reasonCode?: string; jobId?: string }
 ) {
   const user = await requireAdmin();
   const invoice = await prisma.invoice.findUnique({
@@ -277,14 +278,17 @@ export async function addBillingAdjustment(
   });
   if (!invoice) return { success: false, error: "Invoice not found or not draft" };
 
+  const adjustmentCategory: AdjustmentCategory = type === "Credit" ? "CREDIT" : "CHARGE";
+
   await prisma.billingAdjustment.create({
     data: {
       invoiceId,
+      siteId: options.siteId,
       type,
+      adjustmentCategory,
       amountCents,
       notes: options?.notes,
       reasonCode: options?.reasonCode,
-      siteId: options?.siteId,
       jobId: options?.jobId,
       status: "Approved",
       createdById: user.id,
@@ -429,6 +433,19 @@ export async function updateInvoiceStatus(
   }
   if (newStatus === "Paid" && invoice.status !== "Sent") {
     return { success: false, error: "Only sent invoices can be marked Paid" };
+  }
+
+  // Gold Standard: Cannot issue invoice with zero line items.
+  if (newStatus === "Sent") {
+    const lineItemCount = await prisma.invoiceLineItem.count({
+      where: { invoiceId },
+    });
+    if (lineItemCount === 0) {
+      return {
+        success: false,
+        error: "Cannot issue invoice with zero line items. Add jobs or contract base first.",
+      };
+    }
   }
 
   const updateData: { status: "Sent" | "Paid"; issuedAt?: Date } = { status: newStatus };

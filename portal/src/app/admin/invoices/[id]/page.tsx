@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/server/guards/rbac";
 import { getInvoiceWithDetails, getUninvoicedApprovedJobs } from "@/server/actions/invoice-actions";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import InvoiceDraftActions from "./InvoiceDraftActions";
 import InvoiceStatusActions from "./InvoiceStatusActions";
@@ -15,6 +16,15 @@ export default async function InvoiceDetailPage({
   const { id } = await params;
   const invoice = await getInvoiceWithDetails(id);
   if (!invoice) notFound();
+
+  const clientSites =
+    invoice.status === "Draft"
+      ? await prisma.site.findMany({
+          where: { clientOrganizationId: invoice.clientId },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        })
+      : [];
 
   const uninvoicedJobs =
     invoice.status === "Draft"
@@ -192,7 +202,11 @@ export default async function InvoiceDetailPage({
       {invoice.status === "Draft" && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
           <h2 className="mb-4 text-lg font-semibold text-white">Add adjustment</h2>
-          <InvoiceDraftActions invoiceId={invoice.id} action="adjustment" />
+          <InvoiceDraftActions
+            invoiceId={invoice.id}
+            action="adjustment"
+            clientSites={clientSites}
+          />
         </div>
       )}
 

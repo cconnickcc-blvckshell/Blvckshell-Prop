@@ -41,14 +41,30 @@ export async function requireAuth(): Promise<SessionUser> {
 }
 
 /**
- * Require admin role
+ * Require admin or founder role (for /admin routes)
  */
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireAuth();
-  if (user.role !== "ADMIN") {
+  if (user.role !== "ADMIN" && user.role !== "FOUNDER") {
     throw new Error("Forbidden: Admin access required");
   }
   return user;
+}
+
+/**
+ * Require founder role (for pricing overrides and recompute actions)
+ */
+export async function requireFounder(): Promise<SessionUser> {
+  const user = await requireAuth();
+  if (user.role !== "FOUNDER") {
+    throw new Error("Forbidden: Founder access required for this action");
+  }
+  return user;
+}
+
+/** True if user can perform founder-only overrides (billing, payout ceiling, revenue floor) */
+export function isFounder(user: SessionUser): boolean {
+  return user.role === "FOUNDER";
 }
 
 /**

@@ -30,11 +30,11 @@ describe("invoice-actions", () => {
 
   describe("createDraftInvoice", () => {
     it("should create draft invoice successfully", async () => {
-      const result = await createDraftInvoice({
-        clientOrganizationId: client.id,
-        periodStart: new Date("2026-01-01"),
-        periodEnd: new Date("2026-01-31"),
-      });
+      const result = await createDraftInvoice(
+        client.id,
+        new Date("2026-01-01"),
+        new Date("2026-01-31")
+      );
 
       expect(result.success).toBe(true);
       expect(result.invoiceId).toBeTruthy();
@@ -48,16 +48,13 @@ describe("invoice-actions", () => {
 
   describe("addJobToInvoice", () => {
     it("should add job to invoice", async () => {
-      const invoiceResult = await createDraftInvoice({
-        clientOrganizationId: client.id,
-        periodStart: new Date("2026-01-01"),
-        periodEnd: new Date("2026-01-31"),
-      });
+      const invoiceResult = await createDraftInvoice(
+        client.id,
+        new Date("2026-01-01"),
+        new Date("2026-01-31")
+      );
 
-      const result = await addJobToInvoice({
-        invoiceId: invoiceResult.invoiceId!,
-        jobId: job.id,
-      });
+      const result = await addJobToInvoice(invoiceResult.invoiceId!, job.id);
 
       expect(result.success).toBe(true);
 
@@ -71,16 +68,15 @@ describe("invoice-actions", () => {
 
   describe("updateInvoiceStatus", () => {
     it("should update invoice status and create audit log", async () => {
-      const invoiceResult = await createDraftInvoice({
-        clientOrganizationId: client.id,
-        periodStart: new Date("2026-01-01"),
-        periodEnd: new Date("2026-01-31"),
-      });
+      const invoiceResult = await createDraftInvoice(
+        client.id,
+        new Date("2026-01-01"),
+        new Date("2026-01-31")
+      );
+      // Ensure at least one line item (contract base or add job)
+      await addJobToInvoice(invoiceResult.invoiceId!, job.id);
 
-      const result = await updateInvoiceStatus({
-        invoiceId: invoiceResult.invoiceId!,
-        status: "Sent",
-      });
+      const result = await updateInvoiceStatus(invoiceResult.invoiceId!, "Sent");
 
       expect(result.success).toBe(true);
 

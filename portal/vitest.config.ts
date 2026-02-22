@@ -5,10 +5,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    setupFiles: ["./src/__tests__/setup.ts"],
+    setupFiles: ["./src/__tests__/setup-env.ts"],
     testTimeout: 30000,
     hookTimeout: 30000,
     exclude: ["**/node_modules/**", "**/e2e/**", "**/*.spec.ts"],
+    server: {
+      deps: { inline: ["next-auth"] },
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
@@ -24,6 +27,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "next/server": path.resolve(__dirname, "./src/__tests__/stubs/next-server.ts"),
+      "next/headers": path.resolve(__dirname, "./src/__tests__/stubs/next-headers.ts"),
+      "next/navigation": path.resolve(__dirname, "./src/__tests__/stubs/next-navigation.ts"),
     },
   },
 });

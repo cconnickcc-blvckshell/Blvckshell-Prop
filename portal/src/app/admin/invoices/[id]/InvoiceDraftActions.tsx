@@ -14,10 +14,12 @@ export default function InvoiceDraftActions({
   invoiceId,
   jobId,
   action,
+  clientSites = [],
 }: {
   invoiceId: string;
   jobId?: string;
   action: Action;
+  clientSites?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -52,13 +54,19 @@ export default function InvoiceDraftActions({
     const type = formData.get("type") as "Charge" | "Discount" | "Credit";
     const amountStr = formData.get("amountCents") as string;
     const amountCents = Math.round(parseFloat(amountStr) * 100);
+    const siteId = (formData.get("siteId") as string) || "";
     const notes = (formData.get("notes") as string) || undefined;
     if (!type || isNaN(amountCents) || amountCents <= 0) {
       setError("Type and amount required");
       setPending(false);
       return;
     }
-    const result = await addBillingAdjustment(invoiceId, type, amountCents, { notes });
+    if (!siteId) {
+      setError("Site is required for attribution");
+      setPending(false);
+      return;
+    }
+    const result = await addBillingAdjustment(invoiceId, type, amountCents, { siteId, notes });
     setPending(false);
     if (result.success) {
       form.reset();
@@ -101,6 +109,20 @@ export default function InvoiceDraftActions({
   return (
     <form onSubmit={handleAdjustmentSubmit} className="flex flex-wrap items-end gap-3">
       {error && <p className="w-full text-sm text-red-400">{error}</p>}
+      <div>
+        <label htmlFor="adj-site" className="block text-xs text-zinc-400">Site (required)</label>
+        <select
+          id="adj-site"
+          name="siteId"
+          required
+          className="mt-1 rounded border border-zinc-700 bg-zinc-800 px-2 py-1.5 text-sm text-white min-w-[180px]"
+        >
+          <option value="">Select site</option>
+          {clientSites.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
+        </select>
+      </div>
       <div>
         <label htmlFor="adj-type" className="block text-xs text-zinc-400">Type</label>
         <select

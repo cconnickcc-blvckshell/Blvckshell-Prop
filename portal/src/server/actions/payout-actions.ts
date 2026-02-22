@@ -134,8 +134,13 @@ export async function createPayoutBatch(input: {
       return batch;
     });
     return { success: true, batchId: batch.id };
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("createPayoutBatch:", e);
+    // Gold Standard: DB unique index payoutline_one_per_job; surface clear error if violated (e.g. race).
+    const code = e && typeof e === "object" && "code" in e ? (e as { code: string }).code : "";
+    if (code === "P2002") {
+      return { success: false, error: "One or more jobs are already on another payout batch. Please refresh and try again." };
+    }
     return { success: false, error: "Failed to create batch" };
   }
 }

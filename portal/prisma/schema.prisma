@@ -88,6 +88,8 @@ model User {
   contractTemplatesCreated   ContractTemplate[]  @relation("ContractTemplatesCreated")
   invoiceTemplatesCreated   InvoiceTemplate[]   @relation("InvoiceTemplatesCreated")
   makeGoodRuleTemplatesCreated MakeGoodRuleTemplate[] @relation("MakeGoodRuleTemplatesCreated")
+  siteSupplyAllocationsCreated SiteSupplyAllocation[]
+  sitePerformanceSnapshotsComputed SitePerformanceSnapshot[]
 
   @@index([email])
   @@index([role])
@@ -146,6 +148,7 @@ model Site {
   suppliesProvidedBy       SuppliesProvidedBy
   doNotEnterUnits          Boolean              @default(true)
   isActive                 Boolean              @default(true)
+  lifecycleStatus          SiteLifecycleStatus  @default(ACTIVE)
   siteTemplateId           String?
   siteTemplateVersion      Int?
   accessCredentials        AccessCredential[]
@@ -155,14 +158,74 @@ model Site {
   incidentReports          IncidentReport[]
   invoiceLineItems         InvoiceLineItem[]
   jobs                     Job[]
+  quotes                   Quote[]
   clientOrganization       ClientOrganization   @relation(fields: [clientOrganizationId], references: [id])
   siteAssignments          SiteAssignment[]
   siteTemplate             SiteTemplate?        @relation(fields: [siteTemplateId], references: [id])
+  siteSupplyAllocations    SiteSupplyAllocation[]
+  sitePerformanceSnapshots  SitePerformanceSnapshot[]
   workOrders               WorkOrder[]
 
   @@index([clientOrganizationId])
   @@index([isActive])
+  @@index([lifecycleStatus])
   @@index([siteTemplateId])
+}
+
+model SiteSupplyAllocation {
+  id              String   @id @default(cuid())
+  siteId          String
+  month           DateTime // first day of month
+  amountCents      Int
+  note            String?
+  createdByUserId String
+  site            Site     @relation(fields: [siteId], references: [id])
+  createdBy       User     @relation(fields: [createdByUserId], references: [id])
+
+  @@index([siteId])
+  @@index([siteId, month])
+}
+
+enum SnapshotStatus {
+  OPEN
+  CLOSED
+}
+
+model SitePerformanceSnapshot {
+  id                    String         @id @default(cuid())
+  siteId                String
+  month                 DateTime      // first day of month
+  version               Int           @default(1)
+  status                SnapshotStatus @default(OPEN)
+  baseRevenueCents      Int
+  addOnRevenueCents     Int
+  creditsCents           Int
+  netRevenueCents       Int
+  payoutCogsCents       Int
+  supplyCogsCents       Int
+  totalCogsCents        Int
+  grossProfitCents      Int
+  grossMarginBps        Int
+  payoutRatioBps        Int
+  addOnPayoutCogsCents   Int
+  addOnGrossMarginBps    Int
+  recleanCount           Int
+  rejectedChecklistCount  Int
+  arOutstandingCents     Int
+  ar_0_30_cents          Int
+  ar_31_60_cents         Int
+  ar_61_90_cents         Int
+  ar_90_plus_cents       Int
+  computedAt             DateTime      @default(now())
+  computedByUserId       String
+  lockedAt               DateTime?
+  site                  Site          @relation(fields: [siteId], references: [id])
+  computedBy             User          @relation(fields: [computedByUserId], references: [id])
+
+  @@unique([siteId, month, version])
+  @@index([siteId])
+  @@index([siteId, month])
+  @@index([status])
 }
 
 model SiteAssignment {
@@ -222,22 +285,25 @@ model ChecklistTemplate {
 }
 
 model ChecklistRun {
-  id                  String             @id @default(cuid())
-  jobId               String
-  checklistTemplateId String
-  templateVersion     Int
-  status              ChecklistRunStatus @default(InProgress)
-  completedByWorkerId String
-  submittedAt         DateTime?
-  approvedAt          DateTime?
-  approvedById        String?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  checklistTemplate   ChecklistTemplate  @relation(fields: [checklistTemplateId], references: [id])
-  completedByWorker   Worker             @relation(fields: [completedByWorkerId], references: [id])
-  job                 Job                @relation(fields: [jobId], references: [id])
-  items               ChecklistRunItem[]
-  evidence            Evidence[]
+  id                        String             @id @default(cuid())
+  jobId                     String
+  checklistTemplateId       String
+  templateVersion           Int
+  status                    ChecklistRunStatus @default(InProgress)
+  completedByWorkerId       String
+  submittedAt               DateTime?
+  approvedAt                DateTime?
+  approvedById              String?
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
+  templateSnapshot          Json?              // Gold Standard: frozen item definitions at run creation
+  templateSnapshotHash      String?
+  templateSnapshotCapturedAt DateTime?
+  checklistTemplate         ChecklistTemplate  @relation(fields: [checklistTemplateId], references: [id])
+  completedByWorker         Worker             @relation(fields: [completedByWorkerId], references: [id])
+  job                       Job                @relation(fields: [jobId], references: [id])
+  items                     ChecklistRunItem[]
+  evidence                  Evidence[]
 
   @@index([jobId])
   @@index([checklistTemplateId])
@@ -364,6 +430,10 @@ model Job {
   isMissed                   Boolean           @default(false)
   missedReason               String?
   makeGoodJobId              String?
+  isReclean                  Boolean           @default(false)
+  recleanOfJobId             String?
+  recleanReason              String?
+  qualityRejectedAt          DateTime?
   startedAt                  DateTime?
   endedAt                    DateTime?
   actualDurationMinutes      Int?
@@ -386,6 +456,8 @@ model Job {
   jobTemplate                JobTemplate?      @relation(fields: [jobTemplateId], references: [id])
   makeGoodJob                Job?              @relation("MakeGoodJob", fields: [makeGoodJobId], references: [id])
   makeGoodJobs               Job[]             @relation("MakeGoodJob")
+  recleanOfJob               Job?              @relation("RecleanOf", fields: [recleanOfJobId], references: [id])
+  recleans                   Job[]             @relation("RecleanOf")
   site                       Site              @relation(fields: [siteId], references: [id])
   completion                 JobCompletion?
 
@@ -398,6 +470,9 @@ model Job {
   @@index([invoiceId])
   @@index([billableStatus])
   @@index([jobTemplateId])
+  @@index([isReclean])
+  @@index([qualityRejectedAt])
+  @@index([recleanOfJobId])
 }
 
 model JobCompletion {
@@ -418,18 +493,20 @@ model JobCompletion {
 }
 
 model Evidence {
-  id               String        @id @default(cuid())
-  jobCompletionId  String
-  storagePath      String
-  fileType         String
-  uploadedAt       DateTime      @default(now())
-  checklistRunId   String?
-  itemId           String?
-  redactionApplied Boolean       @default(false)
-  redactionType    String?
-  capturedByUserId String?
-  checklistRun     ChecklistRun? @relation(fields: [checklistRunId], references: [id])
-  jobCompletion    JobCompletion @relation(fields: [jobCompletionId], references: [id], onDelete: Cascade)
+  id                    String        @id @default(cuid())
+  jobCompletionId       String
+  storagePath           String
+  fileType              String
+  uploadedAt            DateTime      @default(now())
+  checklistRunId        String?
+  itemId                String?
+  redactionApplied      Boolean       @default(false)
+  redactionType         String?
+  capturedByUserId      String?
+  redactionAttestedAt   DateTime?     // Gold Standard: user-declared redaction attestation
+  redactionAttestedByUserId String?
+  checklistRun          ChecklistRun? @relation(fields: [checklistRunId], references: [id])
+  jobCompletion         JobCompletion @relation(fields: [jobCompletionId], references: [id], onDelete: Cascade)
 
   @@index([jobCompletionId])
   @@index([checklistRunId])
@@ -565,40 +642,44 @@ model Invoice {
 }
 
 model InvoiceLineItem {
-  id             String  @id @default(cuid())
-  invoiceId      String
-  jobId          String?
-  checklistRunId String?
-  contractId     String?
-  description    String
-  qty            Int     @default(1)
-  unitPriceCents Int
-  amountCents    Int
-  siteId         String
-  invoice        Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  site           Site    @relation(fields: [siteId], references: [id])
+  id              String          @id @default(cuid())
+  invoiceId       String
+  jobId           String?
+  checklistRunId  String?
+  contractId      String?
+  description     String
+  qty             Int             @default(1)
+  unitPriceCents  Int
+  amountCents     Int
+  siteId          String
+  revenueCategory RevenueCategory @default(BASE_RECURRING)
+  invoice         Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  site            Site            @relation(fields: [siteId], references: [id])
 
   @@index([invoiceId])
   @@index([jobId])
   @@index([siteId])
+  @@index([revenueCategory])
 }
 
 model BillingAdjustment {
-  id               String                  @id @default(cuid())
-  invoiceId        String?
-  siteId           String?
-  jobId            String?
-  type             BillingAdjustmentType
-  amountCents      Int
-  reasonCode       String?
-  notes            String?
-  createdById      String
-  createdAt        DateTime                @default(now())
-  status           BillingAdjustmentStatus @default(Proposed)
-  evidencePhotoIds String[]                @default([])
-  createdBy        User                    @relation(fields: [createdById], references: [id])
-  invoice          Invoice?                @relation(fields: [invoiceId], references: [id])
-  site             Site?                   @relation(fields: [siteId], references: [id])
+  id                 String                  @id @default(cuid())
+  invoiceId          String?
+  siteId             String
+  jobId              String?
+  type               BillingAdjustmentType
+  adjustmentCategory AdjustmentCategory
+  amountCents        Int
+  reasonCode         String?
+  notes              String?
+  createdById        String
+  createdAt          DateTime                @default(now())
+  status             BillingAdjustmentStatus @default(Proposed)
+  evidencePhotoIds   String[]                @default([])
+  revenueCategory    RevenueCategory?
+  createdBy          User                    @relation(fields: [createdById], references: [id])
+  invoice            Invoice?                @relation(fields: [invoiceId], references: [id])
+  site               Site                    @relation(fields: [siteId], references: [id])
 
   @@index([invoiceId])
   @@index([siteId])
@@ -649,6 +730,125 @@ model Lead {
   @@index([email])
 }
 
+// --- Quote Builder (gold-standard, snapshot-based) ---
+model PricingPolicy {
+  id                           String   @id @default(cuid())
+  cityCode                     String
+  effectiveDate                DateTime
+  version                      Int
+  anchorBillingRateCentsPerHour Int
+  minimumMonthlyRevenueCents   Int
+  defaultTravelMinutesPerVisit  Int
+  defaultMonthlySupplyCostCents Int?
+  defaultWinterMinutesPerVisitDelta Int
+  winterStartMonth              Int      // 10
+  winterEndMonth               Int      // 3
+  daysValid                    Int      // 30
+  targetMarginBps              Int      // 2500
+  stressMarginBps              Int      // 2000
+  minStressMarginBps           Int      // 1500
+  subPayoutCeilingCentsPerHour Int      // 3000
+  addonBillingRateCentsPerHour Int      // 5000
+  addonMinMarginBps            Int      // 3000
+  riskRules                    Json     // factor -> bps mapping
+  quotes                       Quote[]
+
+  @@unique([cityCode, effectiveDate, version])
+  @@index([cityCode, effectiveDate])
+}
+
+model Quote {
+  id                                String    @id @default(cuid())
+  siteId                            String
+  pricingPolicyId                   String
+  status                            QuoteStatus @default(DRAFT)
+  expiresAt                         DateTime
+  visitsPerWeek                     Int
+  billingRateCentsPerHour           Int
+  billingRateOverrideReason        String?
+  expectedSubcontractorRateCentsPerHour Int?
+  payoutOverrideReason              String?
+  travelMinutesPerVisit             Int
+  monthlySupplyCostCents            Int
+  winterMinutesPerVisitDelta        Int
+  revenueFloorOverrideReason       String?
+  createdAt                         DateTime  @default(now())
+  updatedAt                         DateTime  @updatedAt
+  site                              Site      @relation(fields: [siteId], references: [id])
+  pricingPolicy                     PricingPolicy @relation(fields: [pricingPolicyId], references: [id])
+  areaLines                         QuoteAreaLine[]
+  addOnLines                        QuoteAddOnLine[]
+  snapshots                         QuoteSnapshot[]
+
+  @@index([siteId])
+  @@index([pricingPolicyId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model QuoteAreaLine {
+  id              String        @id @default(cuid())
+  quoteId         String
+  type            QuoteAreaType
+  measurements    Json
+  computedMinutes Int
+  overrideMinutes Int?
+  overrideReason  String?
+  quote           Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+}
+
+model QuoteAddOnLine {
+  id                      String   @id @default(cuid())
+  quoteId                 String
+  name                    String
+  estimatedLaborMinutes   Int
+  billingRateCentsPerHour  Int
+  expectedPayoutCentsPerHour Int?
+  priceCents               Int
+  marginBps                Int
+  includedInProposal       Boolean
+  quote                    Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+}
+
+model QuoteSnapshot {
+  id                            String   @id @default(cuid())
+  quoteId                       String
+  snapshotVersion               Int
+  pricingPolicyCityCode         String
+  pricingPolicyEffectiveDate    DateTime
+  pricingPolicyVersion          Int
+  billingRateCentsPerHour       Int
+  riskMultiplierBps             Int
+  minutesPerVisitBase           Int
+  minutesPerVisitTravel         Int
+  minutesPerVisitWinterDelta    Int
+  minutesPerVisitTotal           Int
+  hoursPerVisit                 Decimal  @db.Decimal(10, 4)
+  monthlyHours                  Decimal  @db.Decimal(10, 4)
+  baseRevenueCents              Int
+  riskAdjustedRevenueCents     Int
+  monthlySupplyCostCents        Int
+  grossProfitCents              Int
+  grossMarginBps                Int
+  stressGrossMarginBps          Int
+  allowedPayoutCentsPerHourAtTarget Int
+  allowedPayoutCentsPerHourAtStress Int
+  passesBaseGate                Boolean
+  passesStressGate              Boolean
+  passesRevenueFloor            Boolean
+  confidenceScore               Int
+  confidenceBand                String
+  createdAt                     DateTime @default(now())
+  quote                         Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@unique([quoteId, snapshotVersion])
+  @@index([quoteId])
+}
+
 enum WorkforceAccountType {
   INTERNAL
   VENDOR
@@ -656,6 +856,7 @@ enum WorkforceAccountType {
 
 enum UserRole {
   ADMIN
+  FOUNDER
   CLIENT
   VENDOR_OWNER
   VENDOR_WORKER
@@ -707,6 +908,32 @@ enum IncidentReportType {
   OTHER
 }
 
+enum SiteLifecycleStatus {
+  PROSPECT
+  ACTIVE
+  INACTIVE
+}
+
+enum QuoteStatus {
+  DRAFT
+  READY_FOR_REVIEW
+  SENT
+  WON
+  LOST
+  EXPIRED
+}
+
+enum QuoteAreaType {
+  LOBBY
+  HALLWAYS
+  STAIRWELLS
+  ELEVATORS
+  GARBAGE
+  WASHROOMS
+  GLASS
+  OTHER
+}
+
 enum SuppliesProvidedBy {
   COMPANY
   CLIENT
@@ -750,6 +977,17 @@ enum InvoiceStatus {
   Sent
   Paid
   Void
+}
+
+enum RevenueCategory {
+  BASE_RECURRING
+  ADD_ON
+  OTHER
+}
+
+enum AdjustmentCategory {
+  CREDIT
+  CHARGE
 }
 
 enum BillingAdjustmentType {

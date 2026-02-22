@@ -114,7 +114,8 @@ export async function uploadEvidence(input: {
       });
     }
 
-    // Create Evidence record (optional item/run link + redaction metadata)
+    // Create Evidence record (optional item/run link + redaction metadata).
+    // Gold Standard: Redaction is user-declared attestation; persist attestation for audit.
     const evidence = await prisma.evidence.create({
       data: {
         jobCompletionId: completion.id,
@@ -125,6 +126,8 @@ export async function uploadEvidence(input: {
         redactionApplied: input.redactionApplied ?? false,
         redactionType: input.redactionType ?? null,
         capturedByUserId: user.id,
+        redactionAttestedAt: input.redactionApplied === true ? new Date() : null,
+        redactionAttestedByUserId: input.redactionApplied === true ? user.id : null,
       },
     });
 

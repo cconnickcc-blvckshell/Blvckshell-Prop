@@ -35,7 +35,7 @@ export async function createOrGetChecklistRun(jobId: string) {
         where: { status: "InProgress" },
         orderBy: { updatedAt: "desc" },
         take: 1,
-        select: { id: true, status: true, templateVersion: true, items: true },
+        select: { id: true, status: true, templateVersion: true, items: true, templateSnapshot: true },
       },
     },
   });
@@ -80,6 +80,10 @@ export async function createOrGetChecklistRun(jobId: string) {
         note: ri.note ?? undefined,
       };
     }
+    const snapshot =
+      existingRun.templateSnapshot != null
+        ? (existingRun.templateSnapshot as Array<{ itemId: string; label: string; required?: boolean; photoRequired?: boolean; photoPointLabel?: string }>)
+        : null;
     return {
       success: true,
       error: null,
@@ -89,6 +93,7 @@ export async function createOrGetChecklistRun(jobId: string) {
         templateVersion: existingRun.templateVersion,
       },
       runItems: runItemsMap,
+      templateSnapshot: snapshot,
     };
   }
 
@@ -104,6 +109,8 @@ export async function createOrGetChecklistRun(jobId: string) {
         templateVersion: primaryTemplate.version,
         status: "InProgress",
         completedByWorkerId: user.workerId!,
+        templateSnapshot: templateItems as unknown as object,
+        templateSnapshotCapturedAt: new Date(),
       },
     });
 
@@ -127,6 +134,7 @@ export async function createOrGetChecklistRun(jobId: string) {
     error: null,
     run: { id: run.id, status: run.status, templateVersion: run.templateVersion },
     runItems: {},
+    templateSnapshot: templateItems,
   };
 }
 
@@ -207,6 +215,7 @@ export async function submitChecklistRun(runId: string) {
       id: true,
       status: true,
       items: true,
+      templateSnapshot: true,
       checklistTemplate: { select: { items: true } },
       job: {
         select: {
@@ -227,12 +236,18 @@ export async function submitChecklistRun(runId: string) {
     return { success: false, error: "Job not in submittable state" };
   }
 
-  const templateItems = (run.checklistTemplate.items as Array<{
-    itemId: string;
-    label: string;
-    required?: boolean;
-    photoRequired?: boolean;
-  }>) || [];
+  // Gold Standard: Validate against snapshot so template edits cannot change compliance for this run.
+  const snapshotItems = Array.isArray(run.templateSnapshot)
+    ? (run.templateSnapshot as Array<{ itemId: string; label: string; required?: boolean; photoRequired?: boolean }>)
+    : null;
+  const templateItems =
+    snapshotItems ??
+    ((run.checklistTemplate.items as Array<{
+      itemId: string;
+      label: string;
+      required?: boolean;
+      photoRequired?: boolean;
+    }>) || []);
   const requiredItemIds = templateItems.filter((i) => i.required).map((i) => i.itemId);
   const photoRequiredItemIds = templateItems.filter((i) => i.photoRequired).map((i) => i.itemId);
   const runItemByKey = Object.fromEntries(run.items.map((i) => [i.itemId, i]));
