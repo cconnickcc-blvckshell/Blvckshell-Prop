@@ -10,6 +10,7 @@ import {
   createQuoteAddOnLine,
   updateQuoteAddOnLine,
   deleteQuoteAddOnLine,
+  updateQuoteHeaderAndRisk,
 } from "@/server/actions/quote-actions";
 
 const mockAdmin = { id: "admin-1", workerId: null, workforceAccountId: null };
@@ -290,6 +291,75 @@ describe("Quote area line actions", () => {
     expect(line?.type).toBe("LOBBY");
     expect(line?.computedMinutes).toBeGreaterThan(0);
     expect((line?.measurements as { preset?: string })?.preset).toBe("M");
+  });
+
+  it("multiplies base minutes by count when provided", async () => {
+    const client = await testDb.clientOrganization.create({
+      data: {
+        name: "Quote Count Client",
+        primaryContactName: "C",
+        primaryContactEmail: "count@test.com",
+        primaryContactPhone: "1",
+      },
+    });
+    const site = await testDb.site.create({
+      data: {
+        clientOrganizationId: client.id,
+        name: "Quote Count Site",
+        address: "Count",
+        requiredPhotoCount: 4,
+        suppliesProvidedBy: "COMPANY",
+        lifecycleStatus: "PROSPECT",
+      },
+    });
+    const policy = await testDb.pricingPolicy.create({
+      data: {
+        cityCode: "CNT",
+        effectiveDate: new Date("2025-01-01"),
+        version: 1,
+        anchorBillingRateCentsPerHour: 10_000,
+        minimumMonthlyRevenueCents: 5_000,
+        defaultTravelMinutesPerVisit: 15,
+        defaultWinterMinutesPerVisitDelta: 5,
+        winterStartMonth: 10,
+        winterEndMonth: 3,
+        daysValid: 30,
+        targetMarginBps: 2500,
+        stressMarginBps: 2000,
+        minStressMarginBps: 1500,
+        subPayoutCeilingCentsPerHour: 3000,
+        addonBillingRateCentsPerHour: 5000,
+        addonMinMarginBps: 3000,
+        riskRules: {},
+      },
+    });
+    const quote = await testDb.quote.create({
+      data: {
+        siteId: site.id,
+        pricingPolicyId: policy.id,
+        status: "DRAFT",
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        visitsPerWeek: 4,
+        billingRateCentsPerHour: policy.anchorBillingRateCentsPerHour,
+        travelMinutesPerVisit: 15,
+        monthlySupplyCostCents: 0,
+        winterMinutesPerVisitDelta: 5,
+      },
+    });
+
+    const result = await createQuoteAreaLine(quote.id, {
+      type: "LOBBY",
+      measurements: { preset: "M", count: 3 },
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const line = await testDb.quoteAreaLine.findUnique({
+      where: { id: result.lineId },
+    });
+    expect(line).not.toBeNull();
+    // BASE_MINUTES for LOBBY/M is 25 in area-presets; with count 3 we expect 75 minutes.
+    expect(line?.computedMinutes).toBe(75);
+    expect((line?.measurements as { preset?: string; count?: number })?.count).toBe(3);
   });
 });
 

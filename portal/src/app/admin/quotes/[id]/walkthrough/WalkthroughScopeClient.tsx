@@ -9,13 +9,12 @@ import {
   createQuoteAddOnLine,
   updateQuoteAddOnLine,
   deleteQuoteAddOnLine,
-  updateQuoteHeader,
-  updateQuoteRiskFactors,
+  updateQuoteHeaderAndRisk,
   type CreateQuoteAreaLinePayload,
   type UpdateQuoteAreaLinePayload,
   type CreateQuoteAddOnLinePayload,
   type UpdateQuoteAddOnLinePayload,
-  type UpdateQuoteHeaderPayload,
+  type UpdateQuoteHeaderAndRiskPayload,
 } from "@/server/actions/quote-actions";
 import type { QuoteAreaType, BuildingClass } from "@prisma/client";
 
@@ -146,15 +145,22 @@ export default function WalkthroughScopeClient({
     type: QuoteAreaType;
     preset: "S" | "M" | "L";
     finish: string;
+    count: string;
     overrideMinutes: string;
     overrideReason: string;
-  }>({ type: "HALLWAYS", preset: "M", finish: "", overrideMinutes: "", overrideReason: "" });
+  }>({ type: "HALLWAYS", preset: "M", finish: "", count: "1", overrideMinutes: "", overrideReason: "" });
 
   async function handleAddAreaLine(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setPending(true);
-    const measurements: Record<string, unknown> = { preset: areaForm.preset };
+    const count = parseInt(areaForm.count || "1", 10);
+    if (!Number.isFinite(count) || count < 1 || count > 100) {
+      setError("Count must be between 1 and 100");
+      setPending(false);
+      return;
+    }
+    const measurements: Record<string, unknown> = { preset: areaForm.preset, count };
     if (areaForm.finish) measurements.finish = areaForm.finish;
     const payload: CreateQuoteAreaLinePayload = {
       type: areaForm.type,
@@ -179,7 +185,7 @@ export default function WalkthroughScopeClient({
     setPending(false);
     if (result.ok) {
       refresh();
-      setAreaForm({ type: "HALLWAYS", preset: "M", finish: "", overrideMinutes: "", overrideReason: "" });
+      setAreaForm({ type: "HALLWAYS", preset: "M", finish: "", count: "1", overrideMinutes: "", overrideReason: "" });
     } else {
       setError(result.error ?? "Failed");
     }
@@ -255,11 +261,11 @@ export default function WalkthroughScopeClient({
     else setError(result.error ?? "Failed");
   }
 
-  async function handleSaveHeader(e: React.FormEvent) {
+  async function handleSaveHeaderAndRisk(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setPending(true);
-    const payload: UpdateQuoteHeaderPayload = {
+    const payload: UpdateQuoteHeaderAndRiskPayload = {
       visitsPerWeek,
       travelMinutesPerVisit,
       winterMinutesPerVisitDelta,
@@ -267,25 +273,13 @@ export default function WalkthroughScopeClient({
       expectedSubcontractorRateCentsPerHour: expectedSubcontractorRateCentsPerHour.trim() === ""
         ? null
         : parseInt(expectedSubcontractorRateCentsPerHour, 10),
+      riskFactors,
+      buildingClass,
     };
     if (Number.isNaN(payload.expectedSubcontractorRateCentsPerHour as number)) {
       payload.expectedSubcontractorRateCentsPerHour = null;
     }
-    const result = await updateQuoteHeader(quoteId, payload);
-    setPending(false);
-    if (result.ok) refresh();
-    else setError(result.error ?? "Failed");
-  }
-
-  async function handleSaveRisk(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setPending(true);
-    const result = await updateQuoteRiskFactors(
-      quoteId,
-      riskFactors,
-      buildingClass
-    );
+    const result = await updateQuoteHeaderAndRisk(quoteId, payload);
     setPending(false);
     if (result.ok) refresh();
     else setError(result.error ?? "Failed");
@@ -309,7 +303,7 @@ export default function WalkthroughScopeClient({
         {/* Quote header & risk */}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <h2 className="mb-4 text-lg font-semibold text-white">Quote header & risk</h2>
-          <form onSubmit={handleSaveHeader} className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          <form onSubmit={handleSaveHeaderAndRisk} className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
             <div>
               <label className="block text-xs text-zinc-400">Visits/week</label>
               <input
@@ -370,11 +364,11 @@ export default function WalkthroughScopeClient({
                 disabled={pending}
                 className="rounded bg-zinc-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-500 disabled:opacity-50"
               >
-                Save header
+                Save header & risk
               </button>
             </div>
           </form>
-          <form onSubmit={handleSaveRisk} className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-wrap items-end gap-4">
             <div>
               <label className="block text-xs text-zinc-400">Building class</label>
               <select
@@ -403,14 +397,7 @@ export default function WalkthroughScopeClient({
                 ))}
               </div>
             )}
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded bg-zinc-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-500 disabled:opacity-50"
-            >
-              Save risk
-            </button>
-          </form>
+          </div>
         </div>
 
         {/* Area lines */}
@@ -473,6 +460,17 @@ export default function WalkthroughScopeClient({
                   <option key={p.value} value={p.value}>{p.label}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400">Count</label>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={areaForm.count}
+                onChange={(e) => setAreaForm((f) => ({ ...f, count: e.target.value }))}
+                className="mt-0.5 w-20 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+              />
             </div>
             <div>
               <label className="block text-xs text-zinc-400">Finish</label>

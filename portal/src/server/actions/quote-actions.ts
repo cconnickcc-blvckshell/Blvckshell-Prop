@@ -178,6 +178,90 @@ export async function updateQuoteRiskFactors(
   return { ok: true };
 }
 
+export type UpdateQuoteHeaderAndRiskPayload = UpdateQuoteHeaderPayload & {
+  riskFactors?: string[];
+  buildingClass?: BuildingClass | null;
+};
+
+/** Atomic update of quote header + risk factors + building class (admin; quote must be DRAFT or READY_FOR_REVIEW). */
+export async function updateQuoteHeaderAndRisk(
+  quoteId: string,
+  payload: UpdateQuoteHeaderAndRiskPayload
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const user = await requireAdmin();
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    select: { id: true, status: true },
+  });
+  if (!quote) return { ok: false, error: "Quote not found" };
+  if (!isMutableStatus(quote.status)) {
+    return { ok: false, error: "Quote cannot be edited; status is not DRAFT or READY_FOR_REVIEW" };
+  }
+
+  const data: Record<string, unknown> = {};
+
+  if (payload.visitsPerWeek !== undefined) {
+    const v = Number(payload.visitsPerWeek);
+    if (!Number.isFinite(v) || v < 1 || v > 14) return { ok: false, error: "Visits per week must be 1–14" };
+    data.visitsPerWeek = Math.round(v);
+  }
+  if (payload.travelMinutesPerVisit !== undefined) {
+    const v = Number(payload.travelMinutesPerVisit);
+    if (!Number.isFinite(v) || v < 0 || v > 999) return { ok: false, error: "Travel minutes must be 0–999" };
+    data.travelMinutesPerVisit = Math.round(v);
+  }
+  if (payload.winterMinutesPerVisitDelta !== undefined) {
+    const v = Number(payload.winterMinutesPerVisitDelta);
+    if (!Number.isFinite(v) || v < -999 || v > 999) return { ok: false, error: "Winter delta must be -999–999" };
+    data.winterMinutesPerVisitDelta = Math.round(v);
+  }
+  if (payload.monthlySupplyCostCents !== undefined) {
+    const v = Number(payload.monthlySupplyCostCents);
+    if (!Number.isFinite(v) || v < 0) return { ok: false, error: "Monthly supply cost must be non-negative" };
+    data.monthlySupplyCostCents = Math.round(v);
+  }
+  if (payload.expectedSubcontractorRateCentsPerHour !== undefined) {
+    const v = payload.expectedSubcontractorRateCentsPerHour;
+    if (v != null && (!Number.isFinite(v) || v < 0)) {
+      return { ok: false, error: "Expected subcontractor rate must be non-negative or null" };
+    }
+    data.expectedSubcontractorRateCentsPerHour = v == null ? null : Math.round(Number(v));
+  }
+
+  if (payload.riskFactors !== undefined) {
+    const sanitized = payload.riskFactors.filter((k) => typeof k === "string").slice(0, 50);
+    data.riskFactors = sanitized;
+  }
+
+  if (payload.buildingClass !== undefined) {
+    data.buildingClass = payload.buildingClass;
+  }
+
+  if (Object.keys(data).length === 0) return { ok: true };
+
+  await prisma.$transaction(async (tx) => {
+    await tx.quote.update({
+      where: { id: quoteId },
+      data: data as Parameters<typeof prisma.quote.update>[0]["data"],
+    });
+    await tx.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        entityType: "Quote",
+        entityId: quoteId,
+        metadata: {
+          action: "updateHeaderAndRisk",
+        },
+      },
+    });
+  });
+
+  revalidatePath(`/admin/quotes/${quoteId}`);
+  revalidatePath(`/admin/quotes/${quoteId}/walkthrough`);
+  revalidatePath(`/admin/quotes/${quoteId}/pricing`);
+  return { ok: true };
+}
+
 export async function getQuote(quoteId: string) {
   await requireAdmin();
   return prisma.quote.findUnique({
@@ -523,6 +607,82 @@ export async function transitionQuoteToSent(quoteId: string) {
   return { ok: true };
 }
 
+/** Finalize quote into a Contract (creates monthly base price for invoices). */
+export async function finalizeQuoteToContract(quoteId: string) {
+  const user = await requireAdmin();
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    include: {
+      site: { include: { clientOrganization: true } },
+      snapshots: { orderBy: { snapshotVersion: "desc" }, take: 1 },
+    },
+  });
+  if (!quote) return { ok: false as const, error: "Quote not found" };
+  if (quote.status !== "SENT") {
+    return { ok: false as const, error: "Quote must be SENT before finalizing into a contract" };
+  }
+  const latest = quote.snapshots[0];
+  if (!latest) {
+    return { ok: false as const, error: "No snapshot; compute snapshot before finalizing" };
+  }
+  if (!latest.passesBaseGate || !latest.passesStressGate || !latest.passesRevenueFloor) {
+    return { ok: false as const, error: "Gates not passed; cannot finalize quote" };
+  }
+
+  const existingActiveContract = await prisma.contract.findFirst({
+    where: { siteId: quote.siteId, status: "Active" },
+  });
+  if (existingActiveContract) {
+    return {
+      ok: false as const,
+      error: "Active contract already exists for this site; end or adjust it before finalizing another quote",
+    };
+  }
+
+  const monthlyBaseAmountCents = latest.riskAdjustedRevenueCents;
+  if (monthlyBaseAmountCents <= 0) {
+    return { ok: false as const, error: "Snapshot monthly amount must be positive to create a contract" };
+  }
+
+  const now = new Date();
+  const contract = await prisma.contract.create({
+    data: {
+      clientOrganizationId: quote.site.clientOrganizationId,
+      siteId: quote.siteId,
+      billingCadence: "Monthly",
+      monthlyBaseAmountCents,
+      netTermsDays: 30,
+      effectiveStart: now,
+      status: "Active",
+    },
+  });
+
+  await prisma.quote.update({
+    where: { id: quoteId },
+    data: { status: "WON" },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      actorUserId: user.id,
+      entityType: "Quote",
+      entityId: quoteId,
+      fromState: "SENT",
+      toState: "WON",
+      metadata: {
+        action: "finalizeQuoteToContract",
+        contractId: contract.id,
+        snapshotVersion: latest.snapshotVersion,
+        monthlyBaseAmountCents,
+      },
+    },
+  });
+
+  revalidatePath("/admin/quotes");
+  revalidatePath(`/admin/quotes/${quoteId}`);
+  return { ok: true as const, contractId: contract.id };
+}
+
 /** Founder-only: override billing rate (requires reason + AuditLog) */
 export async function overrideBillingRate(
   quoteId: string,
@@ -571,7 +731,7 @@ export async function getQuoteForProposal(quoteId: string) {
   const quote = await prisma.quote.findUnique({
     where: { id: quoteId },
     include: {
-      site: true,
+      site: { include: { clientOrganization: true } },
       snapshots: { orderBy: { snapshotVersion: "desc" }, take: 1 },
       areaLines: true,
       addOnLines: true,
