@@ -79,6 +79,27 @@ Differentiation is built on: **accountability**, **documentation**, **scope disc
 
 ---
 
+## Pilot Pricing (Reference Ranges)
+
+| Pilot type | Indicative range | Note |
+|------------|------------------|------|
+| Unit Turnover Pilot | $550–$850 per unit | One vacant unit; full turnover clean, inspection, up to 2 hr light touch-up. |
+| Problem Building Cleaning Pilot | $1,200–$2,000 one-time | One building; common areas, garbage, stairwells; weekly inspection report. |
+
+Final pricing is scope- and site-specific; these ranges support proposal and margin planning.
+
+---
+
+## Definitive Scope (Will Do / Won't Do)
+
+| Will do | Won't do |
+|---------|----------|
+| Common area and elevator cleaning; unit turnovers; turnover readiness audits; light maintenance (bulb replacement, door hardware adjustment, caulking, touch-ups, filter checks); facilities support and coordination. | Licensed trade work; major plumbing, electrical, or HVAC repairs; any permit-required or structural work. |
+
+This summary tightens Tier 4 and overall risk wording; full exclusions are in Section 08.
+
+---
+
 ## Out-of-Scope (Explicit Exclusions)
 
 - **Licensed trades:** Electrical, plumbing, HVAC, gas, or any work requiring provincial trade qualification or permit.

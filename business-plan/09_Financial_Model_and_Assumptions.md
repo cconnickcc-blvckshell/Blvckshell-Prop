@@ -64,7 +64,7 @@ Revenue per site is determined by scope (areas, frequency, standards) and agreed
 
 | Input | Typical range (illustrative) | Use in model |
 |-------|------------------------------|---------------|
-| Monthly contract value per site | $1,800–$4,500 | Base case uses mid-range (e.g. $2,500–$3,200) per site depending on size/frequency. |
+| Monthly contract value per site | $2,500–$4,000 (Windsor target) | Based on local rate indicators and typical multi-residential scope; base case uses mid-range (e.g. $2,800) per site depending on size/frequency. |
 | Visit frequency | 2–4x per week equivalent | Drives labour hours and payout per site. |
 | Price per visit (alternative view) | $150–$350 | Can be converted to monthly equivalent for comparison. |
 
@@ -248,12 +248,14 @@ This is a conservative choice; it is not a guarantee that the business will be p
 
 | Category | Year 1 (low fixed) | Comment |
 |----------|--------------------|---------|
-| Insurance | $2,500–$4,000 | CGL and related. |
-| Professional (legal, accounting) | $1,500–$3,000 | Setup, filings, year-end. |
-| Software / tools | $500–$1,500 | Internal system, basic tools. |
+| Insurance | $2,500–$4,000 | CGL and related; quotes in this range for Ontario services of this scope. |
+| Professional (legal, accounting) | $1,500–$3,000 | Setup, filings, year-end; basic accounting expected in this range. |
+| Software / tools | $500–$1,500 | Internal system, basic tools; ~$50–$200/month market subscriptions. |
 | Marketing / sales (minimal) | $500–$1,500 | No large ad spend. |
 | Other admin | $500–$1,000 | Bank, registration, misc. |
-| **Total fixed overhead (Year 1)** | **$5,500–$11,000** | Rounded for model; use mid-range (e.g. $8,000) for base case. |
+| **Total fixed overhead (Year 1)** | **$5,500–$11,000** | Rounded for model; use mid-range (e.g. $8,000) for base case. Company has begun or will begin collecting quotes to verify. |
+
+**Labour cost context:** Market indications show typical local cleaner rates around $25–$50/hr (Windsor; general to deep cleaning). Subcontractor payout ceilings and margin structures are set consistent with these rates.
 
 No office lease or full-time admin in Year 1 base case. Overhead scales in Year 2–3 as revenue and activity grow (Section 11). **Capital expenditure (CapEx):** Even a labour-heavy service business requires replacement equipment and occasional upgrades. Model includes an annual CapEx allowance of **$1,000–$3,000** (Year 1), scaling with site count (e.g. $2,000–$5,000 in Year 2–3). This covers mops, vacuums, small equipment, and tools; not major machinery. Banks expect to see CapEx acknowledged.
 

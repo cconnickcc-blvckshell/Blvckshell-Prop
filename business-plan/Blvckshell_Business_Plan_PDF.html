@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- PDF export: document uses ASCII hyphen and " - " for dashes; >= for greater-than-or-equal; ~ for approx. to avoid encoding corruption in print-to-PDF. -->
+  <title>Blvckshell - Ontario Regional Business Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Institutional Minimalism - 4 page types only. A4, 1.25in margins. Fixed vertical grid. */
+    :root {
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', 'Helvetica Neue', sans-serif;
+      --ink: #111;
+      --ink-mid: #333;
+      --ink-light: #666;
+      --rule: #e0e0e0;
+      --accent: #b8860b;
+    }
+    * { box-sizing: border-box; }
+    @page { size: A4; margin: 0; }
+    html, body { margin: 0; padding: 0; background: #e8e8e8; }
+    body {
+      font-family: var(--sans);
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .page {
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      box-sizing: border-box;
+      padding: 1.25in;
+      padding-bottom: 1.5in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      position: relative;
+    }
+    .page.content-page { min-height: 297mm; height: auto; }
+    .page-content { flex-grow: 1; }
+    .page-content.vertical-center { display: flex; flex-direction: column; justify-content: center; }
+    section:last-of-type { page-break-after: auto; }
+    @media print { body { background: #fff; } }
+    /* Footer - absolute bottom, divider line, never float */
+    footer.page-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5em 1.25in;
+      border-top: 1px solid var(--rule);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      font-family: var(--sans);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+    }
+    .cover footer.page-footer { display: none; }
+    .divider footer.page-footer { display: none; }
+    /* Typography - hierarchy as architecture */
+    h1, h2 { font-family: var(--serif); font-weight: 600; color: var(--ink); page-break-after: avoid; }
+    h1 { font-size: 44px; letter-spacing: 0.05em; line-height: 1.1; margin: 0 0 0.35em; }
+    h2 {
+      font-size: 24px;
+      margin-top: 2.25em;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.35em;
+      border-bottom: 1px solid var(--rule);
+      letter-spacing: 0.02em;
+    }
+    h2:first-of-type { margin-top: 0; }
+    h2.accent-rule { border-bottom-color: var(--accent); border-bottom-width: 2px; }
+    h3 {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 600;
+      font-variant: small-caps;
+      letter-spacing: 0.08em;
+      margin: 1.5em 0 0.35em;
+      color: var(--ink-mid);
+      page-break-after: avoid;
+    }
+    p { margin: 0 0 0.9em; max-width: 85ch; }
+    .lead { font-size: 13px; line-height: 1.5; }
+    ul, ol { margin: 0 0 0.9em; padding-left: 1.5em; max-width: 85ch; }
+    li { margin-bottom: 0.4em; }
+    .meta { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); }
+    /* Tables - institutional: thin grey rows, no vertical lines, totals emphasized */
+    table {
+      width: 100%;
+      font-size: 10px;
+      border-collapse: collapse;
+      margin-top: 1.25em;
+      page-break-inside: avoid;
+    }
+    th {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.5em 0 0.6em;
+      border-bottom: 1px solid var(--ink);
+      text-align: left;
+      color: var(--ink);
+    }
+    td { padding: 0.55em 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td.num, th.num { text-align: right; font-family: var(--serif); font-weight: 600; }
+    tr.total td { border-top: 2px solid var(--ink); padding-top: 0.65em; font-weight: 600; }
+    tr.total td.num { font-family: var(--serif); font-size: 11px; }
+    .table-minimal td:first-child { font-weight: 600; color: var(--ink-mid); }
+    .section-tagline { font-family: var(--serif); font-size: 10px; font-style: italic; color: var(--ink-light); margin: 0 0 1.75em; letter-spacing: 0.02em; }
+    hr { border: none; border-top: 1px solid var(--rule); margin: 2em 0; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    /* 1. Cover - full-bleed intent */
+    .cover {
+      background: #0d0d0d;
+      color: #fff;
+      padding: 2.75in 1.25in;
+      text-align: left;
+    }
+    .cover h1 { font-size: 48px; letter-spacing: 0.12em; color: #fff; }
+    .cover .tagline { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; margin-bottom: 1.25em; font-weight: 500; }
+    .cover .doc-title { font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; margin: 1.5em 0 0.25em; }
+    .cover .confidential { font-size: 10px; margin-top: 0.75em; opacity: 0.85; }
+    .cover .quarter { font-size: 10px; margin-top: 0.35em; }
+    .cover .prepared { font-size: 9px; opacity: 0.65; letter-spacing: 0.08em; }
+    .cover .doc-date { font-size: 9px; opacity: 0.7; margin-top: 0.25em; }
+    /* 2. Section break - full page, ghost number 20%, centered block */
+    .divider {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+    .divider .page-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .divider-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 160pt;
+      font-weight: 700;
+      font-family: var(--serif);
+      opacity: 0.2;
+      line-height: 1;
+      color: var(--ink);
+      pointer-events: none;
+    }
+    .divider h1 { font-size: 42px; line-height: 1.15; margin-bottom: 0.4em; }
+    .divider .subtitle { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); margin-top: 0.25em; }
+    /* 3. Narrative content - statement / structured density */
+    .content-page .page-content { max-width: 85ch; }
+    /* 4. Data / financial spread - annual-report feel: number first, label below, strict grid */
+    .data-spread { text-align: left; }
+    .data-spread-title {
+      font-family: var(--serif);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 2.5em;
+      color: var(--ink-mid);
+    }
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5em 4em;
+      max-width: 28em;
+    }
+    .data-item { margin-bottom: 2em; }
+    .data-value {
+      font-family: var(--serif);
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 0.2em;
+    }
+    .data-label {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+    /* Contribution at Scale - vertical stack, number dominant */
+    .scale-stack { max-width: 14em; }
+    .scale-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.75em 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .scale-row:last-child { border-bottom: none; }
+    .scale-label { font-size: 11px; color: var(--ink-mid); }
+    .scale-value {
+      font-family: var(--serif);
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    /* Legacy compatibility */
+    .spread-title { font-family: var(--serif); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 2.5em; color: var(--ink-mid); }
+    .spread-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5em; }
+    .spread-block .label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-light); margin-bottom: 0.2em; }
+    .spread-block .value { font-family: var(--serif); font-size: 40px; font-weight: 700; display: block; }
+    .contribution-table { margin: 1.5em 0; }
+    .contribution-table tr td { padding: 0.65em 0; border-bottom: 1px solid var(--rule); }
+    .contribution-table tr td:last-child { text-align: right; font-family: var(--serif); font-weight: 700; font-size: 28px; }
+    .dashboard-title { font-family: var(--serif); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mid); margin-bottom: 2em; }
+    .metric { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5em; }
+    .metric .value { font-family: var(--serif); font-size: 36px; font-weight: 700; }
+    .small { font-size: 9px; color: var(--ink-light); }
+    strong { font-weight: 600; }
+    /* Institutional graphics - monochrome, no gradients */
+    .fig { margin: 2em 0; page-break-inside: avoid; }
+    .fig-title { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 0.75em; }
+    .fig-row { display: flex; align-items: flex-start; gap: 2em; flex-wrap: wrap; }
+    .fig-row .fig { flex: 1; min-width: 12em; }
+    .bar-chart { display: flex; flex-direction: column; gap: 0.6em; max-width: 18em; }
+    .bar-row { display: flex; align-items: center; gap: 0.75em; }
+    .bar-row .bar-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-mid); min-width: 6em; }
+    .bar-row .bar-track { flex: 1; height: 14px; background: var(--rule); position: relative; }
+    .bar-row .bar-fill { height: 100%; background: var(--ink); }
+    .bar-row .bar-pct { font-size: 10px; font-family: var(--serif); font-weight: 600; min-width: 2.5em; text-align: right; }
+    .tier-stack { display: flex; flex-direction: column; gap: 0; max-width: 20em; }
+    .tier-stack .tier { padding: 0.5em 0.75em; border: 1px solid var(--rule); border-bottom: none; font-size: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .tier-stack .tier:last-child { border-bottom: 1px solid var(--rule); }
+    .tier-stack .tier-num { font-weight: 600; color: var(--ink-mid); }
+    .tier-stack .tier-margin { font-family: var(--serif); font-size: 11px; color: var(--ink); }
+    .funnel { display: flex; flex-direction: column; align-items: center; gap: 0; max-width: 16em; }
+    .funnel-stage { width: 100%; padding: 0.5em 0.75em; text-align: center; font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--rule); border-bottom: none; background: #fafafa; }
+    .funnel-stage:last-child { border-bottom: 1px solid var(--rule); background: #fff; }
+    .funnel-arrow { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 6px solid var(--ink-light); margin: 0 auto; }
+    .flow-h { display: flex; align-items: center; flex-wrap: wrap; gap: 0.25em; max-width: 100%; }
+    .flow-h .flow-step { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.35em 0.5em; background: #f8f8f8; border: 1px solid var(--rule); }
+    .flow-h .flow-arrow { color: var(--ink-light); font-size: 10px; }
+    .risk-matrix { display: grid; grid-template-columns: auto 1fr 1fr; gap: 1px; background: var(--rule); max-width: 22em; }
+    .risk-matrix .cell { background: #fff; padding: 0.5em 0.6em; font-size: 9px; }
+    .risk-matrix .cell.axis { background: #f5f5f5; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-mid); }
+    .risk-matrix .cell.risk { border-left: 2px solid var(--ink); }
+    .waterfall { display: flex; flex-direction: column; gap: 0; max-width: 14em; }
+    .waterfall .wf-row { display: flex; justify-content: space-between; align-items: center; padding: 0.4em 0; border-bottom: 1px solid var(--rule); font-size: 10px; }
+    .waterfall .wf-row.total { border-bottom: none; border-top: 2px solid var(--ink); font-weight: 600; font-family: var(--serif); }
+    .waterfall .wf-val { font-family: var(--serif); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="page-content">
+    <h1>BLVCKSHELL</h1>
+    <p class="tagline">Facilities Execution & Accountability Operator</p>
+    <p class="doc-title">Ontario Regional Business Plan</p>
+    <p class="confidential">Confidential - Bank & Investor Review</p>
+    <p class="quarter">Q1 2026</p>
+    <p class="doc-date">February 2026</p>
+    <p class="prepared">Prepared by C. Connick, Founder, Blvckshell</p>
+  </div>
+</section>
+
+<section class="page toc-page page-break">
+  <div class="page-content">
+    <h1>Contents</h1>
+    <ol class="toc-list">
+    <li><span class="num">01</span> Executive Summary</li>
+    <li><span class="num">02</span> Company Overview</li>
+    <li><span class="num">03</span> Market Analysis</li>
+    <li><span class="num">04</span> Service Architecture</li>
+    <li><span class="num">05</span> Competitive Landscape</li>
+    <li><span class="num">06</span> Operations Model</li>
+    <li><span class="num">07</span> Sales & Growth</li>
+    <li><span class="num">08</span> Risk & Compliance</li>
+    <li><span class="num">09</span> Financial Model</li>
+    <li><span class="num">10</span> 3-Year Forecast</li>
+    <li><span class="num">11</span> Capital Structure & LOC</li>
+    <li><span class="num">12</span> Scalability Model</li>
+    <li><span class="num">13</span> Exit Optionality</li>
+    <li><span class="num">14</span> Appendices</li>
+  </ol>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">01</div>
+    <h1 class="divider-title">Executive Summary</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">A margin-governed, contract-disciplined Ontario facilities operator.</p>
+  <h2 class="accent-rule">Summary for Lenders and Reviewers</h2>
+  <p class="lead"><strong>What we do.</strong> We are a facilities execution and accountability operator for multi-residential and light commercial properties in Ontario. We operate in the friction layer between cleaning vendors and licensed trades: recurring cleaning (common areas, garbage rooms, stairwells, washrooms), unit turnovers, turnover readiness audits, light maintenance (non-licensed, non-permit), and facilities support. Revenue is contract-based; pilot programs reduce client friction and convert to recurring contracts. We do not sell technology; we run a service business with an internal audit and workflow system for quality and documentation.</p>
+  <p><strong>Where we operate.</strong> Launch market is Windsor, Ontario. Expansion is opportunity-driven into other Ontario cities (100,000-400,000 population). No speculative geography; new cities only when contract and capacity justify. Ontario-only; no national expansion.</p>
+  <p><strong>Financial profile.</strong> Year 1 target 2-4 sites; monthly run rate by Month 12 of $8,000-$18,000; full-year revenue $35,000-$95,000. Revenue ramp is back-weighted (meaningful revenue from Month 4 onward). Margin target 25% (acceptable 20-30%; floor 15% under stress). Add-ons and maintenance minimum 30%. No founder salary in Year 1.</p>
+  <p><strong>Risk controls.</strong> Strict contract terms and scope; tier-level margin gates; light maintenance explicitly non-licensed and non-permit; WSIB, HST, and insurance from day one; working capital and LOC sized for 30-45 day AR and slow ramp. Detailed failure scenarios and mitigations in Section 08.</p>
+  <p><strong>Capital ask.</strong> A modest line of credit ($15,000-$25,000) for working capital only-AR bridge and startup supplies/payouts. Not growth financing. Amount and terms in Section 11.</p>
+  <h3>Discipline Summary</h3>
+  <p><strong>Margin discipline:</strong> Target 25%; no contract below 20% unless documented exception. Add-on/maintenance &gt;= 30%. Payout ceilings and site-level review enforce this.</p>
+  <p><strong>Risk discipline:</strong> Revenue concentration, margin pressure, maintenance scope, regulatory, and liquidity are identified and mitigated; explicit corrective actions if growth lags or margin compresses (Section 08).</p>
+  <p><strong>Optional exit:</strong> At scale (e.g. 15+ cities or 75+ sites), the business may be attractive as an acquisition or recap target; not a projection. See Section 13.</p>
+  <p class="small">This plan is for internal strategy, bank LOC discussion, and future investor review. Projections are conservative and risk-aware.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page page-break dashboard-page">
+  <div class="page-content vertical-center data-spread">
+    <div class="data-spread-title">Financial Summary</div>
+    <div class="data-grid">
+      <div class="data-item">
+        <span class="data-value">$54,400</span>
+        <span class="data-label">Year 1 Revenue (Base Case)</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">$13,600</span>
+        <span class="data-label">Year 1 Gross Profit</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">25%</span>
+        <span class="data-label">Target Margin</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">1 Site</span>
+        <span class="data-label">Break-Even</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">$15K-$25K</span>
+        <span class="data-label">LOC Requested</span>
+      </div>
+    </div>
+    <div class="fig-row" style="margin-top: 2.5em;">
+      <div class="fig">
+        <div class="fig-title">Revenue mix (blended example)</div>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">Recurring</span><span class="bar-track"><span class="bar-fill" style="width: 60%;"></span></span><span class="bar-pct">60%</span></div>
+          <div class="bar-row"><span class="bar-label">Turnover</span><span class="bar-track"><span class="bar-fill" style="width: 15%;"></span></span><span class="bar-pct">15%</span></div>
+          <div class="bar-row"><span class="bar-label">Maintenance</span><span class="bar-track"><span class="bar-fill" style="width: 15%;"></span></span><span class="bar-pct">15%</span></div>
+          <div class="bar-row"><span class="bar-label">Facilities</span><span class="bar-track"><span class="bar-fill" style="width: 5%;"></span></span><span class="bar-pct">5%</span></div>
+          <div class="bar-row"><span class="bar-label">Pilot</span><span class="bar-track"><span class="bar-fill" style="width: 5%;"></span></span><span class="bar-pct">5%</span></div>
+        </div>
+      </div>
+      <div class="fig">
+        <div class="fig-title">Margin by tier (target)</div>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">Cleaning</span><span class="bar-track"><span class="bar-fill" style="width: 25%;"></span></span><span class="bar-pct">25%</span></div>
+          <div class="bar-row"><span class="bar-label">Turnover</span><span class="bar-track"><span class="bar-fill" style="width: 25%;"></span></span><span class="bar-pct">&gt;=25%</span></div>
+          <div class="bar-row"><span class="bar-label">Maintenance</span><span class="bar-track"><span class="bar-fill" style="width: 30%;"></span></span><span class="bar-pct">&gt;=30%</span></div>
+          <div class="bar-row"><span class="bar-label">Pilots</span><span class="bar-track"><span class="bar-fill" style="width: 35%;"></span></span><span class="bar-pct">30-40%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">02</div>
+    <h1 class="divider-title">Company Overview</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Legal structure, management, and operating philosophy.</p>
+  <h2>Legal and Jurisdiction</h2>
+  <table class="table-minimal">
+    <tr><td>Legal name</td><td>Blvckshell Incorporated (as registered in Ontario)</td></tr>
+    <tr><td>Jurisdiction</td><td>Ontario, Canada</td></tr>
+    <tr><td>Structure</td><td>Incorporated Ontario corporation</td></tr>
+    <tr><td>Stage</td><td>Pre-revenue; initial launch phase. Target first contract start: Q2 2026.</td></tr>
+  </table>
+  <h2>Management Profile</h2>
+  <p>Banks and investors lend to people as well as to plans. The founder brings over 10 years of supervisory experience in logistics, shipping, and manufacturing: workforce supervision, production scheduling, process optimization, KPI tracking, and cost control. Facilities services rely on route discipline, quality control, subcontractor coordination, and margin management-areas aligned with this background. The Blvckshell model reflects this: margin governance, checklist enforcement, payout ceilings, and documented scope control. The founder has consulted with an experienced commercial cleaning operator (10+ years). The company is intentionally subcontractor-heavy in Year 1; founder compensation is deferred during launch. Subcontractor classification is addressed through written agreements and compliance with CRA and Ontario employment standards (Section 08 and Appendices).</p>
+  <h2>Business Model</h2>
+  <p>Blvckshell provides recurring cleaning, unit turnovers, turnover readiness audits, light maintenance (non-licensed), and facilities support under contract. Clients are property management companies, condominium corporations, and building owners. Pilot programs offer low-friction entry with conversion to recurring contracts. An internal audit and workflow system is used for assignments, evidence, approvals, and documentation; it is not a separate product or revenue line.</p>
+  <h2>Service Focus (Five Tiers)</h2>
+  <ul>
+    <li><strong>Tier 1:</strong> Recurring cleaning of common areas (lobbies, hallways, elevators, washrooms, garbage rooms, stairwells).</li>
+    <li><strong>Tier 2:</strong> Unit turnovers (full turnover cleaning, inspection-ready).</li>
+    <li><strong>Tier 3:</strong> Turnover readiness audits (inspection only; photo documentation).</li>
+    <li><strong>Tier 4:</strong> Light maintenance (non-licensed, non-permit: hardware, bulbs, caulking, touch-ups, filters).</li>
+    <li><strong>Tier 5:</strong> Facilities support and coordination (vendor oversight, reporting).</li>
+  </ul>
+  <p><strong>Out of scope:</strong> Licensed trades, permit-required work, structural work; unit interiors as open-ended recurring unless under contract; construction cleanup unless separate margin-compliant contract.</p>
+  <hr>
+  <h2>Operating Philosophy</h2>
+  <table class="table-minimal">
+    <tr><td>Conservative</td><td>No speculative hiring or geography; growth follows signed contracts.</td></tr>
+    <tr><td>Margin-disciplined</td><td>Target 25% gross margin; floor 15% under stress; add-ons above 30%.</td></tr>
+    <tr><td>Subcontractor-heavy initially</td><td>Labour capacity via vetted subcontractors to limit fixed payroll in Year 1.</td></tr>
+    <tr><td>No founder salary in Year 1</td><td>Founder compensation deferred to preserve cash and align with break-even focus.</td></tr>
+    <tr><td>Low fixed overhead</td><td>Office, admin, and tooling kept minimal until revenue supports them.</td></tr>
+  </table>
+  <hr>
+  <h2>Initial Market and Expansion</h2>
+  <p><strong>Initial market:</strong> Windsor, Ontario. <strong>Expansion:</strong> Opportunity-driven; other Ontario cities in the 100,000-400,000 population range. Contract-first; no expansion into a new city without a contract or firm commitment. Cities in scope for planning include Windsor, Sarnia, London, Kitchener-Waterloo, Cambridge, Guelph, Barrie, Kingston. Toronto is not an initial target.</p>
+  <h2>Technology and Governance</h2>
+  <p>Internal audit and workflow system: job assignment, completion evidence, approvals, audit trail. Internal use only; not licensed or sold. The company maintains books and records suitable for bank and investor review: P&L, cash flow, balance sheet, and site-level economics.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page page-break">
+  <div class="page-content vertical-center data-spread">
+    <div class="data-spread-title">Margin Governance</div>
+    <div class="data-grid">
+      <div class="data-item">
+        <span class="data-value">25%</span>
+        <span class="data-label">Target Margin</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">20-30%</span>
+        <span class="data-label">Acceptable Range</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">15%</span>
+        <span class="data-label">Stress Floor</span>
+      </div>
+      <div class="data-item">
+        <span class="data-value">30%</span>
+        <span class="data-label">Add-On Minimum</span>
+      </div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">03</div>
+    <h1 class="divider-title">Market Analysis</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Ontario multi-residential demand and conservative addressable scope.</p>
+  <h2>Overview</h2>
+  <p>The market consists of property managers, condominium corporations, and building owners who contract for common-area cleaning, unit turnovers, turnover readiness, light (non-licensed) maintenance, and facilities coordination. Demand is recurring and contract-based for cleaning; turnover and maintenance are recurring or project-based. The company addresses the friction layer between cleaning-only vendors and licensed trades. Estimates below are conservative and derived from building counts, typical contract values, and industry norms.</p>
+  <h2>City Size Segmentation (100,000-400,000 Population)</h2>
+  <p>Focus cities are Ontario Census Agglomerations and smaller CMAs in the 100,000-400,000 population range. Toronto and Ottawa are excluded from initial targeting.</p>
+  <table>
+    <thead><tr><th>City / CA</th><th>Population (approx)</th><th>Multi-residential building estimate</th></tr></thead>
+    <tr><td>Windsor</td><td>230,000-330,000</td><td>~50-60 condo complexes; ~8,000 occupied condo units (common areas)</td></tr>
+    <tr><td>London</td><td>380,000-420,000</td><td>250-500 buildings</td></tr>
+    <tr><td>Kitchener-Cambridge-Waterloo</td><td>550,000+</td><td>400-700 buildings</td></tr>
+    <tr><td>Kingston</td><td>170,000-180,000</td><td>80-180 buildings</td></tr>
+    <tr><td>Sarnia</td><td>70,000-95,000</td><td>40-120 buildings</td></tr>
+    <tr><td>Barrie</td><td>210,000-250,000</td><td>120-280 buildings</td></tr>
+    <tr><td>Guelph</td><td>130,000-150,000</td><td>60-150 buildings</td></tr>
+  </table>
+  <p class="small">Building estimate = structures with common areas that could reasonably contract for dedicated common-area cleaning. Counts are conservative.</p>
+  <h2>Addressable Buildings (Conservative Share)</h2>
+  <table class="table-minimal">
+    <tr><td>Windsor</td><td>~50-60 condo complexes - 25-50 addressable</td></tr>
+    <tr><td>London</td><td>250-500 - 100-200</td></tr>
+    <tr><td>Mid-size (e.g. Kingston, Guelph)</td><td>60-180 - 25-70</td></tr>
+    <tr><td>Larger (e.g. KW)</td><td>400-700 - 150-280</td></tr>
+  </table>
+  <div class="fig">
+    <div class="fig-title">Addressable buildings by city (conservative range)</div>
+    <div class="bar-chart">
+      <div class="bar-row"><span class="bar-label">Windsor</span><span class="bar-track"><span class="bar-fill" style="width: 18%;"></span></span><span class="bar-pct">25-50</span></div>
+      <div class="bar-row"><span class="bar-label">London</span><span class="bar-track"><span class="bar-fill" style="width: 71%;"></span></span><span class="bar-pct">100-200</span></div>
+      <div class="bar-row"><span class="bar-label">Mid-size</span><span class="bar-track"><span class="bar-fill" style="width: 25%;"></span></span><span class="bar-pct">25-70</span></div>
+      <div class="bar-row"><span class="bar-label">KW</span><span class="bar-track"><span class="bar-fill" style="width: 100%;"></span></span><span class="bar-pct">150-280</span></div>
+    </div>
+  </div>
+  <p>The Condominium Authority of Ontario reports 13,000+ condo corporations and nearly 948,000 residential condo units provincially. No total addressable market (TAM) dollar figure is stated; the plan relies on winning a small number of contracts (e.g. 2-4 in Year 1) in one city.</p>
+  <h2>Fragmentation and Pricing</h2>
+  <p>Supply side: many small and mid-size local operators; a smaller number of regional or national chains. Pricing and service quality vary widely. Many competitors exhibit inconsistent QA, weak documentation, reactive reclean handling, poor billing discipline, or thin insurance/compliance. Target for Windsor mid-size common-area cleaning: $2,500-$4,000/month based on local rate indicators and typical scope.</p>
+  <h2>Labour and Regulatory</h2>
+  <p>Ontario minimum wage applies; total labour cost includes payroll burden or subcontractor markup. Retention assumption: 80-85% renewal rate. Launch timeline: target first contract start Q2 2026. WSIB mandatory; HST collected and remitted; commercial general liability and other coverages as required by clients (e.g. $2M-$5M). Ontario law governs contracts.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">04</div>
+    <h1 class="divider-title">Service Architecture</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Five tiers, scope-locked; margin-governed.</p>
+  <h2>Core Identity</h2>
+  <p>We are a facilities execution and accountability operator for multi-residential and light commercial properties in Ontario. Differentiation: accountability, documentation, scope discipline, vendor consolidation, portfolio readiness. The company does not position as full-service contractor, general contractor, or handyman service.</p>
+  <h2>Five Tiers (Summary)</h2>
+  <p><strong>Tier 1 - Recurring cleaning:</strong> Common-area cleaning; scheduled frequency; checklists and evidence; margin gate 25%.</p>
+  <p><strong>Tier 2 - Unit turnovers:</strong> Full turnover cleaning, inspection-ready; per unit; margin &gt;= 25%.</p>
+  <p><strong>Tier 3 - Turnover readiness audits:</strong> Inspection only; photo documentation; margin &gt;= 30%; pipeline to Tier 1/2/4.</p>
+  <p><strong>Tier 4 - Light maintenance:</strong> Door hardware, bulbs, caulking, touch-ups, filters; strictly non-licensed, non-permit. $55-75/hr or flat-rate; margin &gt;= 30%. Explicit exclusions in Section 08.</p>
+  <p><strong>Tier 5 - Facilities support:</strong> Vendor oversight, reporting; retainer or per-event; margin &gt;= 25%.</p>
+  <div class="fig">
+    <div class="fig-title">Service tier structure (foundation up)</div>
+    <div class="tier-stack">
+      <div class="tier"><span class="tier-num">Tier 5</span> Facilities support<span class="tier-margin">&gt;=25%</span></div>
+      <div class="tier"><span class="tier-num">Tier 4</span> Light maintenance<span class="tier-margin">&gt;=30%</span></div>
+      <div class="tier"><span class="tier-num">Tier 3</span> Turnover audits<span class="tier-margin">&gt;=30%</span></div>
+      <div class="tier"><span class="tier-num">Tier 2</span> Unit turnovers<span class="tier-margin">&gt;=25%</span></div>
+      <div class="tier"><span class="tier-num">Tier 1</span> Recurring cleaning<span class="tier-margin">25%</span></div>
+    </div>
+  </div>
+  <h2>Margin Requirements by Tier</h2>
+  <table class="table-minimal">
+    <tr><td>Recurring cleaning</td><td>25% (floor 20%)</td></tr>
+    <tr><td>Unit turnovers</td><td>&gt;= 25%</td></tr>
+    <tr><td>Turnover audits</td><td>&gt;= 30%</td></tr>
+    <tr><td>Light maintenance</td><td>&gt;= 30%</td></tr>
+    <tr><td>Facilities support</td><td>&gt;= 25%</td></tr>
+    <tr><td>Pilots</td><td>30-40%</td></tr>
+  </table>
+  <h2>Definitive Scope</h2>
+  <p><strong>Will do:</strong> Common area and elevator cleaning; unit turnovers; turnover readiness audits; light maintenance (bulb, hardware, caulking, touch-ups, filter checks); facilities support and coordination.</p>
+  <p><strong>Won't do:</strong> Licensed trade work; major plumbing, electrical, or HVAC repairs; any permit-required or structural work.</p>
+  <h2>Contract Structure</h2>
+  <p>Term typically 12 months for recurring; pilots and one-time under fixed-scope agreements. Pricing: fixed monthly, per unit, per hour, or per event; adjustments only by written amendment. Pilots: prepaid or deposit; no net-30 for pilot work.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page page-break">
+  <div class="page-content vertical-center data-spread">
+    <div class="data-spread-title">Site-Level Economics</div>
+    <p class="meta" style="margin-bottom: 1.5em;">Per site per month (base case)</p>
+    <div class="fig-row">
+      <div class="fig">
+        <div class="fig-title">Margin waterfall</div>
+        <div class="waterfall">
+          <div class="wf-row"><span>Revenue</span><span class="wf-val">$2,800</span></div>
+          <div class="wf-row"><span>Labour (ceiling)</span><span class="wf-val">−$1,890</span></div>
+          <div class="wf-row"><span>Supplies</span><span class="wf-val">−$140</span></div>
+          <div class="wf-row"><span>Other direct</span><span class="wf-val">−$70</span></div>
+          <div class="wf-row total"><span>Gross profit</span><span class="wf-val">$700</span></div>
+        </div>
+      </div>
+      <div class="fig">
+        <div class="scale-stack" style="max-width: 16em;">
+          <div class="scale-row"><span class="scale-label">Revenue</span><span class="scale-value">$2,800</span></div>
+          <div class="scale-row"><span class="scale-label">Direct Costs</span><span class="scale-value">$2,100</span></div>
+          <div class="scale-row"><span class="scale-label">Gross Profit</span><span class="scale-value">$700</span></div>
+          <div class="scale-row"><span class="scale-label">Gross Margin</span><span class="scale-value">25%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">05</div>
+    <h1 class="divider-title">Competitive Landscape</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Fragmented supply; differentiation through discipline.</p>
+  <h2>Market Structure</h2>
+  <p>The Ontario multi-residential facilities services space is fragmented: cleaning-only operators, handyman or trade-only providers, and a gap in between. Segments: local independents; regional operators (5-20+ sites; rarely integrated cleaning + turnover + light maintenance + audits); national/large regional chains; in-house; licensed trades (Blvckshell refers and coordinates). The company positions in the friction layer. Windsor/Essex competitive set includes local commercial cleaning and facility providers. Differentiation is scope discipline, documentation, and multi-service integration rather than price alone.</p>
+  <h2>Competitive Weakness Patterns</h2>
+  <p>Common patterns: inconsistent QA; poor documentation; reactive reclean handling; weak billing discipline; thin compliance; overpromise on geography or capacity. Response: checklists, evidence, clear scope, reclean policy at 30%+ margin, WSIB/HST/insurance from day one, contract-first expansion.</p>
+  <h2>Barriers and Positioning</h2>
+  <p>Capital: low for labour-only start; working capital and LOC matter more. Defensibility: disciplined contract acceptance, structured margin enforcement, and documentation standards. The company does not position as full-service contractor, general contractor, or handyman service.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">06</div>
+    <h1 class="divider-title">Operations Model</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Subcontractor-heavy delivery; capacity and QA structure.</p>
+  <h2>Subcontractor Model</h2>
+  <p>Initial delivery is subcontractor-heavy. Blvckshell retains client relationship, contract, pricing, QA, and billing; subcontractors are paid per agreed rate (payout ceiling) so gross margin is preserved. Selection: vetted for reliability, compliance (WSIB, insurance), and willingness to follow scope and documentation. Written agreement covers scope, rate, payment terms, insurance/WSIB, confidentiality. Payout ceiling: maximum labour cost per site or per visit set so gross margin stays within 20-30% (target 25%) for cleaning; &gt;= 30% for maintenance. Classification safeguards: subcontractors may have other clients; Blvckshell defines scope and outcomes but avoids employment-like control.</p>
+  <h2>Capacity and Routing</h2>
+  <p>Productive hours per worker per month: 100-132. Sites per FTE depend on visit frequency and size; conservative planning uses 8-12 sites per FTE. Same city first in Year 1; clustering where possible; no speculative routing.</p>
+  <h2>Organization Evolution</h2>
+  <table class="table-minimal">
+    <tr><td>Year 1 (0-4 sites)</td><td>Founder only; subcontractors</td></tr>
+    <tr><td>Year 2 early (4-6)</td><td>Founder + optional part-time coordinator</td></tr>
+    <tr><td>Year 2 mid (6-10)</td><td>Founder + 0.5-1 FTE operations; second city possible</td></tr>
+    <tr><td>Year 3 (10-18)</td><td>Founder + 1 FTE operations; optional part-time admin</td></tr>
+    <tr><td>Year 4-5 (18-30)</td><td>Ops manager; optional city/regional lead; admin</td></tr>
+    <tr><td>Scale (15+ cities, 75+ sites)</td><td>Central ops; regional/city leads; finance/reporting</td></tr>
+  </table>
+  <div class="fig">
+    <div class="fig-title">Operational flow</div>
+    <div class="flow-h">
+      <span class="flow-step">Contract</span><span class="flow-arrow">-</span><span class="flow-step">Assignment</span><span class="flow-arrow">-</span><span class="flow-step">Visit</span><span class="flow-arrow">-</span><span class="flow-step">Review</span><span class="flow-arrow">-</span><span class="flow-step">Billing</span><span class="flow-arrow">-</span><span class="flow-step">Payment</span>
+    </div>
+  </div>
+  <h2>QA, Reclean, Incident, Billing</h2>
+  <p>QA: contract and site schedule define scope; per-visit checklist; evidence as required; supervisor spot-checks; recleans when standard not met. Reclean: required when visit does not meet checklist; cost included in base (limited) or billed as add-on at 30%+ margin. Incident: report - document - notify client/insurer - follow-up - record. Billing: invoices per contract terms; target 30 days (45 where required); scope changes require written change order.</p>
+  <h2>Operational KPIs (Monthly Review)</h2>
+  <p>Revenue per site; gross margin per site (target 20-30%; alert below 20%); reclean rate; AR days (target 30-45); payout ratio (within ceiling); renewal rate (target 80%+); site count. Maintenance and pilot KPIs tracked separately.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">07</div>
+    <h1 class="divider-title">Sales & Growth</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Contract-first; density before geography; pilots as pipeline.</p>
+  <h2>Strategy Principles</h2>
+  <p>Contract-first: no new city or large commitment without a signed contract or firm commitment. Density before geography: Windsor built to stable base (e.g. 2-4 sites) before second city. Margin discipline: no contract below 20% gross margin (15% floor only under documented stress); add-ons at 30%+. No speculative hiring.</p>
+  <h2>Expansion Doctrine (Single Reference)</h2>
+  <table class="table-minimal">
+    <tr><td>Density before geography</td><td>Windsor (and any first city) at stable base (e.g. 2-4 sites) before opening a second city.</td></tr>
+    <tr><td>Contract trigger</td><td>New city only when there is a signed contract or firm commitment.</td></tr>
+    <tr><td>Capacity-led</td><td>Hiring and subcontractor onboarding follow confirmed or near-confirmed work.</td></tr>
+    <tr><td>No national narrative</td><td>Ontario regional only in the planning horizon.</td></tr>
+    <tr><td>Second city</td><td>Only when (a) at least one signed contract or firm commitment in that city, and (b) existing city stable at 4+ sites or revenue supports added complexity.</td></tr>
+  </table>
+  <h2>Pilot Program</h2>
+  <p>Pilots reduce friction: limited scope, fixed price, clear success criteria. Prepaid or 50%+ deposit; no net-30 for pilots. Five types: Unit Turnover Pilot ($550-$850/unit); Problem Building Cleaning Pilot ($1,200-$2,000 one-time); Light Maintenance/Punch-List (6-10 labour hours); Turnover Readiness Audit; Building Reset/Seasonal Refresh. Pilot gross margin 30-40% (conservative 30%); conversion rate 30-50% to recurring within 12 months.</p>
+  <div class="fig">
+    <div class="fig-title">Pilot conversion funnel (conservative)</div>
+    <div class="funnel">
+      <div class="funnel-stage">Leads</div>
+      <div class="funnel-arrow"></div>
+      <div class="funnel-stage">Qualified</div>
+      <div class="funnel-arrow"></div>
+      <div class="funnel-stage">Proposed</div>
+      <div class="funnel-arrow"></div>
+      <div class="funnel-stage">Signed pilot</div>
+      <div class="funnel-arrow"></div>
+      <div class="funnel-stage">Recurring (30-50%)</div>
+    </div>
+  </div>
+  <h2>Sales Process and Growth Model</h2>
+  <p>Lead generation - qualification - proposal - negotiation within margin guardrails - contract - onboarding. Expected cycle 30-90 days. Growth: Months 1-3 low or zero; 4-6 ramp; 7-12 - $8K-$18K/month run rate, 2-4 sites, one city. Year 2: 4-10 sites, 1-2 new cities when justified. Year 3: 8-18 sites. No hockey stick. Retention: 12-month term with renewal; marketing minimal in Year 1.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page page-break">
+  <div class="page-content vertical-center data-spread">
+    <div class="data-spread-title">Contribution at Scale</div>
+    <p class="meta" style="margin-bottom: 1.5em;">Gross profit per site (25% margin, $2,800/site/month)</p>
+    <div class="scale-stack">
+      <div class="scale-row"><span class="scale-label">1 Site</span><span class="scale-value">$8,400</span></div>
+      <div class="scale-row"><span class="scale-label">5 Sites</span><span class="scale-value">$42,000</span></div>
+      <div class="scale-row"><span class="scale-label">10 Sites</span><span class="scale-value">$84,000</span></div>
+      <div class="scale-row"><span class="scale-label">15 Sites</span><span class="scale-value">$126,000</span></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">08</div>
+    <h1 class="divider-title">Risk & Compliance</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Explicit triggers and corrective actions.</p>
+  <h2>Failure Scenarios and Corrective Actions</h2>
+  <table class="table-minimal">
+    <tr><td>Slow ramp</td><td>Fewer than 2 sites by Month 6 - Intensify outreach in Windsor; no new geography; extend runway (zero founder salary, minimal overhead).</td></tr>
+    <tr><td>Site loss</td><td>One or two sites exit - Replace via pipeline; if replacement lags, draw LOC; do not add fixed cost until revenue recovers.</td></tr>
+    <tr><td>Margin compression</td><td>Gross margin below 20% - Identify cause; reprice at renewal or re-scope; exit site if margin cannot be restored in one renewal cycle.</td></tr>
+    <tr><td>Cash shortfall</td><td>Cash out exceeds cash in 2+ months - Draw LOC; if insufficient, defer non-critical overhead; do not defer WSIB, insurance, or payroll.</td></tr>
+    <tr><td>LOC declined</td><td>Operate on cash only; slow ramp (1-2 sites max until cash flow positive).</td></tr>
+  </table>
+  <div class="fig">
+    <div class="fig-title">Risk matrix (likelihood vs impact)</div>
+    <div class="risk-matrix">
+      <div class="cell axis"></div>
+      <div class="cell axis">Low impact</div>
+      <div class="cell axis">High impact</div>
+      <div class="cell axis">Low likelihood</div>
+      <div class="cell">Regulatory gap</div>
+      <div class="cell">AR delay; Subcontractor failure</div>
+      <div class="cell axis">High likelihood</div>
+      <div class="cell risk">Margin compression; Reclean cost</div>
+      <div class="cell risk">Cash shortfall; Site loss</div>
+    </div>
+  </div>
+  <h2>Insurance and WSIB</h2>
+  <p>WSIB: registered and active before first worker or subcontractor performs work. CGL and other insurance: in place before first contract; typical requirement $2M+ general liability. HST: registered before first taxable supply.</p>
+  <hr>
+  <h2>Maintenance Risk Controls (Tier 4)</h2>
+  <p><strong>Exclusions (no exceptions):</strong> No licensed trades; no permit-required work; no structural modifications; like-for-like only for replacements. Scope document per job; evidence logging; trade-required work flagged and excluded. Subcontractor insurance and scope acknowledgment required.</p>
+  <hr>
+  <h2>Risk Categories (Summary)</h2>
+  <p><strong>Revenue/client:</strong> Concentration; non-renewal; payment default; scope creep. Mitigation: contract terms, retention focus, written scope and change-order process, working capital/LOC.</p>
+  <p><strong>Operational:</strong> Subcontractor failure; labour availability; quality failure; incident. Mitigation: vetting, agreement, backup capacity; QA, checklist, evidence, reclean policy; incident process, WSIB and insurance.</p>
+  <p><strong>Margin/financial:</strong> Margin compression; reclean cost; cash flow; overhead creep. Mitigation: pricing and payout ceiling; target 25%, floor 15%; working capital, LOC, no founder salary Year 1.</p>
+  <p><strong>Regulatory:</strong> WSIB, HST, insurance, contract law. Mitigation: coverage from day one; Ontario-law contracts, scope and terms in writing.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">09</div>
+    <h1 class="divider-title">Financial Model</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Pricing engine, payout ceiling, and margin enforcement.</p>
+  <h2>Revenue Categories and Margin Targets</h2>
+  <p>Revenue tracked in five categories: (1) Recurring cleaning - 25% gate, floor 20%. (2) Turnover cleaning - &gt;= 25%. (3) Maintenance - &gt;= 30%. (4) Facilities support - &gt;= 25%. (5) Pilot revenue - 30-40% (conservative 30%).</p>
+  <h2>Margin Governance (Consolidated)</h2>
+  <p>Target gross margin 25%. Acceptable range 20-30%; documented exception and time limit if outside. Stress floor 15%. Add-on minimum 30%. Enforcement: contract acceptance gate; payout ceiling per site; site-level review; no blending to hide poor contracts.</p>
+  <hr>
+  <h2>Pricing Engine and Site-Level Economics</h2>
+  <p>Site-level revenue assumption: each site generates monthly contract value. Pricing set so that after labour (payout ceiling), supplies, and site-specific costs, gross margin is 20-30% (target 25%). Monthly contract value per site: $2,500-$4,000 Windsor target; base case uses $2,800. Example per site per month: Revenue $2,800; subcontractor payout (ceiling) $1,890; supplies $140; other direct $70; gross profit $700; gross margin 25%.</p>
+  <h2>Blended Margin and Unit Economics</h2>
+  <p>Example blend: recurring cleaning 60% @ 25%; turnover 15%; maintenance 15% @ 30-35%; facilities 5%; pilot 5% - blended ~26.5%. Per site annualized: revenue $33,600; direct cost $25,200; gross profit $8,400. At $8,400/year overhead (Year 1), one site breaks even.</p>
+  <hr>
+  <h2>Key Assumptions (No Optimism Bias)</h2>
+  <table class="table-minimal">
+    <tr><td>Gross margin target</td><td>25%</td></tr>
+    <tr><td>Acceptable range</td><td>20-30%</td></tr>
+    <tr><td>Stress floor</td><td>15%</td></tr>
+    <tr><td>Add-on minimum</td><td>30%</td></tr>
+    <tr><td>Supplies % of revenue</td><td>4-6% (e.g. 5%)</td></tr>
+    <tr><td>Founder salary Year 1</td><td>$0</td></tr>
+    <tr><td>Sites Year 1</td><td>0-4 (base 2-3)</td></tr>
+    <tr><td>AR timing</td><td>30-45 days</td></tr>
+    <tr><td>Retention (renewal rate)</td><td>80-85%</td></tr>
+    <tr><td>Pilot conversion</td><td>30-50% (conservative)</td></tr>
+  </table>
+  <h2>Overhead and Payout Logic</h2>
+  <p>Year 1 fixed overhead: $5,500-$11,000 (mid-range $8,400 for base case). No office lease or full-time admin in Year 1. CapEx allowance $1,000-$3,000 Year 1. Payout ceiling = Revenue x (1 − Target margin) − Supplies − Other direct; example $1,890 max labour per site.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">10</div>
+    <h1 class="divider-title">3-Year Forecast</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Base case ramp, three-year scenarios, break-even.</p>
+  <h2>12-Month Base Case</h2>
+  <p>Months 1-3: 0-1 site; first contract may close Month 2-3. Months 4-6: 1-2 sites. Months 7-12: 2-4 sites; base case 3 sites by Month 12. Monthly contract value per site $2,800; gross margin 25%; COGS 75% of revenue. Fixed overhead $700/month ($8,400/year).</p>
+  <table>
+    <thead><tr><th>Month</th><th class="num">Sites</th><th class="num">Revenue</th><th class="num">COGS</th><th class="num">Gross profit</th><th class="num">Overhead</th><th class="num">Net P&L</th><th class="num">Cumulative</th></tr></thead>
+    <tr><td>1</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">700</td><td class="num">(700)</td><td class="num">(700)</td></tr>
+    <tr><td>2</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">700</td><td class="num">(700)</td><td class="num">(1,400)</td></tr>
+    <tr><td>3</td><td class="num">0.5</td><td class="num">1,400</td><td class="num">1,050</td><td class="num">350</td><td class="num">700</td><td class="num">(350)</td><td class="num">(1,750)</td></tr>
+    <tr><td>4</td><td class="num">1</td><td class="num">2,800</td><td class="num">2,100</td><td class="num">700</td><td class="num">700</td><td class="num">0</td><td class="num">(1,750)</td></tr>
+    <tr><td>5</td><td class="num">1</td><td class="num">2,800</td><td class="num">2,100</td><td class="num">700</td><td class="num">700</td><td class="num">0</td><td class="num">(1,750)</td></tr>
+    <tr><td>6</td><td class="num">1.5</td><td class="num">4,200</td><td class="num">3,150</td><td class="num">1,050</td><td class="num">700</td><td class="num">350</td><td class="num">(1,400)</td></tr>
+    <tr><td>7</td><td class="num">2</td><td class="num">5,600</td><td class="num">4,200</td><td class="num">1,400</td><td class="num">700</td><td class="num">700</td><td class="num">(700)</td></tr>
+    <tr><td>8</td><td class="num">2</td><td class="num">5,600</td><td class="num">4,200</td><td class="num">1,400</td><td class="num">700</td><td class="num">700</td><td class="num">0</td></tr>
+    <tr><td>9</td><td class="num">2.5</td><td class="num">7,000</td><td class="num">5,250</td><td class="num">1,750</td><td class="num">700</td><td class="num">1,050</td><td class="num">1,050</td></tr>
+    <tr><td>10</td><td class="num">3</td><td class="num">8,400</td><td class="num">6,300</td><td class="num">2,100</td><td class="num">700</td><td class="num">1,400</td><td class="num">2,450</td></tr>
+    <tr><td>11</td><td class="num">3</td><td class="num">8,400</td><td class="num">6,300</td><td class="num">2,100</td><td class="num">700</td><td class="num">1,400</td><td class="num">3,850</td></tr>
+    <tr><td>12</td><td class="num">3</td><td class="num">8,400</td><td class="num">6,300</td><td class="num">2,100</td><td class="num">700</td><td class="num">1,400</td><td class="num">5,250</td></tr>
+    <tr class="total"><td><strong>Total</strong></td><td class="num">-</td><td class="num">54,400</td><td class="num">40,800</td><td class="num">13,600</td><td class="num">8,400</td><td class="num">5,200</td><td class="num">5,250</td></tr>
+  </table>
+  <p>Cash flow lags by AR (30-45 days). Peak LOC draw in illustrative 45-day AR scenario ~$18,000-$19,000.</p>
+  <hr>
+  <h2>Three-Year Scenarios</h2>
+  <table>
+    <thead><tr><th>Scenario</th><th>Y1 sites</th><th class="num">Y1 Revenue</th><th class="num">Y1 Net P&L</th><th>Y2 sites</th><th class="num">Y2 Revenue</th><th class="num">Y2 EBITDA</th><th>Y3 sites</th><th class="num">Y3 Revenue</th><th class="num">Y3 EBITDA</th></tr></thead>
+    <tr><td>Low</td><td>2</td><td class="num">38,000</td><td class="num">1,100</td><td>5</td><td class="num">95,000</td><td class="num">(7,000)</td><td>8</td><td class="num">155,000</td><td class="num">(5,000)</td></tr>
+    <tr><td>Base</td><td>3</td><td class="num">54,400</td><td class="num">5,200</td><td>8</td><td class="num">155,000</td><td class="num">2,750</td><td>14</td><td class="num">260,000</td><td class="num">13,000</td></tr>
+    <tr><td>High</td><td>4</td><td class="num">72,000</td><td class="num">9,000</td><td>12</td><td class="num">225,000</td><td class="num">8,250</td><td>20</td><td class="num">365,000</td><td class="num">16,250</td></tr>
+  </table>
+  <h2>Projected Balance Sheet (Base Case, Illustrative)</h2>
+  <table>
+    <thead><tr><th>Line item</th><th class="num">End Y1</th><th class="num">End Y2</th><th class="num">End Y3</th></tr></thead>
+    <tr><td>Cash</td><td class="num">3,000</td><td class="num">8,000</td><td class="num">25,000</td></tr>
+    <tr><td>Accounts receivable</td><td class="num">6,000</td><td class="num">12,000</td><td class="num">22,000</td></tr>
+    <tr><td>Other current</td><td class="num">1,000</td><td class="num">2,000</td><td class="num">3,000</td></tr>
+    <tr><td><strong>Total current assets</strong></td><td class="num">10,000</td><td class="num">22,000</td><td class="num">50,000</td></tr>
+    <tr><td>Fixed assets (net)</td><td class="num">2,000</td><td class="num">4,000</td><td class="num">6,000</td></tr>
+    <tr><td><strong>Total assets</strong></td><td class="num">12,000</td><td class="num">26,000</td><td class="num">56,000</td></tr>
+    <tr><td>LOC outstanding</td><td class="num">5,000</td><td class="num">0</td><td class="num">0</td></tr>
+    <tr><td>Accounts payable</td><td class="num">2,000</td><td class="num">4,000</td><td class="num">6,000</td></tr>
+    <tr><td><strong>Total current liabilities</strong></td><td class="num">7,000</td><td class="num">4,000</td><td class="num">6,000</td></tr>
+    <tr><td>Retained earnings (cumulative)</td><td class="num">5,000</td><td class="num">8,000</td><td class="num">45,000</td></tr>
+    <tr><td>Other equity</td><td class="num">0</td><td class="num">14,000</td><td class="num">5,000</td></tr>
+    <tr><td><strong>Total equity</strong></td><td class="num">5,000</td><td class="num">22,000</td><td class="num">50,000</td></tr>
+  </table>
+  <h2>Break-Even</h2>
+  <p>Without founder salary: fixed costs $8,400; break-even revenue = $33,600 annual (~$2,800/month) = one site at target margin. With founder salary $36,000: break-even revenue = $177,600 (~5-6 sites at $2,800/month).</p>
+  <h2>Sensitivity (Summary)</h2>
+  <p>10% revenue drop: net P&L falls to ~$3,840. 5% margin compression (20% margin): net P&L ~$2,480. 30-day AR delay: liquidity strain; ~$4,500-$5,500 extra cash need. Combined stress: net P&L ~$1,392; working capital/LOC essential.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">11</div>
+    <h1 class="divider-title">Capital Structure & LOC</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Working capital only; AR bridge and ramp.</p>
+  <h2>Purpose of Request</h2>
+  <p>The line of credit is requested to smooth cash flow against: receivables timing (30-45 days); slow revenue ramp (minimal cash in Months 1-3); seasonal or one-time timing gaps. The LOC is not for growth capital, equipment financing, or speculative expansion. Use limited to working capital.</p>
+  <h2>Working Capital Need</h2>
+  <p>AR timing: 30-45 days of revenue; at $8,400/month run rate (3 sites), 45 days ~ $12,600 outstanding. Ramp: Months 1-4 cumulative shortfall can reach $5,000-$15,000. Buffer: $2,000-$5,000. Total illustrative need: $15,000-$25,000.</p>
+  <h2>LOC Structure (Proposed)</h2>
+  <table class="table-minimal">
+    <tr><td>Facility type</td><td>Revolving line of credit</td></tr>
+    <tr><td>Limit</td><td>$15,000-$25,000 (to be confirmed with lender)</td></tr>
+    <tr><td>Use</td><td>Working capital only: payables, subcontractor payouts, overhead</td></tr>
+    <tr><td>Repayment</td><td>From operating cash flow as receivables collect; revolving</td></tr>
+    <tr><td>Security</td><td>As required by lender (e.g. GSA; no real property unless required)</td></tr>
+  </table>
+  <p>Corporate facility in company name; personal guarantee if required by lender. Not for: founder salary Year 1, speculative marketing, new geography without contract.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">12</div>
+    <h1 class="divider-title">Scalability Model</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Capacity math and scale stages; contract-first expansion.</p>
+  <h2>Capacity Framework</h2>
+  <p>Productive hours per FTE per month 110; average hours per site per month 22; sites per FTE ~ 5 (conservative). Monthly revenue per site $2,800; gross margin 25%. Buildings per city: 40-80 addressable (conservative).</p>
+  <h2>Scale Stages</h2>
+  <table>
+    <thead><tr><th>Scale</th><th>Cities</th><th>Sites</th><th>Teams (FTE)</th><th>Annual revenue (range)</th><th>Gross profit (25%)</th><th>Complexity</th></tr></thead>
+    <tr><td>1 city</td><td>1</td><td>4-8</td><td>1-2</td><td class="num">$134K-$269K</td><td class="num">$34K-$67K</td><td>Low</td></tr>
+    <tr><td>3 cities</td><td>3</td><td>14-22</td><td>3-5</td><td class="num">$470K-$739K</td><td class="num">$118K-$185K</td><td>Medium</td></tr>
+    <tr><td>7 cities</td><td>7</td><td>35-55</td><td>7-11</td><td class="num">$1.18M-$1.85M</td><td class="num">$294K-$462K</td><td>High</td></tr>
+    <tr><td>15 cities</td><td>15</td><td>75-120</td><td>15-24</td><td class="num">$2.52M-$4.03M</td><td class="num">$630K-$1.01M</td><td>Very high</td></tr>
+  </table>
+  <p>Inflection points: 1 city - founder-led or single coordinator. 3 cities - need 0.5-1 FTE ops/coordination. 7 cities - dedicated operations role. 15 cities - multi-layer; finance and reporting investor-ready; exit optionality becomes realistic if execution and margins are strong.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">13</div>
+    <h1 class="divider-title">Exit Optionality</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Valuation frameworks and conditions for optionality; no projection.</p>
+  <h2>Scope</h2>
+  <p>This section describes typical valuation frameworks and conditions that support or impair value. It does not promise an exit, a specific valuation, or a timeline. Optionality is narrative only.</p>
+  <h2>Valuation Multiples (Typical)</h2>
+  <p>EBITDA 3-6x for regional, owner-operated service businesses. Revenue 0.3-1.0x when EBITDA is thin. Rule of thumb 4-5x EBITDA for mid-market service businesses with consistent margins and documented operations.</p>
+  <h2>Conditions That Increase vs. Reduce Value</h2>
+  <p><strong>Increase:</strong> Recurring revenue and retention; documented systems and QA; margin discipline (20-30% gross); clean financials; diversified client base; management depth.</p>
+  <p><strong>Reduce:</strong> Revenue concentration; margin erosion; weak documentation; compliance gaps; founder dependency; inconsistent reporting.</p>
+  <h2>Financial Reporting Discipline</h2>
+  <p>To maximize optionality, the company will maintain: P&L by period; cash flow; site-level or contract-level view; balance sheet; audit trail. Reporting need not be audited in Year 1-2 but must be consistent and credible.</p>
+  <h2>EBITDA Scenario (Year 3, Illustrative)</h2>
+  <p>Low case (negative EBITDA): no meaningful multiple. Base case ~$13,000 EBITDA - 4x $52,000, 5x $65,000. High case ~$16,250 - 4x $65,000, 5x $81,250. At 10 / 25 / 75 sites: 10 sites - EBITDA ~$24,000 - valuation 3-5x $72K-$120K; 25 sites - ~$60,000 - 3-6x $180K-$360K; 75 sites - ~$230,000 - 4-6x $920K-$1.38M. No exit or timeline implied.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+<section class="page divider page-break">
+  <div class="page-content">
+    <div class="divider-number">14</div>
+    <h1 class="divider-title">Appendices</h1>
+    <p class="subtitle">Blvckshell - Ontario Regional Facilities Operator</p>
+  </div>
+</section>
+
+<section class="page content-page">
+  <div class="page-content">
+  <p class="section-tagline">Definitions, formulas, regulatory summary, assumption glossary.</p>
+  <h2>A. Key Financial Definitions</h2>
+  <table class="table-minimal">
+    <tr><td>Revenue</td><td>Contract value earned in the period (accrual).</td></tr>
+    <tr><td>COGS</td><td>Direct cost: labour, supplies, other direct site costs.</td></tr>
+    <tr><td>Gross profit / margin</td><td>Revenue − COGS; margin = gross profit / revenue.</td></tr>
+    <tr><td>Overhead</td><td>Fixed operating expenses not allocated to a single site.</td></tr>
+    <tr><td>EBITDA</td><td>Earnings before interest, tax, depreciation, amortization.</td></tr>
+    <tr><td>Working capital</td><td>Short-term assets minus short-term liabilities.</td></tr>
+  </table>
+  <h2>B. Margin Formulas</h2>
+  <p>Gross margin = (Revenue − COGS) / Revenue. At target 25%, COGS = 0.75 x Revenue. Payout ceiling = Revenue x (1 − Target margin) − Supplies − Other direct. Break-even revenue = Fixed costs / Gross margin % (e.g. $8,400 / 0.25 = $33,600).</p>
+  <h2>C. Capacity Formulas</h2>
+  <p>Sites per FTE = Productive hours per FTE per month / Hours per site per month. Productive hours per FTE per month ~ 110. Teams required = Total sites / Sites per FTE (rounded up).</p>
+  <h2>D. Regulatory Summary (Ontario)</h2>
+  <p>WSIB: coverage and reporting for applicable workers; subcontractors own coverage or principal. HST: cleaning services generally taxable; collect and remit. Insurance: CGL and other as required by clients ($2M-$5M). Contract law: Ontario law; written agreements; scope, price, term, termination clear. Employment/subcontractor: correct classification per CRA and employment standards; agreements in writing.</p>
+  <h2>E. Assumption Glossary</h2>
+  <p>Gross margin target 25%; range 20-30%; stress floor 15%; add-on minimum 30%. Supplies 4-6% of revenue. Founder salary Year 1 $0. Sites Year 1 0-4 (base 2-3). Monthly revenue per site illustrative $2,800; Windsor target $2,500-$4,000. AR timing 30-45 days. Break-even without founder $33,600 (~1 site); with founder $36K, $177,600 (~5-6 sites). Retention 80-85%. LTV (5-year, $2,800/site) $42,000 gross profit per site. CAC illustrative $1,500-$3,000 per site.</p>
+  <h2>F-J. Additional Appendix Reference</h2>
+  <p>Document index (sections 01-14); KPI dashboard structure; pilot conversion funnel; organization chart evolution; lender-ready risk disclosure addendum. Full detail in source business plan documents.</p>
+  </div>
+  <footer class="page-footer"><span>BLVCKSHELL - CONFIDENTIAL</span><span>Page</span></footer>
+</section>
+
+</body>
+</html>

@@ -24,7 +24,7 @@ The LOC is **not** for growth capital, equipment financing, or speculative expan
 | Ramp period | Months 1–4: cash out (overhead + early COGS) exceeds cash in; cumulative shortfall can reach $5,000–$15,000 depending on exact ramp. |
 | Buffer | One-time or timing items (e.g. insurance annual premium, year-end professional); $2,000–$5,000. |
 
-**Total working capital need (illustrative):** $15,000–$25,000. The LOC request is sized within this range (e.g. **$20,000–$25,000** maximum draw). Exact amount is for discussion with the bank based on approved terms and use.
+**Total working capital need (illustrative):** $15,000–$25,000. The company plans to request a LOC of **$15,000–$25,000** primarily to bridge accounts receivable cycles and manage upfront supplies and subcontractor payouts during early contract ramp. Exact amount and terms are for discussion with the bank.
 
 ---
 
@@ -33,7 +33,7 @@ The LOC is **not** for growth capital, equipment financing, or speculative expan
 | Term | Proposed |
 |------|----------|
 | Facility type | Revolving line of credit. |
-| Limit | $20,000–$25,000 (to be confirmed with lender). |
+| Limit | $15,000–$25,000 (to be confirmed with lender). |
 | Use | Working capital only: payables, subcontractor payouts, overhead, and other operating expenses when cash in is insufficient. |
 | Repayment | Draws repaid from operating cash flow as receivables are collected. No fixed amortization; revolving. |
 | Security | As required by lender (e.g. general security agreement; no request for real property unless lender policy requires). |
@@ -76,4 +76,4 @@ Proceeds are **not** used for: founder salary in Year 1, marketing spend beyond 
 
 ## Summary
 
-The company requests a modest revolving line of credit of **$20,000–$25,000** for working capital only. Use is limited to covering timing gaps between payables and receivables and to supporting the conservative revenue ramp. Repayment is from operating cash flow. This supports bank-ready discipline and reduces liquidity risk in the first 12 months.
+The company requests a modest revolving line of credit of **$15,000–$25,000** for working capital only. Use is limited to covering timing gaps between payables and receivables and to supporting the conservative revenue ramp. Repayment is from operating cash flow. This supports bank-ready discipline and reduces liquidity risk in the first 12 months.

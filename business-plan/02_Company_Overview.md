@@ -11,7 +11,7 @@
 | Legal name | Blvckshell (as registered in Ontario) |
 | Jurisdiction | Ontario, Canada |
 | Structure | Incorporated Ontario corporation |
-| Stage | Pre-revenue; initial launch phase |
+| Stage | Pre-revenue; initial launch phase. Target first contract start: Q2 2026. |
 
 ---
 
@@ -19,19 +19,29 @@
 
 Banks and investors lend to people as well as to plans. This section addresses founder credibility and operational readiness.
 
-**Founder background (to be completed):**
+### Founder Profile
 
-| Element | Summary |
-|---------|---------|
-| Operational experience | [Describe prior roles in service delivery, operations, or field management. Include years and scope.] |
-| Cleaning or facilities exposure | [Any direct experience in cleaning, property services, or subcontractor coordination. If none, state transferable skills from adjacent industries.] |
-| Financial literacy | [Accounting, P&L ownership, cash flow management, or formal training. Confirm ability to maintain books to bank/investor standard.] |
-| Risk management discipline | [Experience with contract discipline, scope control, or compliance (e.g. WSIB, insurance, HST).] |
-| Why this business | [Why multi-residential cleaning; why Ontario; why margin-disciplined and contract-first approach.] |
+The founder brings over 10 years of supervisory experience in logistics, shipping, and manufacturing environments. Responsibilities have included workforce supervision, production scheduling, process optimization, KPI tracking, and cost control within structured operational systems.
 
-**Why this plan is executable under this leadership:** The founder is responsible for sales, operations coordination, and financial oversight in Year 1. The plan assumes no speculative hiring; therefore founder capacity and judgment directly determine ramp and margin. Completion of the above profile demonstrates that the operator understands service economics, compliance, and the importance of clean reporting.
+Throughout this experience, the founder has:
 
-*Template: Replace bracketed text with specific, factual content. No hype; banks and investors will probe these points.*
+- Managed frontline labour teams in time-sensitive environments
+- Coordinated multi-stage operational workflows
+- Enforced quality standards and compliance procedures
+- Implemented new processes and launched internal operational projects
+- Maintained accountability for performance, output, and safety
+
+Facilities services operations rely heavily on route discipline, quality control, subcontractor coordination, and margin management—areas aligned with the founder's background. The real risk in this business is missed visits, margin erosion, subcontractor mismanagement, cash flow discipline, and scope creep; all are operational management problems that supervisory and process-control experience addresses.
+
+The Blvckshell model reflects this operational discipline. Margin governance, checklist enforcement, subcontractor payout ceilings, and documented scope control are structured to mirror manufacturing-style process control applied to facilities services.
+
+The founder has consulted with an experienced commercial cleaning operator (10+ years in the industry) during the development of this business model. Industry input has informed pricing benchmarks, labour assumptions, and scope boundaries, reducing startup execution risk. The model is positioned as industry-informed and operationally reality-tested, not as an untested entry.
+
+The company is intentionally structured as subcontractor-heavy in Year 1 to minimize fixed cost exposure and preserve working capital discipline. Founder compensation is deferred during the launch phase to protect liquidity.
+
+**Structural note:** Because the model is subcontractor-heavy, the company ensures subcontractor classification is legally sound, agreements are properly structured, and insurance and WSIB validation are in place. Employment misclassification risk is addressed through written agreements and compliance with CRA and Ontario employment standards (see Section 08 and Appendices).
+
+This is an operations-led launch with conservative financial assumptions and defined risk controls.
 
 ---
 

@@ -68,11 +68,13 @@ This is a summary only; the company is responsible for full compliance. Professi
 | Founder salary Year 1 | $0 | 01, 09, 10 |
 | Sites Year 1 | 0–4 (base 2–3) | 01, 10 |
 | Monthly revenue per site (illustrative) | $2,800 | 10, 14 |
+| Target contract value (Windsor) | $2,500–$4,000/month | 03, 09 |
+| Local labour rate context (Windsor) | $25–$60/hr | 03, 09 |
 | AR timing | 30–45 days | 09, 10, 12, 13 |
 | Productive hours per FTE per month | 110 | 06, 14 |
 | Break-even (no founder salary) | $33,600 revenue (~1 site) | 12 |
 | Break-even (with founder salary $36K) | $177,600 revenue (~5–6 sites) | 12 |
-| Retention (renewal rate) | 80–85% | 09 |
+| Retention (renewal rate) | 80–85% (industry 75–90%) | 03, 09 |
 | LTV (5-year, $2,800/site) | $42,000 gross profit per site | 09 |
 | CAC (illustrative) | $1,500–$3,000 per site | 09 |
 

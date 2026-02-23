@@ -16,7 +16,7 @@ Focus cities are Ontario Census Agglomerations and smaller Census Metropolitan A
 
 | City / CA | Approx. population (census) | Multi-residential building estimate (conservative) | Notes |
 |-----------|-----------------------------|-----------------------------------------------------|--------|
-| Windsor | 230,000–330,000 (CA) | 150–350 buildings | Launch market; mix of condo and rental. |
+| Windsor | 230,000–330,000 (CA) | ~50–60 condo complexes; ~8,000 occupied condo units (common areas) | Launch market; based on local business directories and reserve fund research (management estimate supported by data sources). |
 | London | 380,000–420,000 (CA) | 250–500 buildings | Student and family rental; some condo. |
 | Kitchener-Cambridge-Waterloo | 550,000+ (CMA) | 400–700 buildings | Larger market; entry when capacity allows. |
 | Kingston | 170,000–180,000 (CA) | 80–180 buildings | Smaller; opportunity-driven. |
@@ -34,12 +34,14 @@ Addressable means: multi-residential, common areas present, and potential to con
 
 | City tier | Approx. buildings (total) | Addressable (conservative share) | Assumption |
 |-----------|---------------------------|-----------------------------------|------------|
-| Windsor | 150–350 | 60–120 | 30–40% use or could use external common-area cleaning |
+| Windsor | ~50–60 condo complexes | 25–50 addressable | Conservative share of buildings with common areas that use or could use external cleaning/facilities services |
 | London | 250–500 | 100–200 | Same logic |
 | Mid-size (e.g. Kingston, Guelph) | 60–180 | 25–70 | Same logic |
 | Larger (e.g. KW) | 400–700 | 150–280 | Same logic |
 
-No total addressable market (TAM) dollar figure is stated. The plan does not rely on capturing a percentage of a speculative TAM; it relies on winning a small number of contracts (e.g. 2–4 in Year 1) in one city.
+**Ontario scale:** The Condominium Authority of Ontario reports 13,000+ condo corporations and nearly 948,000 residential condo units provincially, indicating broad market activity beyond Windsor. The Ontario condo registry and the Condominium Management Regulatory Authority of Ontario (CMRAO) govern condo managers and corporations; Blvckshell's target clients operate within this framework.
+
+No total addressable market (TAM) dollar figure is stated. The plan does not rely on capturing a percentage of a speculative TAM; it relies on winning a small number of contracts (e.g. 2–4 in Year 1) in one city. Market validation will be driven by direct outreach, proposal volume, and signed contracts rather than reliance on estimated TAM.
 
 ---
 
@@ -55,14 +57,14 @@ No total addressable market (TAM) dollar figure is stated. The plan does not rel
 
 Benchmarks are indicative and drawn from published ranges for commercial cleaning in Ontario. Multi-residential common-area cleaning often sits between basic office and specialized (e.g. healthcare) pricing.
 
-| Pricing type | Range (Ontario) | Notes |
-|--------------|------------------|--------|
-| Hourly (per cleaner) | $35–$55 | Higher in GTA; Windsor and mid-size cities often $35–$45. |
+| Pricing type | Range (Ontario / Windsor) | Notes |
+|--------------|----------------------------|--------|
+| Hourly (per cleaner) | $25–$60/hr | Local cleaning listings (e.g. HomeStars) indicate general cleaning ~$25–$50/hr and deep/post-construction ~$30–$60/hr in Windsor; informs back-of-house contract pricing. |
 | Per-visit (recurring) | $150–$450 per visit | Depends on size, scope, frequency. |
 | Monthly contract (small building) | $800–$2,500/month | Lobby, hallways, washrooms, 2–4 visits/month. |
-| Monthly contract (mid building) | $2,500–$6,000/month | Larger common areas, more frequency. |
+| Monthly contract (mid building) | $2,500–$6,000/month | Larger common areas, more frequency. Target for Windsor mid-size common-area cleaning: **$2,500–$4,000/month** based on local rate indicators and typical scope. |
 
-Blvckshell pricing is set to achieve 20–30% gross margin after labour (including subcontractor cost), supplies, and site-specific costs. See Section 09 (Financial Model and Assumptions).
+Blvckshell pricing is set to achieve 20–30% gross margin after labour (including subcontractor cost), supplies, and site-specific costs. Market indications show typical local cleaner rates around $25–$50/hr, which inform subcontractor payout ceilings and margin structures. See Section 09 (Financial Model and Assumptions).
 
 ---
 
@@ -71,7 +73,11 @@ Blvckshell pricing is set to achieve 20–30% gross margin after labour (includi
 - **Minimum wage:** Ontario minimum wage applies; total labour cost includes payroll burden (CPP, EI, vacation, etc.) or subcontractor markup.
 - **Subcontractor use:** Common in commercial cleaning; reduces fixed payroll but requires margin retention (payout ceiling) and quality control.
 - **Availability:** In smaller cities, labour availability can be tighter than in Toronto; wage and travel expectations may differ. Recruitment and retention are operational risks.
-- **No assumption:** The plan does not assume access to below-market labour; margins are tested at realistic subcontractor and labour costs.
+- **No assumption:** The plan does not assume access to below-market labour; margins are tested at realistic subcontractor and labour costs (Windsor market indications: ~$25–$60/hr depending on service type).
+
+**Retention and churn:** Industry retention for recurring cleaning and facilities services is generally 75–90%; the plan uses **80–85%** renewal rate as a reasonable assumption based on standard service relationships and renewal tendencies.
+
+**Launch timeline:** Target first contract start **Q2 2026** (pre-revenue until then).
 
 ---
 
@@ -88,8 +94,9 @@ Regulatory and compliance details are summarized in Section 08 (Risk Management 
 
 ---
 
-## Data Limitations
+## Data Limitations and Sources
 
-- Building counts are estimates; no warranty is given as to accuracy. They support planning only.
-- Pricing benchmarks are from public and industry sources; actual contract pricing depends on scope, location, and negotiation.
+- **Windsor:** Building counts (e.g. ~50–60 condo complexes, ~8,000 occupied condo units) are management estimates supported by local business directories and reserve fund research; no warranty as to accuracy. They support planning only.
+- **Ontario:** Condominium Authority of Ontario and related sources cited for provincial scale (condo corporations, units); CMRAO and condo registry for regulatory context.
+- **Pricing:** Benchmarks from public and industry sources (e.g. local cleaning rate listings); actual contract pricing depends on scope, location, and negotiation. Target $2,500–$4,000/month for Windsor mid-size common-area cleaning is consistent with these indicators.
 - This section does not contain inflated TAM or growth projections. It provides conservative context for a regional, contract-led growth model.

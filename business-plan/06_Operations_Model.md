@@ -15,6 +15,19 @@ Initial delivery capacity is subcontractor-heavy. Blvckshell contracts with vett
 | Payout ceiling | Maximum labour cost per site or per visit is set so that gross margin stays within 20–30% (target 25%) for cleaning; ≥ 30% for maintenance. Subcontractor rates are negotiated within that ceiling. |
 | Transition to employees | As volume and geography stabilize, a mix of employees and subcontractors may be used; the margin framework applies regardless. |
 
+### Subcontractor Structural Separation (Classification Safeguards)
+
+To support proper independent-contractor classification and reduce employment misclassification risk:
+
+| Safeguard | Application |
+|-----------|-------------|
+| Other clients | Subcontractors may accept other clients; agreements do not restrict work for others. |
+| Control | Blvckshell defines scope and outcomes (checklists, standards) but avoids uniform mandates that imply employment (e.g. fixed daily hours, mandatory tools from company). Per-site or per-scope payment is used where practical. |
+| Authority | Agreement and practice avoid language or conduct implying managerial authority over daily labour decisions (e.g. how to perform tasks within scope). Scheduling is coordination of assigned scope, not supervision of hours. |
+| Documentation | Written subcontractor agreements are structured for CRA and Ontario employment-standards compliance; legal review recommended. |
+
+This is a legal structural requirement, not a business model flaw. Section 08 and Appendices reference insurance and WSIB validation.
+
 ---
 
 ## Team Capacity Math

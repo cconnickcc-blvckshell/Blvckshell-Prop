@@ -95,6 +95,27 @@ No office lease; no full-time admin; no founder salary.
 
 ---
 
+## Year 1 Cash Flow and LOC Usage (Illustrative)
+
+| Month | Revenue (accrual) | Cash in (45-day lag) | COGS + overhead (cash out) | Net cash flow | Cumulative cash (no LOC) | LOC draw (to cover shortfall) |
+|-------|-------------------|----------------------|----------------------------|---------------|--------------------------|-------------------------------|
+| 1 | 0 | 0 | 700 | (700) | (700) | 700 |
+| 2 | 0 | 0 | 700 | (700) | (1,400) | 700 |
+| 3 | 1,400 | 0 | 1,750 | (1,750) | (3,150) | 1,750 |
+| 4 | 2,800 | 0 | 2,800 | (2,800) | (5,950) | 2,800 |
+| 5 | 2,800 | 0 | 2,800 | (2,800) | (8,750) | 2,800 |
+| 6 | 4,200 | 1,400 | 3,850 | (2,450) | (11,200) | 2,450 |
+| 7 | 5,600 | 2,800 | 4,900 | (2,100) | (13,300) | 2,100 |
+| 8 | 5,600 | 2,800 | 4,900 | (2,100) | (15,400) | 2,100 |
+| 9 | 7,000 | 4,200 | 5,950 | (1,750) | (17,150) | 1,750 |
+| 10 | 8,400 | 5,600 | 6,300 | (700) | (17,850) | 700 |
+| 11 | 8,400 | 5,600 | 6,300 | (700) | (18,550) | 700 |
+| 12 | 8,400 | 7,000 | 6,300 | 700 | (17,850) | 0 |
+
+**Notes:** Cash in assumes revenue collected 45 days after earned. COGS and overhead paid in month incurred. Cumulative cash without LOC becomes strongly negative; LOC draw illustrates when facility would be used (peak draw in this illustration ~$18,000–$19,000). As collections continue into Year 2, draws are repaid from operating cash flow. Exact figures depend on actual ramp and payment timing; this table demonstrates that the company has modeled monthly cash flow and LOC usage explicitly. **Fixed overhead** is $700/month ($8,400/year) throughout.
+
+---
+
 ## Sensitivity: 20% Margin Scenario
 
 If gross margin is 20% (e.g. price pressure or higher labour cost):

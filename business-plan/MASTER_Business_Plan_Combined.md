@@ -1,13 +1,11 @@
-# Blvckshell — Business Plan (Combined Document for Review)
+# Blvckshell - Business Plan (Combined Document for Review)
 
 **Facilities Execution and Accountability Operator**
-**Document type:** Comprehensive business plan — bank-ready, conservative
-**Version:** Combined from 16 standalone sections (multi-service upgrade)
-**Use:** Internal review, bank line-of-credit discussion, future investor review
+**Version:** Combined from 16 sections
 
 ---
 
-# Part 01 — Executive Summary
+# Part 01 - Executive Summary
 
 # Executive Summary
 
@@ -15,97 +13,31 @@
 
 ---
 
-## Business Model Summary
+## Summary for Lenders and Reviewers
 
-Blvckshell is an Ontario-incorporated **facilities execution and accountability operator** for multi-residential and light commercial properties. It is not a cleaning company alone. It operates in the friction layer between cleaning vendors and licensed trades, offering: **recurring cleaning** (common areas, garbage rooms, stairwells, washrooms); **unit turnovers**; **turnover readiness audits**; **light maintenance** (non-licensed, non-permit); and **facilities support and coordination**. Revenue is contract-based and pilot-enabled: fixed monthly or per-unit fees, with a **pilot-first vendor entry strategy** to reduce client friction and convert to recurring contracts. The company does not sell software or technology; it operates a service business supported by an internal audit and workflow system for quality control and documentation.
+**What we do:** Blvckshell is a facilities execution and accountability operator for multi-residential and light commercial properties in Ontario. We operate in the friction layer between cleaning vendors and licensed trades: recurring cleaning (common areas, garbage rooms, stairwells, washrooms), unit turnovers, turnover readiness audits, light maintenance (non-licensed, non-permit), and facilities support. Revenue is contract-based; pilot programs reduce client friction and convert to recurring contracts. We do not sell technology; we run a service business with an internal audit and workflow system for quality and documentation.
 
-Launch market is Windsor, Ontario. Expansion is opportunity-driven into other Ontario cities in the 100,000–400,000 population range. No speculative geographic rollout; new cities are entered only when contract pipeline and operational capacity justify them. **Ontario-only disciplined expansion**; no national expansion claims.
+**Where we operate:** Launch market is Windsor, Ontario. Expansion is opportunity-driven into other Ontario cities (100,000–400,000 population). No speculative geography; new cities only when contract and capacity justify. Ontario-only; no national expansion.
 
----
+**Financial profile:** Year 1 target 2–4 sites; monthly run rate by Month 12 of $8,000–$18,000; full-year revenue $35,000–$95,000. Revenue ramp is back-weighted (meaningful revenue from Month 4 onward). Margin target 25% (acceptable 20–30%; floor 15% under stress). Add-ons and maintenance minimum 30%. No founder salary in Year 1.
 
-## Revenue and Service Mix
+**Risk controls:** Strict contract terms and scope; tier-level margin gates; light maintenance explicitly non-licensed and non-permit; WSIB, HST, and insurance from day one; working capital and LOC sized for 30–45 day AR and slow ramp. Detailed failure scenarios and mitigations in Section 08.
 
-Revenue is tracked in five categories: (1) Recurring cleaning, (2) Turnover cleaning, (3) Maintenance, (4) Facilities support, (5) Pilot revenue. **Blended revenue streams** improve unit economics: higher-margin maintenance and pilot work, when converted to recurring, support **margin-governed pricing** and blended gross margin improvement (e.g. from 25% cleaning-only toward 27–28% as maintenance share grows). Pilots are pipeline tools; conversion to recurring is modeled conservatively (30–50%).
-
----
-
-## Conservative Growth Path
-
-| Phase | Horizon | Sites (buildings) | Approach |
-|-------|---------|-------------------|----------|
-| Launch | Months 1–6 | 0–2 | First contracts; prove delivery and margin; pilots where appropriate |
-| Ramp | Months 7–12 | 2–4 | Density in Windsor; no new city until stable |
-| Expansion | Year 2+ | 4–12 | Second city only when revenue and team support it |
-
-Growth is contract-first: each new site requires a signed agreement. Pilot programs reduce friction for new clients; conversion to recurring is a separate contract event. There is no assumption of rapid market capture or brand-led demand.
+**Capital ask:** A modest line of credit ($15,000–$25,000) for working capital only—AR bridge and startup supplies/payouts. Not growth financing. Amount and terms in Section 13.
 
 ---
 
-## Revenue Projection (12-Month)
-
-| Metric | Year 1 (conservative) |
-|--------|------------------------|
-| Contracted sites (end of Year 1) | 2–4 |
-| Monthly revenue run rate (end of Year 1) | $8,000–$18,000 |
-| Full-year revenue (Month 1–12) | $35,000–$95,000 |
-
-Revenue ramp is back-weighted. Months 1–3 assume minimal or zero revenue during sales and onboarding; meaningful revenue begins in Month 4 at the earliest. Pilot revenue is not inflated; it is tracked separately and conversion feeds recurring.
+- **Margin discipline:** Target 25%; no contract below 20% unless documented exception. Add-on/maintenance ≥ 30%. Payout ceilings and site-level review enforce this.
+- **Risk discipline:** Revenue concentration, margin pressure, maintenance scope, regulatory, and liquidity are identified and mitigated; explicit corrective actions if growth lags or margin compresses (Section 08).
+- **Optional exit:** At scale (e.g. 15+ cities or 75+ sites), the business may be attractive as an acquisition or recap target; not a projection. See Section 15.
 
 ---
 
-## Margin Discipline Framework
-
-| Parameter | Target | Acceptable range | Stress floor |
-|-----------|--------|------------------|--------------|
-| Gross margin (blended) | 25% | 20–30% | 15% |
-| Cleaning | 25% | 20–30% | — |
-| Add-on / maintenance / pilot | — | Minimum 30% (maintenance ≥ 30%) | — |
-
-Pricing and labour allocation are set to hit these margins. Contracts below 20% gross margin are not accepted unless justified as strategic and time-limited. Add-ons, maintenance, and pilots must clear their tier minimums. Site-level and category-level economics are reviewed before commitment.
+This plan is for internal strategy, bank LOC discussion, and future investor review. Projections are conservative and risk-aware. All sections are standalone Markdown files for PDF compilation.
 
 ---
 
-## Expansion Doctrine
-
-- **Density before geography.** Windsor (and any first city) is built out before opening a second city.
-- **Contract trigger.** A new city is entered only when there is a signed contract or strong commitment, not on speculation.
-- **Capacity-led.** Hiring and subcontractor onboarding follow confirmed or near-confirmed work, not forecasts.
-- **No national narrative.** The plan is Ontario regional only; no implied expansion beyond the province in the planning horizon.
-
----
-
-## Risk Mitigation Summary
-
-- **Revenue concentration:** Early reliance on few sites is mitigated by strict contract terms, clear scope, and documented service levels to reduce cancellation risk. Pilot conversion diversifies pipeline.
-- **Margin pressure:** Pricing engine and payout ceilings protect gross margin; reclean and incident costs are controlled via QA and policies. Tier-level margin gates (cleaning 25%, maintenance 30%) are enforced.
-- **Maintenance and facilities risk:** Light maintenance is strictly non-licensed, non-permit; exclusions and insurance are explicit (Section 08). Scope documentation and evidence logging protect the model legally.
-- **Regulatory:** WSIB, HST, and insurance are maintained from day one; compliance is non-negotiable.
-- **Liquidity:** Working capital and a modest line of credit (see Section 13) are sized for AR timing and slow ramp; no founder salary in Year 1 reduces cash burn.
-
-Detailed risk treatment is in Section 08 (Risk Management and Compliance).
-
----
-
-## Capital Request Summary
-
-A modest line of credit (LOC) is requested to smooth cash flow against 30–45 day receivables and seasonal variation. The request is sized to working capital need, not growth financing. Amount, structure, and use are set out in Section 13 (Working Capital and LOC Request). No equity raise or external growth capital is assumed in this plan.
-
----
-
-## Optional Exit Pathway
-
-At scale (e.g. 15+ cities or 75+ sites), the business may be attractive as an acquisition or recapitalization target: diversified facilities revenue, margin discipline, Ontario footprint, and clean documentation support **optional exit optionality**. This is not a commitment or projection; it is noted for completeness. See Section 15 (Exit Optionality and Long-Term Value).
-
----
-
-## Document Purpose
-
-This summary is part of a multi-section business plan intended for internal strategy, bank line-of-credit discussion, and future investor review. All sections are standalone Markdown files structured for PDF compilation. Projections are conservative and explicitly risk-aware. The plan reflects a **multi-service facilities support operator** with cleaning, turnovers, audits, light maintenance, facilities support, and pilot conversion—not a cleaning-only company.
-
-
----
-
-# Part 02 — Company Overview
+# Part 02 - Company Overview
 
 # Company Overview
 
@@ -120,7 +52,7 @@ This summary is part of a multi-section business plan intended for internal stra
 | Legal name | Blvckshell (as registered in Ontario) |
 | Jurisdiction | Ontario, Canada |
 | Structure | Incorporated Ontario corporation |
-| Stage | Pre-revenue; initial launch phase |
+| Stage | Pre-revenue; initial launch phase. Target first contract start: Q2 2026. |
 
 ---
 
@@ -128,19 +60,29 @@ This summary is part of a multi-section business plan intended for internal stra
 
 Banks and investors lend to people as well as to plans. This section addresses founder credibility and operational readiness.
 
-**Founder background (to be completed):**
+### Founder Profile
 
-| Element | Summary |
-|---------|---------|
-| Operational experience | [Describe prior roles in service delivery, operations, or field management. Include years and scope.] |
-| Cleaning or facilities exposure | [Any direct experience in cleaning, property services, or subcontractor coordination. If none, state transferable skills from adjacent industries.] |
-| Financial literacy | [Accounting, P&L ownership, cash flow management, or formal training. Confirm ability to maintain books to bank/investor standard.] |
-| Risk management discipline | [Experience with contract discipline, scope control, or compliance (e.g. WSIB, insurance, HST).] |
-| Why this business | [Why multi-residential cleaning; why Ontario; why margin-disciplined and contract-first approach.] |
+The founder brings over 10 years of supervisory experience in logistics, shipping, and manufacturing environments. Responsibilities have included workforce supervision, production scheduling, process optimization, KPI tracking, and cost control within structured operational systems.
 
-**Why this plan is executable under this leadership:** The founder is responsible for sales, operations coordination, and financial oversight in Year 1. The plan assumes no speculative hiring; therefore founder capacity and judgment directly determine ramp and margin. Completion of the above profile demonstrates that the operator understands service economics, compliance, and the importance of clean reporting.
+Throughout this experience, the founder has:
 
-*Template: Replace bracketed text with specific, factual content. No hype; banks and investors will probe these points.*
+- Managed frontline labour teams in time-sensitive environments
+- Coordinated multi-stage operational workflows
+- Enforced quality standards and compliance procedures
+- Implemented new processes and launched internal operational projects
+- Maintained accountability for performance, output, and safety
+
+Facilities services operations rely heavily on route discipline, quality control, subcontractor coordination, and margin management—areas aligned with the founder's background. The real risk in this business is missed visits, margin erosion, subcontractor mismanagement, cash flow discipline, and scope creep; all are operational management problems that supervisory and process-control experience addresses.
+
+The Blvckshell model reflects this operational discipline. Margin governance, checklist enforcement, subcontractor payout ceilings, and documented scope control are structured to mirror manufacturing-style process control applied to facilities services.
+
+The founder has consulted with an experienced commercial cleaning operator (10+ years in the industry) during the development of this business model. Industry input has informed pricing benchmarks, labour assumptions, and scope boundaries, reducing startup execution risk. The model is positioned as industry-informed and operationally reality-tested, not as an untested entry.
+
+The company is intentionally structured as subcontractor-heavy in Year 1 to minimize fixed cost exposure and preserve working capital discipline. Founder compensation is deferred during the launch phase to protect liquidity.
+
+**Structural note:** Because the model is subcontractor-heavy, the company ensures subcontractor classification is legally sound, agreements are properly structured, and insurance and WSIB validation are in place. Employment misclassification risk is addressed through written agreements and compliance with CRA and Ontario employment standards (see Section 08 and Appendices).
+
+This is an operations-led launch with conservative financial assumptions and defined risk controls.
 
 ---
 
@@ -219,10 +161,9 @@ The company maintains books and records suitable for bank and investor review: P
 
 Blvckshell is a disciplined, margin-focused Ontario service operator in multi-residential common-area cleaning. The plan is regional, conservative, and structured for bank readiness and internal strategic use.
 
-
 ---
 
-# Part 03 — Market Analysis
+# Part 03 - Market Analysis
 
 # Market Analysis — Ontario Multi-Residential
 
@@ -242,7 +183,7 @@ Focus cities are Ontario Census Agglomerations and smaller Census Metropolitan A
 
 | City / CA | Approx. population (census) | Multi-residential building estimate (conservative) | Notes |
 |-----------|-----------------------------|-----------------------------------------------------|--------|
-| Windsor | 230,000–330,000 (CA) | 150–350 buildings | Launch market; mix of condo and rental. |
+| Windsor | 230,000–330,000 (CA) | ~50–60 condo complexes; ~8,000 occupied condo units (common areas) | Launch market; based on local business directories and reserve fund research (management estimate supported by data sources). |
 | London | 380,000–420,000 (CA) | 250–500 buildings | Student and family rental; some condo. |
 | Kitchener-Cambridge-Waterloo | 550,000+ (CMA) | 400–700 buildings | Larger market; entry when capacity allows. |
 | Kingston | 170,000–180,000 (CA) | 80–180 buildings | Smaller; opportunity-driven. |
@@ -260,12 +201,14 @@ Addressable means: multi-residential, common areas present, and potential to con
 
 | City tier | Approx. buildings (total) | Addressable (conservative share) | Assumption |
 |-----------|---------------------------|-----------------------------------|------------|
-| Windsor | 150–350 | 60–120 | 30–40% use or could use external common-area cleaning |
+| Windsor | ~50–60 condo complexes | 25–50 addressable | Conservative share of buildings with common areas that use or could use external cleaning/facilities services |
 | London | 250–500 | 100–200 | Same logic |
 | Mid-size (e.g. Kingston, Guelph) | 60–180 | 25–70 | Same logic |
 | Larger (e.g. KW) | 400–700 | 150–280 | Same logic |
 
-No total addressable market (TAM) dollar figure is stated. The plan does not rely on capturing a percentage of a speculative TAM; it relies on winning a small number of contracts (e.g. 2–4 in Year 1) in one city.
+**Ontario scale:** The Condominium Authority of Ontario reports 13,000+ condo corporations and nearly 948,000 residential condo units provincially, indicating broad market activity beyond Windsor. The Ontario condo registry and the Condominium Management Regulatory Authority of Ontario (CMRAO) govern condo managers and corporations; Blvckshell's target clients operate within this framework.
+
+No total addressable market (TAM) dollar figure is stated. The plan does not rely on capturing a percentage of a speculative TAM; it relies on winning a small number of contracts (e.g. 2–4 in Year 1) in one city. Market validation will be driven by direct outreach, proposal volume, and signed contracts rather than reliance on estimated TAM.
 
 ---
 
@@ -281,14 +224,14 @@ No total addressable market (TAM) dollar figure is stated. The plan does not rel
 
 Benchmarks are indicative and drawn from published ranges for commercial cleaning in Ontario. Multi-residential common-area cleaning often sits between basic office and specialized (e.g. healthcare) pricing.
 
-| Pricing type | Range (Ontario) | Notes |
-|--------------|------------------|--------|
-| Hourly (per cleaner) | $35–$55 | Higher in GTA; Windsor and mid-size cities often $35–$45. |
+| Pricing type | Range (Ontario / Windsor) | Notes |
+|--------------|----------------------------|--------|
+| Hourly (per cleaner) | $25–$60/hr | Local cleaning listings (e.g. HomeStars) indicate general cleaning ~$25–$50/hr and deep/post-construction ~$30–$60/hr in Windsor; informs back-of-house contract pricing. |
 | Per-visit (recurring) | $150–$450 per visit | Depends on size, scope, frequency. |
 | Monthly contract (small building) | $800–$2,500/month | Lobby, hallways, washrooms, 2–4 visits/month. |
-| Monthly contract (mid building) | $2,500–$6,000/month | Larger common areas, more frequency. |
+| Monthly contract (mid building) | $2,500–$6,000/month | Larger common areas, more frequency. Target for Windsor mid-size common-area cleaning: **$2,500–$4,000/month** based on local rate indicators and typical scope. |
 
-Blvckshell pricing is set to achieve 20–30% gross margin after labour (including subcontractor cost), supplies, and site-specific costs. See Section 09 (Financial Model and Assumptions).
+Blvckshell pricing is set to achieve 20–30% gross margin after labour (including subcontractor cost), supplies, and site-specific costs. Market indications show typical local cleaner rates around $25–$50/hr, which inform subcontractor payout ceilings and margin structures. See Section 09 (Financial Model and Assumptions).
 
 ---
 
@@ -297,7 +240,11 @@ Blvckshell pricing is set to achieve 20–30% gross margin after labour (includi
 - **Minimum wage:** Ontario minimum wage applies; total labour cost includes payroll burden (CPP, EI, vacation, etc.) or subcontractor markup.
 - **Subcontractor use:** Common in commercial cleaning; reduces fixed payroll but requires margin retention (payout ceiling) and quality control.
 - **Availability:** In smaller cities, labour availability can be tighter than in Toronto; wage and travel expectations may differ. Recruitment and retention are operational risks.
-- **No assumption:** The plan does not assume access to below-market labour; margins are tested at realistic subcontractor and labour costs.
+- **No assumption:** The plan does not assume access to below-market labour; margins are tested at realistic subcontractor and labour costs (Windsor market indications: ~$25–$60/hr depending on service type).
+
+**Retention and churn:** Industry retention for recurring cleaning and facilities services is generally 75–90%; the plan uses **80–85%** renewal rate as a reasonable assumption based on standard service relationships and renewal tendencies.
+
+**Launch timeline:** Target first contract start **Q2 2026** (pre-revenue until then).
 
 ---
 
@@ -314,16 +261,16 @@ Regulatory and compliance details are summarized in Section 08 (Risk Management 
 
 ---
 
-## Data Limitations
+## Data Limitations and Sources
 
-- Building counts are estimates; no warranty is given as to accuracy. They support planning only.
-- Pricing benchmarks are from public and industry sources; actual contract pricing depends on scope, location, and negotiation.
+- **Windsor:** Building counts (e.g. ~50–60 condo complexes, ~8,000 occupied condo units) are management estimates supported by local business directories and reserve fund research; no warranty as to accuracy. They support planning only.
+- **Ontario:** Condominium Authority of Ontario and related sources cited for provincial scale (condo corporations, units); CMRAO and condo registry for regulatory context.
+- **Pricing:** Benchmarks from public and industry sources (e.g. local cleaning rate listings); actual contract pricing depends on scope, location, and negotiation. Target $2,500–$4,000/month for Windsor mid-size common-area cleaning is consistent with these indicators.
 - This section does not contain inflated TAM or growth projections. It provides conservative context for a regional, contract-led growth model.
-
 
 ---
 
-# Part 04 — Service Offering and Positioning
+# Part 04 - Service Offering and Positioning
 
 # Service Offering and Positioning
 
@@ -406,6 +353,27 @@ Differentiation is built on: **accountability**, **documentation**, **scope disc
 
 ---
 
+## Pilot Pricing (Reference Ranges)
+
+| Pilot type | Indicative range | Note |
+|------------|------------------|------|
+| Unit Turnover Pilot | $550–$850 per unit | One vacant unit; full turnover clean, inspection, up to 2 hr light touch-up. |
+| Problem Building Cleaning Pilot | $1,200–$2,000 one-time | One building; common areas, garbage, stairwells; weekly inspection report. |
+
+Final pricing is scope- and site-specific; these ranges support proposal and margin planning.
+
+---
+
+## Definitive Scope (Will Do / Won't Do)
+
+| Will do | Won't do |
+|---------|----------|
+| Common area and elevator cleaning; unit turnovers; turnover readiness audits; light maintenance (bulb replacement, door hardware adjustment, caulking, touch-ups, filter checks); facilities support and coordination. | Licensed trade work; major plumbing, electrical, or HVAC repairs; any permit-required or structural work. |
+
+This summary tightens Tier 4 and overall risk wording; full exclusions are in Section 08.
+
+---
+
 ## Out-of-Scope (Explicit Exclusions)
 
 - **Licensed trades:** Electrical, plumbing, HVAC, gas, or any work requiring provincial trade qualification or permit.
@@ -451,10 +419,9 @@ Differentiation is built on: **accountability**, **documentation**, **scope disc
 
 Blvckshell offers five integrated tiers: recurring cleaning, unit turnovers, turnover readiness audits, light maintenance, and facilities support. Positioning is facilities execution and accountability operator; Ontario regional; margin-governed; scope-locked. Contract structure and evidence discipline support margin control, retention, and conversion from pilots to recurring contracts.
 
-
 ---
 
-# Part 05 — Competitive Landscape
+# Part 05 - Competitive Landscape
 
 # Competitive Landscape
 
@@ -475,6 +442,8 @@ The Ontario multi-residential facilities services space is fragmented: cleaning-
 | Licensed trades | Electricians, plumbers, HVAC | Required for permitted work; Blvckshell does not compete; refers and coordinates |
 
 Blvckshell positions in the **friction layer between cleaning vendors and licensed trades**: recurring cleaning, turnovers, turnover audits, light maintenance (non-licensed), and facilities support. It competes for contracts that are outsourced or being considered for outsourcing, and for clients seeking vendor consolidation, documentation, and scope discipline rather than a generic "handyman" or "full-service contractor."
+
+**Windsor / Essex competitive set:** Typical competitors include local commercial cleaning and facility service providers such as **Rivera Facility Services** (facility cleaning and maintenance, Windsor-Essex) and **Windsor-Essex Janitorial Inc.** (commercial/industrial cleaning), alongside independent cleaning companies. Directory searches indicate approximately 180 cleaning and maintenance service businesses in the Windsor area (commercial, house cleaning, janitorial, carpet and specialty). Blvckshell differentiates on scope discipline, documentation, and multi-service integration rather than on price alone.
 
 ---
 
@@ -504,7 +473,7 @@ No claim is made that Blvckshell is unique in every dimension. The plan assumes 
 | Relationships | Property managers and boards often prefer known vendors. First contract in a building or portfolio is harder than renewal. |
 | Scale | Small operators can serve 2–10 sites with limited overhead; scaling requires systems, management layer, and possibly more than one city. |
 
-Blvckshell does not rely on proprietary technology as a barrier; the internal system supports operations and margin control but is not a market barrier.
+Blvckshell does not rely on proprietary technology as a barrier; the internal system supports operations and margin control but is not a market barrier. **Defensibility:** Blvckshell's defensibility lies in disciplined contract acceptance, structured margin enforcement, and documentation standards that many smaller operators lack.
 
 ---
 
@@ -526,10 +495,9 @@ Blvckshell does not position as a full-service contractor, general contractor, o
 
 This section does not assert market leadership, superior brand, or guaranteed win rates. It states the structure of the market, common competitor weaknesses, and how Blvckshell intends to operate. Win rates and retention will depend on execution, not on narrative.
 
-
 ---
 
-# Part 06 — Operations Model
+# Part 06 - Operations Model
 
 # Operations Model
 
@@ -547,6 +515,19 @@ Initial delivery capacity is subcontractor-heavy. Blvckshell contracts with vett
 | Agreement | Written agreement covering scope, rate, payment terms, insurance/WSIB obligations, and confidentiality. |
 | Payout ceiling | Maximum labour cost per site or per visit is set so that gross margin stays within 20–30% (target 25%) for cleaning; ≥ 30% for maintenance. Subcontractor rates are negotiated within that ceiling. |
 | Transition to employees | As volume and geography stabilize, a mix of employees and subcontractors may be used; the margin framework applies regardless. |
+
+### Subcontractor Structural Separation (Classification Safeguards)
+
+To support proper independent-contractor classification and reduce employment misclassification risk:
+
+| Safeguard | Application |
+|-----------|-------------|
+| Other clients | Subcontractors may accept other clients; agreements do not restrict work for others. |
+| Control | Blvckshell defines scope and outcomes (checklists, standards) but avoids uniform mandates that imply employment (e.g. fixed daily hours, mandatory tools from company). Per-site or per-scope payment is used where practical. |
+| Authority | Agreement and practice avoid language or conduct implying managerial authority over daily labour decisions (e.g. how to perform tasks within scope). Scheduling is coordination of assigned scope, not supervision of hours. |
+| Documentation | Written subcontractor agreements are structured for CRA and Ontario employment-standards compliance; legal review recommended. |
+
+This is a legal structural requirement, not a business model flaw. Section 08 and Appendices reference insurance and WSIB validation.
 
 ---
 
@@ -715,10 +696,9 @@ These metrics are reviewed monthly (or at contract/renewal events) so that under
 
 Operations are built on a subcontractor-heavy model with payout ceilings, capacity math, and route density. Multi-service delivery (cleaning, turnover, maintenance, facilities support) uses the same discipline: scope-locked, margin-governed, evidence-based. QA, reclean, incident, and billing policies are defined and enforced. Maintenance and pilot KPIs are tracked alongside core cleaning metrics. Documentation supports margin control, compliance, and client retention.
 
-
 ---
 
-# Part 07 — Sales and Growth Strategy
+# Part 07 - Sales and Growth Strategy
 
 # Sales and Growth Strategy
 
@@ -858,6 +838,8 @@ The funnel tracks leads from first contact through pilot delivery to recurring c
 5. **Contract:** Signed agreement before service starts. No "trial" at below-margin pricing unless explicitly time-limited and documented.
 6. **Onboarding:** Site schedule, checklist, access, and first visits scheduled. Handoff to operations.
 
+**Expected sales cycle:** 30–90 days from initial contact to signed contract. This assumption is used for cash flow and pipeline planning; actual cycle may vary by client.
+
 ---
 
 ## Growth Model (No Hockey Stick)
@@ -901,10 +883,9 @@ Growth is slow and stepped. No assumption of rapid multi-city rollout or large c
 
 Sales and growth are contract-led and margin-disciplined. Pilot programs provide a low-friction entry for new clients; conversion to recurring contracts is modeled conservatively (30–50%). Launch is Windsor; second city follows only when justified by contract and capacity. No hockey-stick revenue assumption; growth is stepped and conservative.
 
-
 ---
 
-# Part 08 — Risk Management and Compliance
+# Part 08 - Risk Management and Compliance
 
 # Risk Management and Compliance
 
@@ -937,10 +918,10 @@ Banks appreciate contingency thinking. The following are explicit triggers and r
 | Item | Status / assumption |
 |------|----------------------|
 | **WSIB** | To be registered and active before first worker or subcontractor performs work. No work starts without coverage in place. If subcontractors use their own WSIB, evidence of coverage is required and verified. |
-| **CGL and other insurance** | Policies in place before first contract start. Certificates available for clients on request. Renewals tracked; no gap in coverage. |
+| **CGL and other insurance** | Policies in place before first contract start; typical client and condo board requirements specify at least **$2M general liability** coverage. Limits quoted or bound accordingly (e.g. $2M or $5M). Certificates available on request; renewals tracked. |
 | **HST** | Registered before first taxable supply. All contracts state tax treatment (inclusive or extra). |
 
-*If any of the above are pending at plan date, state explicitly: "WSIB/insurance/HST will be in place by [date] or before first revenue."* This removes ambiguity for the bank.
+**Status as of plan date:** WSIB: registered or pending (to be active before first worker or subcontractor). CGL: quoted or bound at $2M minimum. HST: registered. *If any item is pending, state explicitly: "Will be in place by [date] or before first revenue."* This removes ambiguity for the bank.
 
 ---
 
@@ -969,7 +950,7 @@ Light maintenance (Tier 4) is offered only under strict scope and risk boundarie
 
 | Item | Requirement |
 |------|-------------|
-| **Blvckshell insurance** | CGL and other coverages explicitly extend to light maintenance as defined in scope. Limits and exclusions are reviewed with broker; no coverage assumed for excluded work (licensed, permit, structural). |
+| **Blvckshell insurance** | CGL and other coverages explicitly extend to light maintenance as defined in scope. Broker should confirm that "property maintenance and minor repair activities" within scope are covered and that there is no exclusion for "repair work" that would leave Tier 4 exposed. Limits and exclusions reviewed with broker; no coverage assumed for excluded work (licensed, permit, structural). |
 | **Subcontractor insurance** | Any subcontractor performing maintenance must provide proof of CGL and WSIB (or equivalent) and agree in writing to the same scope exclusions. Certificates and scope acknowledgment are retained. |
 | **Incident reporting** | Any incident (injury, damage, near-miss) during maintenance is reported and documented per the incident process; insurer notified when required. |
 
@@ -1027,7 +1008,7 @@ This section does not eliminate risk but makes boundaries clear for lenders, cli
 |------|-------------|------------|
 | Slow sales | Fewer contracts than planned; revenue ramp delayed. | Conservative forecast; no reliance on aggressive close rate; capacity not added ahead of work. |
 | Geographic overreach | Entering a second city before capacity or pipeline supports it. | Contract-first expansion; density before geography. |
-| Key person | Founder or key operator unavailable. | Documentation and systems; no single-point dependency assumed in long-term plan. |
+| Key person / founder capacity | Founder or key operator unavailable for 30–60 days. | Billing continues via bookkeeping and invoicing system; subcontractor scheduling can be delegated to a designated backup or external coordinator; documentation and workflow system support continuity so that client and site data are not dependent on a single person. Minimal redundancy is planned (e.g. system access, key contact list) to reduce single-operator dependency. |
 
 ---
 
@@ -1048,10 +1029,9 @@ This section does not eliminate risk but makes boundaries clear for lenders, cli
 
 Sensitivity and stress scenarios (Sections 10, 11, 12) reflect revenue shortfall, margin compression, and AR delay. They do not cover every risk but illustrate how the plan behaves under adverse conditions. Break-even and LOC sizing assume conservative revenue and margin; risk is partially mitigated by structure, not by optimism.
 
-
 ---
 
-# Part 09 — Financial Model and Assumptions
+# Part 09 - Financial Model and Assumptions
 
 # Financial Model and Assumptions
 
@@ -1119,7 +1099,7 @@ Revenue per site is determined by scope (areas, frequency, standards) and agreed
 
 | Input | Typical range (illustrative) | Use in model |
 |-------|------------------------------|---------------|
-| Monthly contract value per site | $1,800–$4,500 | Base case uses mid-range (e.g. $2,500–$3,200) per site depending on size/frequency. |
+| Monthly contract value per site | $2,500–$4,000 (Windsor target) | Based on local rate indicators and typical multi-residential scope; base case uses mid-range (e.g. $2,800) per site depending on size/frequency. |
 | Visit frequency | 2–4x per week equivalent | Drives labour hours and payout per site. |
 | Price per visit (alternative view) | $150–$350 | Can be converted to monthly equivalent for comparison. |
 
@@ -1303,12 +1283,14 @@ This is a conservative choice; it is not a guarantee that the business will be p
 
 | Category | Year 1 (low fixed) | Comment |
 |----------|--------------------|---------|
-| Insurance | $2,500–$4,000 | CGL and related. |
-| Professional (legal, accounting) | $1,500–$3,000 | Setup, filings, year-end. |
-| Software / tools | $500–$1,500 | Internal system, basic tools. |
+| Insurance | $2,500–$4,000 | CGL and related; quotes in this range for Ontario services of this scope. |
+| Professional (legal, accounting) | $1,500–$3,000 | Setup, filings, year-end; basic accounting expected in this range. |
+| Software / tools | $500–$1,500 | Internal system, basic tools; ~$50–$200/month market subscriptions. |
 | Marketing / sales (minimal) | $500–$1,500 | No large ad spend. |
 | Other admin | $500–$1,000 | Bank, registration, misc. |
-| **Total fixed overhead (Year 1)** | **$5,500–$11,000** | Rounded for model; use mid-range (e.g. $8,000) for base case. |
+| **Total fixed overhead (Year 1)** | **$5,500–$11,000** | Rounded for model; use mid-range (e.g. $8,000) for base case. Company has begun or will begin collecting quotes to verify. |
+
+**Labour cost context:** Market indications show typical local cleaner rates around $25–$50/hr (Windsor; general to deep cleaning). Subcontractor payout ceilings and margin structures are set consistent with these rates.
 
 No office lease or full-time admin in Year 1 base case. Overhead scales in Year 2–3 as revenue and activity grow (Section 11). **Capital expenditure (CapEx):** Even a labour-heavy service business requires replacement equipment and occasional upgrades. Model includes an annual CapEx allowance of **$1,000–$3,000** (Year 1), scaling with site count (e.g. $2,000–$5,000 in Year 2–3). This covers mops, vacuums, small equipment, and tools; not major machinery. Banks expect to see CapEx acknowledged.
 
@@ -1356,10 +1338,9 @@ A short note in lender or investor materials: *"With 3% annual price escalator a
 
 All projections in Sections 10, 11, and 12 use these assumptions or stated variants. No hidden optimism.
 
-
 ---
 
-# Part 10 — 12-Month Forecast Detailed
+# Part 10 - 12-Month Forecast Detailed
 
 # 12-Month Forecast — Detailed
 
@@ -1458,6 +1439,27 @@ No office lease; no full-time admin; no founder salary.
 
 ---
 
+## Year 1 Cash Flow and LOC Usage (Illustrative)
+
+| Month | Revenue (accrual) | Cash in (45-day lag) | COGS + overhead (cash out) | Net cash flow | Cumulative cash (no LOC) | LOC draw (to cover shortfall) |
+|-------|-------------------|----------------------|----------------------------|---------------|--------------------------|-------------------------------|
+| 1 | 0 | 0 | 700 | (700) | (700) | 700 |
+| 2 | 0 | 0 | 700 | (700) | (1,400) | 700 |
+| 3 | 1,400 | 0 | 1,750 | (1,750) | (3,150) | 1,750 |
+| 4 | 2,800 | 0 | 2,800 | (2,800) | (5,950) | 2,800 |
+| 5 | 2,800 | 0 | 2,800 | (2,800) | (8,750) | 2,800 |
+| 6 | 4,200 | 1,400 | 3,850 | (2,450) | (11,200) | 2,450 |
+| 7 | 5,600 | 2,800 | 4,900 | (2,100) | (13,300) | 2,100 |
+| 8 | 5,600 | 2,800 | 4,900 | (2,100) | (15,400) | 2,100 |
+| 9 | 7,000 | 4,200 | 5,950 | (1,750) | (17,150) | 1,750 |
+| 10 | 8,400 | 5,600 | 6,300 | (700) | (17,850) | 700 |
+| 11 | 8,400 | 5,600 | 6,300 | (700) | (18,550) | 700 |
+| 12 | 8,400 | 7,000 | 6,300 | 700 | (17,850) | 0 |
+
+**Notes:** Cash in assumes revenue collected 45 days after earned. COGS and overhead paid in month incurred. Cumulative cash without LOC becomes strongly negative; LOC draw illustrates when facility would be used (peak draw in this illustration ~$18,000–$19,000). As collections continue into Year 2, draws are repaid from operating cash flow. Exact figures depend on actual ramp and payment timing; this table demonstrates that the company has modeled monthly cash flow and LOC usage explicitly. **Fixed overhead** is $700/month ($8,400/year) throughout.
+
+---
+
 ## Sensitivity: 20% Margin Scenario
 
 If gross margin is 20% (e.g. price pressure or higher labour cost):
@@ -1487,10 +1489,9 @@ Profit and cash are lower; break-even is reached later or requires more revenue.
 
 All figures in dollars. Conservative ramp; 0–4 sites in Year 1 as required.
 
-
 ---
 
-# Part 11 — Three-Year Forecast
+# Part 11 - Three-Year Forecast
 
 # Three-Year Forecast
 
@@ -1714,10 +1715,9 @@ Formula (illustrative Y5): (0.60 × 25%) + (0.12 × 27%) + (0.22 × 32%) + (0.04
 
 Three-year forecast uses low, base, and high scenarios with conservative site counts and density-first expansion. The five-year extension adds a blended model with maintenance ramp and improved blended margin. EBITDA ranges from negative (low case Y2–Y3) to modestly positive (base and high). No hockey stick; growth is stepped and Ontario-focused.
 
-
 ---
 
-# Part 12 — Break-Even and Sensitivity Analysis
+# Part 12 - Break-Even and Sensitivity Analysis
 
 # Break-Even and Sensitivity Analysis
 
@@ -1853,10 +1853,9 @@ A severe but plausible stress: 20% site loss, 5% price discount on remaining sit
 
 **Conclusion:** The company remains marginally positive in this scenario. At higher overhead (e.g. founder salary), net could be negative; the key is that **no heavy payroll burden** and **subcontractor model flexibility** allow COGS to fall with revenue, and **low fixed overhead** limits the burn. AR at 60 days increases working capital need; LOC or cash buffer is essential. The model is recession-resilient provided margin governance and cost structure are maintained.
 
-
 ---
 
-# Part 13 — Working Capital and LOC Request
+# Part 13 - Working Capital and LOC Request
 
 # Working Capital and Line of Credit Request
 
@@ -1884,7 +1883,7 @@ The LOC is **not** for growth capital, equipment financing, or speculative expan
 | Ramp period | Months 1–4: cash out (overhead + early COGS) exceeds cash in; cumulative shortfall can reach $5,000–$15,000 depending on exact ramp. |
 | Buffer | One-time or timing items (e.g. insurance annual premium, year-end professional); $2,000–$5,000. |
 
-**Total working capital need (illustrative):** $15,000–$25,000. The LOC request is sized within this range (e.g. **$20,000–$25,000** maximum draw). Exact amount is for discussion with the bank based on approved terms and use.
+**Total working capital need (illustrative):** $15,000–$25,000. The company plans to request a LOC of **$15,000–$25,000** primarily to bridge accounts receivable cycles and manage upfront supplies and subcontractor payouts during early contract ramp. Exact amount and terms are for discussion with the bank.
 
 ---
 
@@ -1893,7 +1892,7 @@ The LOC is **not** for growth capital, equipment financing, or speculative expan
 | Term | Proposed |
 |------|----------|
 | Facility type | Revolving line of credit. |
-| Limit | $20,000–$25,000 (to be confirmed with lender). |
+| Limit | $15,000–$25,000 (to be confirmed with lender). |
 | Use | Working capital only: payables, subcontractor payouts, overhead, and other operating expenses when cash in is insufficient. |
 | Repayment | Draws repaid from operating cash flow as receivables are collected. No fixed amortization; revolving. |
 | Security | As required by lender (e.g. general security agreement; no request for real property unless lender policy requires). |
@@ -1936,12 +1935,11 @@ Proceeds are **not** used for: founder salary in Year 1, marketing spend beyond 
 
 ## Summary
 
-The company requests a modest revolving line of credit of **$20,000–$25,000** for working capital only. Use is limited to covering timing gaps between payables and receivables and to supporting the conservative revenue ramp. Repayment is from operating cash flow. This supports bank-ready discipline and reduces liquidity risk in the first 12 months.
-
+The company requests a modest revolving line of credit of **$15,000–$25,000** for working capital only. Use is limited to covering timing gaps between payables and receivables and to supporting the conservative revenue ramp. Repayment is from operating cash flow. This supports bank-ready discipline and reduces liquidity risk in the first 12 months.
 
 ---
 
-# Part 14 — Scalability Model Ontario
+# Part 14 - Scalability Model Ontario
 
 # Scalability Model — Ontario
 
@@ -2065,10 +2063,9 @@ Management layer: **Major inflection.** Regional or city leads; central ops and 
 
 All scaling assumes **contract-first** and **density within each city**; no city is opened without contracts and no city is scaled without capacity. Multi-service delivery increases revenue per site and retention but also requires maintenance-capable labour and clear risk controls (Section 08).
 
-
 ---
 
-# Part 15 — Exit Optionality and Long-Term Value
+# Part 15 - Exit Optionality and Long-Term Value
 
 # Exit Optionality and Long-Term Value
 
@@ -2203,10 +2200,9 @@ If contract mix improves (e.g. $3,500–$4,500/site) or margin stabilizes at 28%
 
 Exit is optionality only. The business plan is built for operations and capital access, not for sale storytelling.
 
-
 ---
 
-# Part 16 — Appendices
+# Part 16 - Appendices
 
 # Appendices
 
@@ -2278,11 +2274,13 @@ This is a summary only; the company is responsible for full compliance. Professi
 | Founder salary Year 1 | $0 | 01, 09, 10 |
 | Sites Year 1 | 0–4 (base 2–3) | 01, 10 |
 | Monthly revenue per site (illustrative) | $2,800 | 10, 14 |
+| Target contract value (Windsor) | $2,500–$4,000/month | 03, 09 |
+| Local labour rate context (Windsor) | $25–$60/hr | 03, 09 |
 | AR timing | 30–45 days | 09, 10, 12, 13 |
 | Productive hours per FTE per month | 110 | 06, 14 |
 | Break-even (no founder salary) | $33,600 revenue (~1 site) | 12 |
 | Break-even (with founder salary $36K) | $177,600 revenue (~5–6 sites) | 12 |
-| Retention (renewal rate) | 80–85% | 09 |
+| Retention (renewal rate) | 80–85% (industry 75–90%) | 03, 09 |
 | LTV (5-year, $2,800/site) | $42,000 gross profit per site | 09 |
 | CAC (illustrative) | $1,500–$3,000 per site | 09 |
 
@@ -2435,7 +2433,6 @@ To disclose material risks associated with Blvckshell's operations and financing
 Appendices include: A (Financial Definitions), B (Margin Formulas), C (Capacity Formulas), D (Regulatory Summary), E (Assumption Glossary), F (Document Index), G (KPI Dashboard), H (Pilot Conversion Funnel), I (Org Chart Evolution), J (Lender-Ready Risk Disclosure Addendum).
 
 All documents are standalone Markdown files and may be concatenated for PDF compilation. No internal reference assumes a specific page order beyond this index.
-
 
 ---
 

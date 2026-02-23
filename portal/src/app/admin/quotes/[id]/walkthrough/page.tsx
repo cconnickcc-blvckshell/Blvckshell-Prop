@@ -25,7 +25,10 @@ export default async function QuoteWalkthroughPage({
       </div>
       <WalkthroughScopeClient
         quoteId={id}
-        areaLines={quote.areaLines}
+        areaLines={quote.areaLines.map((l) => ({
+          ...l,
+          measurements: (l.measurements ?? {}) as Record<string, unknown>,
+        }))}
         addOnLines={quote.addOnLines}
         travelMinutesPerVisit={quote.travelMinutesPerVisit}
         winterMinutesPerVisitDelta={quote.winterMinutesPerVisitDelta}

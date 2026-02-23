@@ -18,6 +18,8 @@ The Ontario multi-residential facilities services space is fragmented: cleaning-
 
 Blvckshell positions in the **friction layer between cleaning vendors and licensed trades**: recurring cleaning, turnovers, turnover audits, light maintenance (non-licensed), and facilities support. It competes for contracts that are outsourced or being considered for outsourcing, and for clients seeking vendor consolidation, documentation, and scope discipline rather than a generic "handyman" or "full-service contractor."
 
+**Windsor / Essex competitive set:** Typical competitors include local commercial cleaning and facility service providers such as **Rivera Facility Services** (facility cleaning and maintenance, Windsor-Essex) and **Windsor-Essex Janitorial Inc.** (commercial/industrial cleaning), alongside independent cleaning companies. Directory searches indicate approximately 180 cleaning and maintenance service businesses in the Windsor area (commercial, house cleaning, janitorial, carpet and specialty). Blvckshell differentiates on scope discipline, documentation, and multi-service integration rather than on price alone.
+
 ---
 
 ## Competitive Weakness Patterns
@@ -46,7 +48,7 @@ No claim is made that Blvckshell is unique in every dimension. The plan assumes 
 | Relationships | Property managers and boards often prefer known vendors. First contract in a building or portfolio is harder than renewal. |
 | Scale | Small operators can serve 2–10 sites with limited overhead; scaling requires systems, management layer, and possibly more than one city. |
 
-Blvckshell does not rely on proprietary technology as a barrier; the internal system supports operations and margin control but is not a market barrier.
+Blvckshell does not rely on proprietary technology as a barrier; the internal system supports operations and margin control but is not a market barrier. **Defensibility:** Blvckshell's defensibility lies in disciplined contract acceptance, structured margin enforcement, and documentation standards that many smaller operators lack.
 
 ---
 

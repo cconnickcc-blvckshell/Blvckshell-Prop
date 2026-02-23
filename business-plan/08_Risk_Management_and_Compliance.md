@@ -29,10 +29,10 @@ Banks appreciate contingency thinking. The following are explicit triggers and r
 | Item | Status / assumption |
 |------|----------------------|
 | **WSIB** | To be registered and active before first worker or subcontractor performs work. No work starts without coverage in place. If subcontractors use their own WSIB, evidence of coverage is required and verified. |
-| **CGL and other insurance** | Policies in place before first contract start. Certificates available for clients on request. Renewals tracked; no gap in coverage. |
+| **CGL and other insurance** | Policies in place before first contract start; typical client and condo board requirements specify at least **$2M general liability** coverage. Limits quoted or bound accordingly (e.g. $2M or $5M). Certificates available on request; renewals tracked. |
 | **HST** | Registered before first taxable supply. All contracts state tax treatment (inclusive or extra). |
 
-*If any of the above are pending at plan date, state explicitly: "WSIB/insurance/HST will be in place by [date] or before first revenue."* This removes ambiguity for the bank.
+**Status as of plan date:** WSIB: registered or pending (to be active before first worker or subcontractor). CGL: quoted or bound at $2M minimum. HST: registered. *If any item is pending, state explicitly: "Will be in place by [date] or before first revenue."* This removes ambiguity for the bank.
 
 ---
 
@@ -61,7 +61,7 @@ Light maintenance (Tier 4) is offered only under strict scope and risk boundarie
 
 | Item | Requirement |
 |------|-------------|
-| **Blvckshell insurance** | CGL and other coverages explicitly extend to light maintenance as defined in scope. Limits and exclusions are reviewed with broker; no coverage assumed for excluded work (licensed, permit, structural). |
+| **Blvckshell insurance** | CGL and other coverages explicitly extend to light maintenance as defined in scope. Broker should confirm that "property maintenance and minor repair activities" within scope are covered and that there is no exclusion for "repair work" that would leave Tier 4 exposed. Limits and exclusions reviewed with broker; no coverage assumed for excluded work (licensed, permit, structural). |
 | **Subcontractor insurance** | Any subcontractor performing maintenance must provide proof of CGL and WSIB (or equivalent) and agree in writing to the same scope exclusions. Certificates and scope acknowledgment are retained. |
 | **Incident reporting** | Any incident (injury, damage, near-miss) during maintenance is reported and documented per the incident process; insurer notified when required. |
 
@@ -119,7 +119,7 @@ This section does not eliminate risk but makes boundaries clear for lenders, cli
 |------|-------------|------------|
 | Slow sales | Fewer contracts than planned; revenue ramp delayed. | Conservative forecast; no reliance on aggressive close rate; capacity not added ahead of work. |
 | Geographic overreach | Entering a second city before capacity or pipeline supports it. | Contract-first expansion; density before geography. |
-| Key person | Founder or key operator unavailable. | Documentation and systems; no single-point dependency assumed in long-term plan. |
+| Key person / founder capacity | Founder or key operator unavailable for 30–60 days. | Billing continues via bookkeeping and invoicing system; subcontractor scheduling can be delegated to a designated backup or external coordinator; documentation and workflow system support continuity so that client and site data are not dependent on a single person. Minimal redundancy is planned (e.g. system access, key contact list) to reduce single-operator dependency. |
 
 ---
 

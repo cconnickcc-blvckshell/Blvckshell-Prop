@@ -136,6 +136,8 @@ The funnel tracks leads from first contact through pilot delivery to recurring c
 5. **Contract:** Signed agreement before service starts. No "trial" at below-margin pricing unless explicitly time-limited and documented.
 6. **Onboarding:** Site schedule, checklist, access, and first visits scheduled. Handoff to operations.
 
+**Expected sales cycle:** 30–90 days from initial contact to signed contract. This assumption is used for cash flow and pipeline planning; actual cycle may vary by client.
+
 ---
 
 ## Growth Model (No Hockey Stick)
