@@ -133,6 +133,7 @@ export default function WalkthroughScopeClient({
   }, [initialTravel, initialWinter, initialVisits, initialSupply, initialSubRate, initialRiskFactors, initialBuildingClass]);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [editingAreaId, setEditingAreaId] = useState<string | null>(null);
 
   const baseMinutes = baseMinutesFromLines(areaLines);
   const totalMinutesPerVisit = baseMinutes + travelMinutesPerVisit + winterMinutesPerVisitDelta;
