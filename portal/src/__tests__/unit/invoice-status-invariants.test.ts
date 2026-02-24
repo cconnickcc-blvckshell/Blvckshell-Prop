@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { testDb, createTestUser, createTestClient, createTestSite } from "../setup";
 import { createDraftInvoice, updateInvoiceStatus } from "@/server/actions/invoice-actions";
+import * as rbac from "@/server/guards/rbac";
 
 /**
  * Gold Standard T2: Invoice cannot be issued with zero line items.
@@ -16,6 +17,12 @@ describe("Invoice status invariants", () => {
       role: "ADMIN",
     });
     client = await createTestClient();
+
+    vi.spyOn(rbac, "requireAdmin").mockResolvedValue({
+      id: adminUser.id,
+      name: adminUser.name,
+      role: adminUser.role,
+    } as never);
   });
 
   it("rejects marking invoice as Sent when it has zero line items", async () => {
@@ -28,7 +35,6 @@ describe("Invoice status invariants", () => {
     expect(result.invoiceId).toBeTruthy();
     const invoiceId = result.invoiceId!;
 
-    // Remove all line items (client may have no contracts, or we force zero for test)
     await testDb.invoiceLineItem.deleteMany({ where: { invoiceId } });
 
     const updateResult = await updateInvoiceStatus(invoiceId, "Sent");
@@ -46,7 +52,6 @@ describe("Invoice status invariants", () => {
     expect(result.success).toBe(true);
     const invoiceId = result.invoiceId!;
 
-    // Ensure at least one line item (createDraftInvoice may add contract base; if none, add one manually)
     const count = await testDb.invoiceLineItem.count({ where: { invoiceId } });
     if (count === 0) {
       const site = await createTestSite(client.id);

@@ -1,22 +1,40 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { testDb, createTestUser, createTestWorkforceAccount, createTestClient, createTestSite } from "../../setup";
 import { validateBulkJobAction, executeBulkJobAction } from "@/server/bulk-actions/jobs";
+import * as rbac from "@/server/guards/rbac";
 import type { SessionUser } from "@/server/guards/rbac";
 
 describe("Bulk job actions", () => {
   let adminUser: SessionUser;
-  let clientId: string;
   let siteId: string;
   let jobIdPending: string;
   let jobIdScheduled: string;
+  let workerId: string;
 
   beforeEach(async () => {
     const admin = await createTestUser({ email: "admin-bulk@test.com", role: "ADMIN" });
-    adminUser = { id: admin.id, role: admin.role, email: admin.email } as SessionUser;
+    adminUser = { id: admin.id, name: admin.name, role: admin.role };
+
+    // Mock requireAdmin for ensureJobOnDraftInvoice automation triggered after approval
+    vi.spyOn(rbac, "requireAdmin").mockResolvedValue(adminUser as never);
+
+    const workforce = await createTestWorkforceAccount({
+      type: "INTERNAL",
+      displayName: "Bulk WF",
+    });
+
+    const workerUserDb = await createTestUser({
+      email: "worker-bulk@test.com",
+      role: "INTERNAL_WORKER",
+      workforceAccountId: workforce.id,
+    });
+    const worker = await testDb.worker.create({
+      data: { userId: workerUserDb.id, workforceAccountId: workforce.id },
+    });
+    workerId = worker.id;
 
     const client = await createTestClient();
-    clientId = client.id;
-    const site = await createTestSite(clientId);
+    const site = await createTestSite(client.id);
     siteId = site.id;
 
     const job1 = await testDb.job.create({
@@ -26,6 +44,7 @@ describe("Bulk job actions", () => {
         scheduledStart: new Date(),
         scheduledEnd: new Date(Date.now() + 3600000),
         payoutAmountCents: 5000,
+        assignedWorkerId: worker.id,
       },
     });
     jobIdPending = job1.id;
@@ -37,6 +56,7 @@ describe("Bulk job actions", () => {
         scheduledStart: new Date(),
         scheduledEnd: new Date(Date.now() + 3600000),
         payoutAmountCents: 5000,
+        assignedWorkerId: worker.id,
       },
     });
     jobIdScheduled = job2.id;
@@ -80,6 +100,27 @@ describe("Bulk job actions", () => {
   describe("executeBulkJobAction", () => {
     it("produces one audit log per succeeded job with bulkOperationId", async () => {
       const bulkOpId = "test-bulk-op-id-" + Date.now();
+
+      const template = await testDb.checklistTemplate.create({
+        data: {
+          siteId,
+          version: 1,
+          isActive: true,
+          items: [{ itemId: "1", label: "Item 1", required: true }],
+        },
+      });
+
+      await testDb.checklistRun.create({
+        data: {
+          jobId: jobIdPending,
+          checklistTemplateId: template.id,
+          templateVersion: 1,
+          status: "Submitted",
+          submittedAt: new Date(),
+          completedByWorkerId: workerId,
+        },
+      });
+
       const result = await executeBulkJobAction(
         adminUser,
         [jobIdPending],

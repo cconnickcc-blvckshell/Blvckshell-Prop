@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    fileParallelism: false,
     setupFiles: ["./src/__tests__/setup-env.ts"],
     testTimeout: 30000,
     hookTimeout: 30000,
@@ -30,6 +31,7 @@ export default defineConfig({
       "next/server": path.resolve(__dirname, "./src/__tests__/stubs/next-server.ts"),
       "next/headers": path.resolve(__dirname, "./src/__tests__/stubs/next-headers.ts"),
       "next/navigation": path.resolve(__dirname, "./src/__tests__/stubs/next-navigation.ts"),
+      "next/cache": path.resolve(__dirname, "./src/__tests__/stubs/next-cache.ts"),
     },
   },
 });

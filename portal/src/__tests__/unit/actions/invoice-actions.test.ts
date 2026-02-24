@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { testDb, createTestUser, createTestClient, createTestSite, createTestJob } from "../../setup";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { testDb, createTestUser, createTestWorkforceAccount, createTestClient, createTestSite } from "../../setup";
 import {
   createDraftInvoice,
   getInvoiceWithDetails,
@@ -7,6 +7,7 @@ import {
   updateInvoiceStatus,
   listInvoices,
 } from "@/server/actions/invoice-actions";
+import * as rbac from "@/server/guards/rbac";
 
 describe("invoice-actions", () => {
   let adminUser: any;
@@ -19,12 +20,39 @@ describe("invoice-actions", () => {
       role: "ADMIN",
     });
 
+    vi.spyOn(rbac, "requireAdmin").mockResolvedValue({
+      id: adminUser.id,
+      name: "Test User",
+      role: "ADMIN",
+    } as never);
+
+    const workforce = await createTestWorkforceAccount({
+      type: "INTERNAL",
+      displayName: "Invoice WF",
+    });
+
+    const workerUser = await createTestUser({
+      email: "worker-inv@test.com",
+      role: "INTERNAL_WORKER",
+      workforceAccountId: workforce.id,
+    });
+
+    const worker = await testDb.worker.create({
+      data: { userId: workerUser.id, workforceAccountId: workforce.id },
+    });
+
     client = await createTestClient();
     const site = await createTestSite(client.id);
 
-    job = await createTestJob({
-      siteId: site.id,
-      status: "APPROVED_PAYABLE",
+    job = await testDb.job.create({
+      data: {
+        siteId: site.id,
+        status: "APPROVED_PAYABLE",
+        scheduledStart: new Date(),
+        scheduledEnd: new Date(Date.now() + 3600000),
+        payoutAmountCents: 5000,
+        assignedWorkerId: worker.id,
+      },
     });
   });
 
@@ -59,7 +87,7 @@ describe("invoice-actions", () => {
       expect(result.success).toBe(true);
 
       const lineItem = await testDb.invoiceLineItem.findFirst({
-        where: { invoiceId: invoiceResult.invoiceId },
+        where: { invoiceId: invoiceResult.invoiceId, jobId: job.id },
       });
       expect(lineItem).toBeTruthy();
       expect(lineItem?.jobId).toBe(job.id);
@@ -73,7 +101,6 @@ describe("invoice-actions", () => {
         new Date("2026-01-01"),
         new Date("2026-01-31")
       );
-      // Ensure at least one line item (contract base or add job)
       await addJobToInvoice(invoiceResult.invoiceId!, job.id);
 
       const result = await updateInvoiceStatus(invoiceResult.invoiceId!, "Sent");
@@ -85,15 +112,14 @@ describe("invoice-actions", () => {
       });
       expect(invoice?.status).toBe("Sent");
 
-      // Verify audit log
       const auditLog = await testDb.auditLog.findFirst({
         where: {
           entityType: "Invoice",
           entityId: invoiceResult.invoiceId,
+          toState: "Sent",
         },
       });
       expect(auditLog).toBeTruthy();
-      expect(auditLog?.toState).toBe("Sent");
     });
   });
 });

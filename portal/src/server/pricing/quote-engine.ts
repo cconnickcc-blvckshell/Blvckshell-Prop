@@ -244,6 +244,7 @@ export async function persistQuoteSnapshot(
       data: {
         quoteId: draft.quoteId,
         snapshotVersion: draft.snapshotVersion,
+        rateCardRef: draft.rateCardRef,
         pricingPolicyCityCode: draft.pricingPolicyCityCode,
         pricingPolicyEffectiveDate: draft.pricingPolicyEffectiveDate,
         pricingPolicyVersion: draft.pricingPolicyVersion,

@@ -1,23 +1,34 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { testDb, createTestUser, createTestClient, createTestSite, createTestWorkforceAccount } from "../setup";
 import { transitionJob } from "@/lib/state-machine";
+import * as rbac from "@/server/guards/rbac";
+import type { SessionUser } from "@/server/guards/rbac";
 
 /**
  * Gold Standard T3: Job approval requires a submitted checklist run.
  * transitionJob to APPROVED_PAYABLE must fail when no submitted run exists.
  */
 describe("Job approval requires submitted run", () => {
-  let adminUser: Awaited<ReturnType<typeof createTestUser>>;
+  let adminSession: SessionUser;
   let client: Awaited<ReturnType<typeof createTestClient>>;
   let site: Awaited<ReturnType<typeof createTestSite>>;
   let workforce: Awaited<ReturnType<typeof createTestWorkforceAccount>>;
   let worker: { id: string };
 
   beforeEach(async () => {
-    adminUser = await createTestUser({
+    const adminUser = await createTestUser({
       email: "admin-approval@test.com",
       role: "ADMIN",
     });
+    adminSession = {
+      id: adminUser.id,
+      name: adminUser.name,
+      role: adminUser.role,
+    };
+
+    // Mock requireAdmin for ensureJobOnDraftInvoice automation triggered after approval
+    vi.spyOn(rbac, "requireAdmin").mockResolvedValue(adminSession as never);
+
     client = await createTestClient();
     site = await createTestSite(client.id);
     workforce = await createTestWorkforceAccount({ type: "INTERNAL", displayName: "WF" });
@@ -47,7 +58,7 @@ describe("Job approval requires submitted run", () => {
   it("rejects approval when job has no checklist run", async () => {
     const job = await createJobWithStatus("COMPLETED_PENDING_APPROVAL");
 
-    const result = await transitionJob(adminUser, job.id, "APPROVED_PAYABLE");
+    const result = await transitionJob(adminSession, job.id, "APPROVED_PAYABLE");
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/submitted checklist run|checklist run/i);
@@ -73,7 +84,7 @@ describe("Job approval requires submitted run", () => {
       },
     });
 
-    const result = await transitionJob(adminUser, job.id, "APPROVED_PAYABLE");
+    const result = await transitionJob(adminSession, job.id, "APPROVED_PAYABLE");
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/submitted checklist run|checklist run/i);
@@ -100,7 +111,7 @@ describe("Job approval requires submitted run", () => {
       },
     });
 
-    const result = await transitionJob(adminUser, job.id, "APPROVED_PAYABLE");
+    const result = await transitionJob(adminSession, job.id, "APPROVED_PAYABLE");
 
     expect(result.success).toBe(true);
   });

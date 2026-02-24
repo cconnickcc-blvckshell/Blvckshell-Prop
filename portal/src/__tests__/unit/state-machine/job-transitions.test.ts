@@ -1,24 +1,26 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { testDb, createTestUser, createTestWorkforceAccount, createTestClient, createTestSite, createTestJob } from "../../setup";
 import { isAllowedJobTransition, transitionJob } from "@/lib/state-machine";
+import type { SessionUser } from "@/server/guards/rbac";
 
 describe("Job State Machine", () => {
-  let adminUser: any;
-  let workerUser: any;
+  let adminUser: SessionUser;
+  let workerUser: SessionUser;
   let job: any;
 
   beforeEach(async () => {
-    adminUser = await createTestUser({
+    const admin = await createTestUser({
       email: "admin@test.com",
       role: "ADMIN",
     });
+    adminUser = { id: admin.id, name: admin.name, role: admin.role };
 
     const workforce = await createTestWorkforceAccount({
       type: "INTERNAL",
       displayName: "Test Workforce",
     });
 
-    workerUser = await createTestUser({
+    const workerDb = await createTestUser({
       email: "worker@test.com",
       role: "INTERNAL_WORKER",
       workforceAccountId: workforce.id,
@@ -26,10 +28,18 @@ describe("Job State Machine", () => {
 
     const worker = await testDb.worker.create({
       data: {
-        userId: workerUser.id,
+        userId: workerDb.id,
         workforceAccountId: workforce.id,
       },
     });
+
+    workerUser = {
+      id: workerDb.id,
+      name: workerDb.name,
+      role: workerDb.role,
+      workerId: worker.id,
+      workforceAccountId: workforce.id,
+    };
 
     const client = await createTestClient();
     const site = await createTestSite(client.id);
@@ -70,13 +80,12 @@ describe("Job State Machine", () => {
 
   describe("transitionJob", () => {
     it("should transition job and create audit log", async () => {
-      const result = await transitionJob({
-        jobId: job.id,
-        toState: "COMPLETED_PENDING_APPROVAL",
-        actorUserId: workerUser.id,
-        actorWorkerId: "worker-id",
-        metadata: {},
-      });
+      const result = await transitionJob(
+        workerUser,
+        job.id,
+        "COMPLETED_PENDING_APPROVAL",
+        {},
+      );
 
       expect(result.success).toBe(true);
 
@@ -97,15 +106,15 @@ describe("Job State Machine", () => {
     });
 
     it("should reject invalid transition", async () => {
-      const result = await transitionJob({
-        jobId: job.id,
-        toState: "PAID",
-        actorUserId: adminUser.id,
-        metadata: {},
-      });
+      const result = await transitionJob(
+        adminUser,
+        job.id,
+        "PAID",
+        {},
+      );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("not allowed");
+      expect(result.error).toContain("Invalid transition");
     });
   });
 });

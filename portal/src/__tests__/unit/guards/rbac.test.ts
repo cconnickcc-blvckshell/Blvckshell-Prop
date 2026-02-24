@@ -1,9 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { testDb, createTestUser } from "../../setup";
+import { testDb, createTestUser, createTestClient, createTestSite } from "../../setup";
+
+const { mockAuth } = vi.hoisted(() => {
+  return { mockAuth: vi.fn() };
+});
+
+vi.mock("@/lib/auth", () => ({
+  auth: mockAuth,
+}));
+
 import { requireAdmin, requireWorker, canAccessJob } from "@/server/guards/rbac";
-import * as bcrypt from "bcryptjs";
 
 describe("RBAC Guards", () => {
+  beforeEach(() => {
+    mockAuth.mockReset();
+  });
+
   describe("requireAdmin", () => {
     it("should allow admin user", async () => {
       const adminUser = await createTestUser({
@@ -11,11 +23,12 @@ describe("RBAC Guards", () => {
         role: "ADMIN",
       });
 
-      // Mock getCurrentUser
-      vi.spyOn(require("@/server/guards/rbac"), "getCurrentUser").mockResolvedValue({
-        id: adminUser.id,
-        workerId: null,
-        workforceAccountId: null,
+      mockAuth.mockResolvedValue({
+        user: {
+          id: adminUser.id,
+          name: "Test User",
+          role: "ADMIN",
+        },
       });
 
       const user = await requireAdmin();
@@ -28,10 +41,13 @@ describe("RBAC Guards", () => {
         role: "INTERNAL_WORKER",
       });
 
-      vi.spyOn(require("@/server/guards/rbac"), "getCurrentUser").mockResolvedValue({
-        id: workerUser.id,
-        workerId: null,
-        workforceAccountId: null,
+      mockAuth.mockResolvedValue({
+        user: {
+          id: workerUser.id,
+          name: "Test User",
+          role: "INTERNAL_WORKER",
+          workerId: "worker-id",
+        },
       });
 
       await expect(requireAdmin()).rejects.toThrow();
@@ -45,10 +61,13 @@ describe("RBAC Guards", () => {
         role: "INTERNAL_WORKER",
       });
 
-      vi.spyOn(require("@/server/guards/rbac"), "getCurrentUser").mockResolvedValue({
-        id: workerUser.id,
-        workerId: "worker-id",
-        workforceAccountId: null,
+      mockAuth.mockResolvedValue({
+        user: {
+          id: workerUser.id,
+          name: "Test User",
+          role: "INTERNAL_WORKER",
+          workerId: "worker-id",
+        },
       });
 
       const user = await requireWorker();
@@ -61,10 +80,14 @@ describe("RBAC Guards", () => {
         role: "VENDOR_WORKER",
       });
 
-      vi.spyOn(require("@/server/guards/rbac"), "getCurrentUser").mockResolvedValue({
-        id: workerUser.id,
-        workerId: "worker-id",
-        workforceAccountId: "account-id",
+      mockAuth.mockResolvedValue({
+        user: {
+          id: workerUser.id,
+          name: "Test User",
+          role: "VENDOR_WORKER",
+          workerId: "worker-id",
+          workforceAccountId: "account-id",
+        },
       });
 
       const user = await requireWorker();
@@ -77,10 +100,12 @@ describe("RBAC Guards", () => {
         role: "ADMIN",
       });
 
-      vi.spyOn(require("@/server/guards/rbac"), "getCurrentUser").mockResolvedValue({
-        id: adminUser.id,
-        workerId: null,
-        workforceAccountId: null,
+      mockAuth.mockResolvedValue({
+        user: {
+          id: adminUser.id,
+          name: "Test User",
+          role: "ADMIN",
+        },
       });
 
       await expect(requireWorker()).rejects.toThrow();
@@ -94,21 +119,34 @@ describe("RBAC Guards", () => {
         role: "ADMIN",
       });
 
+      const client = await createTestClient();
+      const site = await createTestSite(client.id);
+
+      const workforce = await testDb.workforceAccount.create({
+        data: {
+          type: "INTERNAL",
+          displayName: "Test WF",
+          primaryContactName: "Test",
+          primaryContactEmail: "wf@test.com",
+          primaryContactPhone: "555-0100",
+        },
+      });
+
       const job = await testDb.job.create({
         data: {
-          siteId: "site-id",
+          siteId: site.id,
           status: "SCHEDULED",
           scheduledStart: new Date(),
           scheduledEnd: new Date(),
-          pricingModel: "Fixed",
-          priceCents: 5000,
+          payoutAmountCents: 5000,
+          assignedWorkforceAccountId: workforce.id,
         },
       });
 
       const canAccess = await canAccessJob({
         id: adminUser.id,
-        workerId: null,
-        workforceAccountId: null,
+        name: "Test User",
+        role: "ADMIN",
       }, job.id);
 
       expect(canAccess).toBe(true);
@@ -138,20 +176,24 @@ describe("RBAC Guards", () => {
         },
       });
 
+      const client = await createTestClient();
+      const site = await createTestSite(client.id);
+
       const job = await testDb.job.create({
         data: {
-          siteId: "site-id",
+          siteId: site.id,
           assignedWorkerId: worker.id,
           status: "SCHEDULED",
           scheduledStart: new Date(),
           scheduledEnd: new Date(),
-          pricingModel: "Fixed",
-          priceCents: 5000,
+          payoutAmountCents: 5000,
         },
       });
 
       const canAccess = await canAccessJob({
         id: workerUser.id,
+        name: "Test User",
+        role: "INTERNAL_WORKER",
         workerId: worker.id,
         workforceAccountId: workforce.id,
       }, job.id);
@@ -160,27 +202,55 @@ describe("RBAC Guards", () => {
     });
 
     it("should reject worker accessing unassigned job", async () => {
+      const workforce = await testDb.workforceAccount.create({
+        data: {
+          type: "INTERNAL",
+          displayName: "Test",
+          primaryContactName: "Test",
+          primaryContactEmail: "test@test.com",
+          primaryContactPhone: "555-0100",
+        },
+      });
+
       const workerUser = await createTestUser({
         email: "worker@test.com",
         role: "INTERNAL_WORKER",
+        workforceAccountId: workforce.id,
       });
+
+      const otherWorkerUser = await createTestUser({
+        email: "other-worker@test.com",
+        role: "INTERNAL_WORKER",
+        workforceAccountId: workforce.id,
+      });
+
+      const worker = await testDb.worker.create({
+        data: { userId: workerUser.id, workforceAccountId: workforce.id },
+      });
+
+      const otherWorker = await testDb.worker.create({
+        data: { userId: otherWorkerUser.id, workforceAccountId: workforce.id },
+      });
+
+      const client = await createTestClient();
+      const site = await createTestSite(client.id);
 
       const job = await testDb.job.create({
         data: {
-          siteId: "site-id",
-          assignedWorkerId: "other-worker-id",
+          siteId: site.id,
+          assignedWorkerId: otherWorker.id,
           status: "SCHEDULED",
           scheduledStart: new Date(),
           scheduledEnd: new Date(),
-          pricingModel: "Fixed",
-          priceCents: 5000,
+          payoutAmountCents: 5000,
         },
       });
 
       const canAccess = await canAccessJob({
         id: workerUser.id,
-        workerId: "worker-id",
-        workforceAccountId: null,
+        name: "Test User",
+        role: "INTERNAL_WORKER",
+        workerId: worker.id,
       }, job.id);
 
       expect(canAccess).toBe(false);

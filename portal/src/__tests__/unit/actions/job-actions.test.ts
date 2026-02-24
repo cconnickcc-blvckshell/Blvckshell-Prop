@@ -1,22 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { testDb, createTestUser, createTestWorkforceAccount, createTestClient, createTestSite, createTestJob } from "../../setup";
 import { saveDraft, submitCompletion, approveCompletion, rejectCompletion } from "@/server/actions/job-actions";
+import * as rbac from "@/server/guards/rbac";
 import * as bcrypt from "bcryptjs";
 
 describe("job-actions", () => {
   let workerUser: any;
   let adminUser: any;
-  let job: any;
   let worker: any;
+  let site: any;
 
   beforeEach(async () => {
-    // Create workforce
     const workforce = await createTestWorkforceAccount({
       type: "INTERNAL",
       displayName: "Test Workforce",
     });
 
-    // Create worker user
     workerUser = await createTestUser({
       email: "worker@test.com",
       password: "test123456",
@@ -31,27 +30,32 @@ describe("job-actions", () => {
       },
     });
 
-    // Create admin user
     adminUser = await createTestUser({
       email: "admin@test.com",
       password: "test123456",
       role: "ADMIN",
     });
 
-    // Create client and site
     const client = await createTestClient();
-    const site = await createTestSite(client.id);
+    site = await createTestSite(client.id);
 
-    // Create job
-    job = await createTestJob({
-      siteId: site.id,
-      assignedWorkerId: worker.id,
-      status: "SCHEDULED",
-    });
+    vi.spyOn(rbac, "requireWorker").mockResolvedValue({
+      id: workerUser.id,
+      name: "Test User",
+      role: "INTERNAL_WORKER",
+      workerId: worker.id,
+      workforceAccountId: worker.workforceAccountId,
+    } as never);
   });
 
   describe("saveDraft", () => {
     it("should save draft completion successfully", async () => {
+      const job = await createTestJob({
+        siteId: site.id,
+        assignedWorkerId: worker.id,
+        status: "SCHEDULED",
+      });
+
       const result = await saveDraft({
         jobId: job.id,
         checklistResults: {
@@ -63,7 +67,6 @@ describe("job-actions", () => {
 
       expect(result.success).toBe(true);
 
-      // Verify draft was saved
       const completion = await testDb.jobCompletion.findFirst({
         where: { jobId: job.id },
       });
@@ -72,7 +75,12 @@ describe("job-actions", () => {
     });
 
     it("should reject unauthorized access", async () => {
-      // Create another worker
+      const job = await createTestJob({
+        siteId: site.id,
+        assignedWorkerId: worker.id,
+        status: "SCHEDULED",
+      });
+
       const otherWorker = await testDb.user.create({
         data: {
           email: "other@test.com",
@@ -82,13 +90,11 @@ describe("job-actions", () => {
         },
       });
 
-      // Mock requireWorker to return other worker
-      const originalRequireWorker = require("@/server/guards/rbac").requireWorker;
-      vi.spyOn(require("@/server/guards/rbac"), "requireWorker").mockResolvedValue({
+      vi.spyOn(rbac, "requireWorker").mockResolvedValue({
         id: otherWorker.id,
-        workerId: null,
-        workforceAccountId: null,
-      });
+        name: "Other Worker",
+        role: "INTERNAL_WORKER",
+      } as never);
 
       const result = await saveDraft({
         jobId: job.id,
@@ -112,7 +118,23 @@ describe("job-actions", () => {
 
   describe("submitCompletion", () => {
     it("should submit completion and transition job status", async () => {
-      // First save draft
+      // Use site with requiredPhotoCount = 0 so submission passes without evidence
+      const testSite = await testDb.site.create({
+        data: {
+          clientOrganizationId: (await createTestClient()).id,
+          name: "No-Photo Site",
+          address: "123 Test St",
+          requiredPhotoCount: 0,
+          suppliesProvidedBy: "COMPANY",
+        },
+      });
+
+      const job = await createTestJob({
+        siteId: testSite.id,
+        assignedWorkerId: worker.id,
+        status: "SCHEDULED",
+      });
+
       await saveDraft({
         jobId: job.id,
         checklistResults: { "item1": { result: "PASS" } },
@@ -125,13 +147,11 @@ describe("job-actions", () => {
 
       expect(result.success).toBe(true);
 
-      // Verify job status changed
       const updatedJob = await testDb.job.findUnique({
         where: { id: job.id },
       });
       expect(updatedJob?.status).toBe("COMPLETED_PENDING_APPROVAL");
 
-      // Verify audit log created
       const auditLog = await testDb.auditLog.findFirst({
         where: {
           entityType: "Job",
@@ -143,12 +163,17 @@ describe("job-actions", () => {
     });
 
     it("should require minimum photos", async () => {
+      const job = await createTestJob({
+        siteId: site.id,
+        assignedWorkerId: worker.id,
+        status: "SCHEDULED",
+      });
+
       const result = await submitCompletion({
         jobId: job.id,
         checklistResults: { "item1": { result: "PASS" } },
       });
 
-      // Should fail if not enough photos
       expect(result.success).toBe(false);
       expect(result.error).toContain("photo");
     });
@@ -156,7 +181,23 @@ describe("job-actions", () => {
 
   describe("approveCompletion", () => {
     it("should approve completion and transition to APPROVED_PAYABLE", async () => {
-      // Submit completion first
+      const testClient = await createTestClient();
+      const testSite = await testDb.site.create({
+        data: {
+          clientOrganizationId: testClient.id,
+          name: "Approve Site",
+          address: "123 Test St",
+          requiredPhotoCount: 0,
+          suppliesProvidedBy: "COMPANY",
+        },
+      });
+
+      const job = await createTestJob({
+        siteId: testSite.id,
+        assignedWorkerId: worker.id,
+        status: "SCHEDULED",
+      });
+
       await saveDraft({
         jobId: job.id,
         checklistResults: { "item1": { result: "PASS" } },
@@ -167,16 +208,33 @@ describe("job-actions", () => {
         checklistResults: { "item1": { result: "PASS" } },
       });
 
-      // Mock requireAdmin
-      vi.spyOn(require("@/server/guards/rbac"), "requireAdmin").mockResolvedValue({
-        id: adminUser.id,
-        workerId: null,
-        workforceAccountId: null,
+      // Create a submitted checklist run (required for approval)
+      const template = await testDb.checklistTemplate.create({
+        data: {
+          siteId: testSite.id,
+          version: 1,
+          isActive: true,
+          items: [{ itemId: "1", label: "Item 1", required: true }],
+        },
+      });
+      await testDb.checklistRun.create({
+        data: {
+          jobId: job.id,
+          checklistTemplateId: template.id,
+          templateVersion: 1,
+          status: "Submitted",
+          submittedAt: new Date(),
+          completedByWorkerId: worker.id,
+        },
       });
 
-      const result = await approveCompletion({
-        jobId: job.id,
-      });
+      vi.spyOn(rbac, "requireAdmin").mockResolvedValue({
+        id: adminUser.id,
+        name: "Test User",
+        role: "ADMIN",
+      } as never);
+
+      const result = await approveCompletion(job.id);
 
       expect(result.success).toBe(true);
 
@@ -189,7 +247,23 @@ describe("job-actions", () => {
 
   describe("rejectCompletion", () => {
     it("should reject completion and transition back to SCHEDULED", async () => {
-      // Submit completion first
+      const testClient = await createTestClient();
+      const testSite = await testDb.site.create({
+        data: {
+          clientOrganizationId: testClient.id,
+          name: "Reject Site",
+          address: "123 Test St",
+          requiredPhotoCount: 0,
+          suppliesProvidedBy: "COMPANY",
+        },
+      });
+
+      const job = await createTestJob({
+        siteId: testSite.id,
+        assignedWorkerId: worker.id,
+        status: "SCHEDULED",
+      });
+
       await saveDraft({
         jobId: job.id,
         checklistResults: { "item1": { result: "PASS" } },
@@ -200,17 +274,13 @@ describe("job-actions", () => {
         checklistResults: { "item1": { result: "PASS" } },
       });
 
-      // Mock requireAdmin
-      vi.spyOn(require("@/server/guards/rbac"), "requireAdmin").mockResolvedValue({
+      vi.spyOn(rbac, "requireAdmin").mockResolvedValue({
         id: adminUser.id,
-        workerId: null,
-        workforceAccountId: null,
-      });
+        name: "Test User",
+        role: "ADMIN",
+      } as never);
 
-      const result = await rejectCompletion({
-        jobId: job.id,
-        rejectionReason: "Missing required photos",
-      });
+      const result = await rejectCompletion(job.id, "Missing required photos");
 
       expect(result.success).toBe(true);
 

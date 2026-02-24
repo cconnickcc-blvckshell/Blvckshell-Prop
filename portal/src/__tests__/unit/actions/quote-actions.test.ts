@@ -12,12 +12,17 @@ import {
   deleteQuoteAddOnLine,
   updateQuoteHeaderAndRisk,
 } from "@/server/actions/quote-actions";
+import * as rbac from "@/server/guards/rbac";
 
-const mockAdmin = { id: "admin-1", workerId: null, workforceAccountId: null };
+const mockAdmin = {
+  id: "admin-1",
+  name: "Admin User",
+  role: "ADMIN" as const,
+};
 
 describe("Quote area line actions", () => {
   beforeEach(() => {
-    vi.spyOn(require("@/server/guards/rbac"), "requireAdmin").mockResolvedValue(mockAdmin as never);
+    vi.spyOn(rbac, "requireAdmin").mockResolvedValue(mockAdmin as never);
   });
 
   it("rejects createQuoteAreaLine when overrideMinutes set but overrideReason missing", async () => {
@@ -357,7 +362,6 @@ describe("Quote area line actions", () => {
       where: { id: result.lineId },
     });
     expect(line).not.toBeNull();
-    // BASE_MINUTES for LOBBY/M is 25 in area-presets; with count 3 we expect 75 minutes.
     expect(line?.computedMinutes).toBe(75);
     expect((line?.measurements as { preset?: string; count?: number })?.count).toBe(3);
   });
@@ -365,7 +369,7 @@ describe("Quote area line actions", () => {
 
 describe("Quote add-on line actions", () => {
   beforeEach(() => {
-    vi.spyOn(require("@/server/guards/rbac"), "requireAdmin").mockResolvedValue(mockAdmin as never);
+    vi.spyOn(rbac, "requireAdmin").mockResolvedValue(mockAdmin as never);
   });
 
   it("rejects createQuoteAddOnLine with includedInProposal when margin below addonMinMarginBps", async () => {
@@ -422,7 +426,6 @@ describe("Quote add-on line actions", () => {
         expectedSubcontractorRateCentsPerHour: 4500,
       },
     });
-    // 60 min, billing 5000/hr -> price 5000 cents. Payout 4500 -> labor 4500 -> margin 500/5000 = 10% = 1000 bps < 3000
     const result = await createQuoteAddOnLine(quote.id, {
       name: "Low margin add-on",
       estimatedLaborMinutes: 60,

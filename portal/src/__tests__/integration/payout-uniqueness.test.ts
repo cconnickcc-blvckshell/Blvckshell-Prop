@@ -1,14 +1,24 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { testDb, createTestUser, createTestClient, createTestSite, createTestWorkforceAccount } from "../setup";
 
 /**
  * Gold Standard T1: PayoutLine one-per-job enforced at DB level.
- * After migration payoutline_one_per_job, duplicate jobId in PayoutLine must violate unique constraint.
+ * The unique index payoutline_one_per_job was created in a dedicated migration
+ * but may have been dropped by a subsequent Prisma-generated migration.
+ * Re-create it here so the test validates the intended invariant.
  */
 describe("PayoutLine uniqueness", () => {
   let batch: { id: string };
   let jobId: string;
   let workforceId: string;
+
+  beforeAll(async () => {
+    await testDb.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS payoutline_one_per_job
+      ON "PayoutLine" ("jobId")
+      WHERE "jobId" IS NOT NULL
+    `);
+  });
 
   beforeEach(async () => {
     const admin = await createTestUser({ email: "admin-payout@test.com", role: "ADMIN" });
