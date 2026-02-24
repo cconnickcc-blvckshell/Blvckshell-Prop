@@ -43,6 +43,7 @@ beforeEach(async () => {
   try {
     // Delete order: respect FK constraints (children before parents)
     await testDb.auditLog.deleteMany();
+    await testDb.notificationOutbox.deleteMany();
     await testDb.evidence.deleteMany();
     await testDb.checklistRunItem.deleteMany();
     await testDb.checklistRun.deleteMany();
@@ -50,8 +51,10 @@ beforeEach(async () => {
     await testDb.incidentReport.deleteMany();
     await testDb.sitePerformanceSnapshot.deleteMany();
     await testDb.siteSupplyAllocation.deleteMany();
+    await testDb.timeEntry.deleteMany();
     await testDb.payoutLine.deleteMany();
     await testDb.payoutBatch.deleteMany();
+    await testDb.payment.deleteMany();
     await testDb.invoiceLineItem.deleteMany();
     await testDb.billingAdjustment.deleteMany();
     await testDb.job.deleteMany();

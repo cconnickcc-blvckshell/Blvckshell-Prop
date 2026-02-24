@@ -147,13 +147,20 @@ export async function createPayoutBatch(input: {
 
 /**
  * Mark a payout batch as PAID: transition all linked jobs to PAID, update batch and lines.
+ * Fully atomic: all job transitions + batch/line updates in a single transaction.
  */
 export async function markPayoutBatchPaid(batchId: string) {
   const user = await requireAdmin();
 
   const batch = await prisma.payoutBatch.findUnique({
     where: { id: batchId },
-    include: { payoutLines: true },
+    include: {
+      payoutLines: {
+        include: {
+          workforceAccount: { select: { complianceSuspended: true, classification: true } },
+        },
+      },
+    },
   });
 
   if (!batch) {
@@ -163,42 +170,76 @@ export async function markPayoutBatchPaid(batchId: string) {
     return { success: false, error: "Batch already marked paid" };
   }
 
+  // Pre-flight: block payout if any workforce account is compliance-suspended
+  const suspendedAccounts = batch.payoutLines.filter(
+    (l) => l.workforceAccount.complianceSuspended
+  );
+  if (suspendedAccounts.length > 0) {
+    return {
+      success: false,
+      error: `Payout blocked: ${suspendedAccounts.length} line(s) have compliance-suspended workforce accounts. Resolve compliance issues first.`,
+    };
+  }
+
   const jobIds = batch.payoutLines
     .map((l) => l.jobId)
     .filter((id): id is string => id != null);
 
-  for (const jobId of jobIds) {
-    const result = await transitionJob(user, jobId, "PAID");
-    if (!result.success) {
-      return { success: false, error: `Job ${jobId}: ${result.error}` };
-    }
-  }
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Transition all jobs to PAID within the transaction
+      for (const jobId of jobIds) {
+        const job = await tx.job.findUnique({
+          where: { id: jobId },
+          select: { status: true },
+        });
+        if (!job) throw new Error(`Job ${jobId} not found`);
+        if (job.status !== "APPROVED_PAYABLE") {
+          throw new Error(`Job ${jobId}: cannot transition from ${job.status} to PAID`);
+        }
+        await tx.job.update({
+          where: { id: jobId },
+          data: { status: "PAID" },
+        });
+        await tx.auditLog.create({
+          data: {
+            actorUserId: user.id,
+            actorWorkerId: user.workerId ?? null,
+            actorWorkforceAccountId: user.workforceAccountId ?? null,
+            entityType: "Job",
+            entityId: jobId,
+            fromState: "APPROVED_PAYABLE",
+            toState: "PAID",
+            metadata: { payoutBatchId: batchId },
+          },
+        });
+      }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.payoutBatch.update({
-      where: { id: batchId },
-      data: { status: "PAID" },
-    });
-    await tx.payoutLine.updateMany({
-      where: { payoutBatchId: batchId },
-      data: { status: "PAID" },
-    });
-    // Audit log: payout batch marked paid
-    await tx.auditLog.create({
-      data: {
-        actorUserId: user.id,
-        actorWorkerId: user.workerId ?? null,
-        actorWorkforceAccountId: user.workforceAccountId ?? null,
-        entityType: "PayoutBatch",
-        entityId: batchId,
-        fromState: batch.status,
-        toState: "PAID",
-        metadata: {
-          jobCount: jobIds.length,
+      await tx.payoutBatch.update({
+        where: { id: batchId },
+        data: { status: "PAID" },
+      });
+      await tx.payoutLine.updateMany({
+        where: { payoutBatchId: batchId },
+        data: { status: "PAID" },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorUserId: user.id,
+          actorWorkerId: user.workerId ?? null,
+          actorWorkforceAccountId: user.workforceAccountId ?? null,
+          entityType: "PayoutBatch",
+          entityId: batchId,
+          fromState: batch.status,
+          toState: "PAID",
+          metadata: { jobCount: jobIds.length },
         },
-      },
+      });
     });
-  });
 
-  return { success: true };
+    return { success: true };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Failed to finalize payout batch";
+    return { success: false, error: msg };
+  }
 }

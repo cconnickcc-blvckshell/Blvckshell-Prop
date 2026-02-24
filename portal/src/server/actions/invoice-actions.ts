@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import type { BillingAdjustmentType } from "@prisma/client";
 import type { AdjustmentCategory } from "@prisma/client";
+import { queueNotification } from "./notification-actions";
 
 /** Uninvoiced approved jobs for a client (and optional site) in a period */
 export async function getUninvoicedApprovedJobs(
@@ -359,9 +360,13 @@ export async function addContractBaseToInvoice(invoiceId: string) {
   return { success: true, error: null, added };
 }
 
-/** Recompute subtotal/tax/total from line items and adjustments. D2: Ontario HST 13% */
+/** Recompute subtotal/tax/total from line items and adjustments. Uses frozen taxRateBps from invoice. */
 async function recomputeInvoiceTotals(invoiceId: string) {
-  const [lines, adjustments] = await Promise.all([
+  const [invoice, lines, adjustments] = await Promise.all([
+    prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      select: { taxRateBps: true },
+    }),
     prisma.invoiceLineItem.aggregate({
       where: { invoiceId },
       _sum: { amountCents: true },
@@ -378,9 +383,8 @@ async function recomputeInvoiceTotals(invoiceId: string) {
     else adjustmentsTotal -= a.amountCents; // Discount, Credit
   }
   const subtotalCents = linesTotal + adjustmentsTotal;
-  // D2: Ontario HST 13% (0.13) - hardcoded for v1
-  const taxRate = 0.13;
-  const taxCents = Math.round(subtotalCents * taxRate);
+  const taxRateBps = invoice?.taxRateBps ?? 1300;
+  const taxCents = Math.round(subtotalCents * (taxRateBps / 10000));
   const totalCents = subtotalCents + taxCents;
   await prisma.invoice.update({
     where: { id: invoiceId },
@@ -476,6 +480,24 @@ export async function updateInvoiceStatus(
       },
     });
   });
+
+  // Queue notification on invoice sent
+  if (newStatus === "Sent") {
+    const client = await prisma.clientOrganization.findUnique({
+      where: { id: invoice.clientId },
+      select: { primaryContactEmail: true, name: true },
+    });
+    if (client) {
+      await queueNotification({
+        channel: "EMAIL",
+        templateKey: "invoice_sent",
+        recipient: client.primaryContactEmail,
+        payload: { invoiceId, clientName: client.name },
+        relatedEntityType: "Invoice",
+        relatedEntityId: invoiceId,
+      }).catch(() => {});
+    }
+  }
 
   revalidatePath(`/admin/invoices/${invoiceId}`);
   revalidatePath("/admin/invoices");

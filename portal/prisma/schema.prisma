@@ -8,18 +8,20 @@ datasource db {
 }
 
 model ClientOrganization {
-  id                  String          @id @default(cuid())
-  name                String
-  primaryContactName  String
-  primaryContactEmail String
-  primaryContactPhone String
-  notes               String?
-  createdAt           DateTime        @default(now())
-  clientContacts      ClientContact[]
-  contracts           Contract[]
-  invoices            Invoice[]
-  portalUsers         User[]
-  sites               Site[]
+  id                    String              @id @default(cuid())
+  name                  String
+  primaryContactName    String
+  primaryContactEmail   String
+  primaryContactPhone   String
+  notes                 String?
+  requiredPaymentRail   PaymentRail         @default(STRIPE)
+  createdAt             DateTime            @default(now())
+  clientContacts        ClientContact[]
+  contracts             Contract[]
+  invoices              Invoice[]
+  payments              Payment[]
+  portalUsers           User[]
+  sites                 Site[]
 
   @@index([name])
 }
@@ -42,6 +44,8 @@ model ClientContact {
 model WorkforceAccount {
   id                  String               @id @default(cuid())
   type                WorkforceAccountType
+  classification      WorkforceClassification @default(CONTRACTOR)
+  allowedPaymentMethod PaymentMethodType    @default(EFT)
   displayName         String
   legalName           String?
   primaryContactName  String
@@ -50,6 +54,7 @@ model WorkforceAccount {
   hstNumber           String?
   wsibAccountNumber   String?
   isActive            Boolean              @default(true)
+  complianceSuspended Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   auditLogs           AuditLog[]
@@ -57,11 +62,13 @@ model WorkforceAccount {
   jobs                Job[]
   payoutLines         PayoutLine[]
   siteAssignments     SiteAssignment[]
+  timeEntries         TimeEntry[]
   users               User[]
   workOrders          WorkOrder[]
   workers             Worker[]
 
   @@index([type])
+  @@index([classification])
   @@index([isActive])
 }
 
@@ -114,6 +121,7 @@ model Worker {
   assignedJobs       Job[]              @relation("AssignedWorker")
   jobCompletions     JobCompletion[]
   siteAssignments    SiteAssignment[]
+  timeEntries        TimeEntry[]
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   workforceAccount   WorkforceAccount   @relation(fields: [workforceAccountId], references: [id])
 
@@ -614,34 +622,62 @@ model Contract {
 }
 
 model Invoice {
-  id                  String              @id @default(cuid())
-  clientId            String
-  invoiceNumber       String              @unique
-  periodStart         DateTime
-  periodEnd           DateTime
-  status              InvoiceStatus       @default(Draft)
-  issuedAt            DateTime?
-  dueAt               DateTime?
-  notes               String?
-  subtotalCents       Int                 @default(0)
-  taxCents            Int                 @default(0)
-  totalCents          Int                 @default(0)
-  invoiceTemplateId   String?
+  id                     String              @id @default(cuid())
+  clientId               String
+  invoiceNumber          String              @unique
+  periodStart            DateTime
+  periodEnd              DateTime
+  status                 InvoiceStatus       @default(Draft)
+  issuedAt               DateTime?
+  dueAt                  DateTime?
+  notes                  String?
+  subtotalCents          Int                 @default(0)
+  taxCents               Int                 @default(0)
+  totalCents             Int                 @default(0)
+  taxJurisdiction        String              @default("ON")
+  taxRateBps             Int                 @default(1300)
+  taxPolicyVersion       Int                 @default(1)
+  invoiceTemplateId      String?
   invoiceTemplateVersion Int?
-  createdById         String
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  adjustments         BillingAdjustment[]
-  client              ClientOrganization  @relation(fields: [clientId], references: [id])
-  createdBy           User                @relation(fields: [createdById], references: [id])
-  invoiceTemplate     InvoiceTemplate?    @relation(fields: [invoiceTemplateId], references: [id])
-  lineItems           InvoiceLineItem[]
-  jobs                Job[]
+  createdById            String
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  adjustments            BillingAdjustment[]
+  client                 ClientOrganization  @relation(fields: [clientId], references: [id])
+  createdBy              User                @relation(fields: [createdById], references: [id])
+  invoiceTemplate        InvoiceTemplate?    @relation(fields: [invoiceTemplateId], references: [id])
+  lineItems              InvoiceLineItem[]
+  jobs                   Job[]
+  payments               Payment[]
 
   @@index([clientId])
   @@index([status])
   @@index([periodStart, periodEnd])
   @@index([invoiceTemplateId])
+}
+
+model Payment {
+  id                 String             @id @default(cuid())
+  invoiceId          String
+  clientId           String
+  provider           PaymentRail
+  providerRef        String?
+  amountCents        Int
+  status             PaymentStatus      @default(PENDING)
+  settledAt          DateTime?
+  failedAt           DateTime?
+  failureReason      String?
+  metadata           Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  invoice            Invoice            @relation(fields: [invoiceId], references: [id])
+  client             ClientOrganization @relation(fields: [clientId], references: [id])
+
+  @@index([invoiceId])
+  @@index([clientId])
+  @@index([provider])
+  @@index([status])
+  @@index([providerRef])
 }
 
 model InvoiceLineItem {
@@ -856,6 +892,55 @@ model QuoteSnapshot {
   @@index([quoteId])
 }
 
+// --- Notification Outbox (durable, auditable messaging) ---
+model NotificationOutbox {
+  id                String                @id @default(cuid())
+  channel           NotificationChannel
+  templateKey       String
+  recipient         String
+  payload           Json
+  relatedEntityType String
+  relatedEntityId   String
+  status            NotificationStatus    @default(PENDING)
+  providerMessageId String?
+  error             String?
+  createdAt         DateTime              @default(now())
+  sentAt            DateTime?
+
+  @@index([status])
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([channel])
+  @@index([createdAt])
+}
+
+// --- Time Entry (payroll integration) ---
+model TimeEntry {
+  id                 String           @id @default(cuid())
+  workerId           String
+  workforceAccountId String
+  jobId              String?
+  date               DateTime
+  regularMinutes     Int
+  overtimeMinutes    Int              @default(0)
+  rateCentsPerHour   Int
+  status             TimeEntryStatus  @default(DRAFT)
+  approvedAt         DateTime?
+  approvedById       String?
+  payrollExportedAt  DateTime?
+  payrollBatchRef    String?
+  notes              String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  worker             Worker           @relation(fields: [workerId], references: [id])
+  workforceAccount   WorkforceAccount @relation(fields: [workforceAccountId], references: [id])
+
+  @@index([workerId])
+  @@index([workforceAccountId])
+  @@index([date])
+  @@index([status])
+  @@index([payrollBatchRef])
+}
+
 enum WorkforceAccountType {
   INTERNAL
   VENDOR
@@ -1029,4 +1114,48 @@ enum BillableStatus {
   Approved
   Invoiced
   Void
+}
+
+enum PaymentRail {
+  STRIPE
+  SPARC
+  EFT
+  CHEQUE
+}
+
+enum PaymentStatus {
+  PENDING
+  SETTLED
+  FAILED
+  REFUNDED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum WorkforceClassification {
+  EMPLOYEE
+  CONTRACTOR
+}
+
+enum PaymentMethodType {
+  PAYROLL
+  EFT
+  CHEQUE
+}
+
+enum TimeEntryStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  EXPORTED
+  PAID
 }
