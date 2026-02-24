@@ -53,6 +53,17 @@ New fields on existing models:
 - `WorkforceAccount.allowedPaymentMethod` — `PAYROLL`/`EFT`/`CHEQUE`
 - `WorkforceAccount.complianceSuspended` — blocks job assignment and payout
 
+### Worker portal
+
+- Worker pages live under `src/app/(worker)/` with components in `src/components/worker/`.
+- All worker pages use **dark theme** (`bg-zinc-950`, `border-zinc-800`, `bg-zinc-900/50` cards). Do not revert to light theme.
+- Bottom tab navigation (`WorkerNav.tsx`) replaces top-only nav. It has a fixed bottom bar with tabs: Jobs, Schedule, Earnings, Profile, and a "More" menu for `VENDOR_OWNER` role.
+- The worker layout adds `pb-20` to `<main>` to account for the bottom tab bar.
+- `searchParams` in Jobs page uses `Promise<{ date?: string }>` pattern for Next.js 14 App Router.
+- **Rate limiter**: `src/middleware.ts` limits `/api/auth` to 5 requests per 15-minute window (in-memory). Restarting the dev server clears the rate limit store.
+- **Server components cannot use `onClick`** — any event handlers in worker pages must be in a separate client component (e.g., `JobsWeekStrip`, `ProfileEditor`).
+- `worker-actions.ts` provides `checkIn`/`checkOut` server actions for job time tracking, using `checkedInAt`/`checkedOutAt` fields on the Job model.
+
 ### Server-side modules
 
 - `src/lib/preconditions.ts` — Structured pre-flight checks (job approval, invoice send, payout finalize). Returns typed `{ code, message }` failures for UI rendering.
