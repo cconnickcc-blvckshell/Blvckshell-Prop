@@ -37,3 +37,26 @@ Single Next.js 14 app (App Router) in `portal/` — a facilities services workfo
 - **ESLint**: Not bundled in `package.json` by default. Install with `npm install --save-dev eslint@^8 eslint-config-next@14` and create `portal/.eslintrc.json` with `{"extends": "next/core-web-vitals"}`. Then `npm run lint` works. Pre-existing lint errors exist in marketing pages (unescaped `'` entities).
 - **Prisma**: Uses `@prisma/adapter-pg` driver adapter at runtime. The schema has no `url`/`directUrl` — those are set in `prisma.config.ts`. Run `npx prisma generate` before starting the dev server if `node_modules` were freshly installed.
 - **PostgreSQL**: Local dev uses PostgreSQL 16 with user `portaldev` / password `portaldev` / database `portal_dev`.
+
+### New models (workforce system foundations)
+
+The following models were added via migration `20260224210215_workforce_system_foundations`:
+
+- **Payment**: Provider-agnostic payment ledger (`STRIPE`/`SPARC`/`EFT`/`CHEQUE`). Source of truth for money in. See `payment-actions.ts`.
+- **NotificationOutbox**: Durable outbox for email/SMS notifications. Write intent in server actions, process async. See `notification-actions.ts`.
+- **TimeEntry**: Payroll time tracking for employees (not contractors). See `timeentry-actions.ts`.
+
+New fields on existing models:
+- `Invoice.taxJurisdiction`, `taxRateBps`, `taxPolicyVersion` — frozen tax at invoice creation time
+- `ClientOrganization.requiredPaymentRail` — per-client payment policy (`STRIPE`/`SPARC`/`EFT`)
+- `WorkforceAccount.classification` — `EMPLOYEE` or `CONTRACTOR`
+- `WorkforceAccount.allowedPaymentMethod` — `PAYROLL`/`EFT`/`CHEQUE`
+- `WorkforceAccount.complianceSuspended` — blocks job assignment and payout
+
+### Server-side modules
+
+- `src/lib/preconditions.ts` — Structured pre-flight checks (job approval, invoice send, payout finalize). Returns typed `{ code, message }` failures for UI rendering.
+- `src/server/guards/compliance.ts` — Workforce compliance checks (COI/WSIB expiry, suspension). Blocks assignment/payout for non-compliant accounts.
+- `src/server/actions/payment-actions.ts` — Payment recording, settlement, failure. Auto-transitions invoice to Paid when settled >= total.
+- `src/server/actions/notification-actions.ts` — Notification outbox CRUD + retry.
+- `src/server/actions/timeentry-actions.ts` — Time entry CRUD + payroll export batch.
