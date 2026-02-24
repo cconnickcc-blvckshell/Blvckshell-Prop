@@ -41,18 +41,22 @@ beforeEach((ctx: { skip?: () => void }) => {
 beforeEach(async () => {
   if (globalThis.__testDbReachable === false) return;
   try {
+    // Delete order: respect FK constraints (children before parents)
     await testDb.auditLog.deleteMany();
     await testDb.evidence.deleteMany();
     await testDb.checklistRunItem.deleteMany();
     await testDb.checklistRun.deleteMany();
     await testDb.jobCompletion.deleteMany();
-    await testDb.job.deleteMany();
-    await testDb.workOrder.deleteMany();
-    await testDb.invoiceLineItem.deleteMany();
-    await testDb.billingAdjustment.deleteMany();
-    await testDb.invoice.deleteMany();
+    await testDb.incidentReport.deleteMany();
+    await testDb.sitePerformanceSnapshot.deleteMany();
+    await testDb.siteSupplyAllocation.deleteMany();
     await testDb.payoutLine.deleteMany();
     await testDb.payoutBatch.deleteMany();
+    await testDb.invoiceLineItem.deleteMany();
+    await testDb.billingAdjustment.deleteMany();
+    await testDb.job.deleteMany();
+    await testDb.workOrder.deleteMany();
+    await testDb.invoice.deleteMany();
     await testDb.accessCredential.deleteMany();
     await testDb.siteAssignment.deleteMany();
     await testDb.complianceDocument.deleteMany();
@@ -60,19 +64,16 @@ beforeEach(async () => {
     await testDb.user.deleteMany();
     await testDb.workforceAccount.deleteMany();
     await testDb.clientContact.deleteMany();
-    await testDb.site.deleteMany();
-    await testDb.clientOrganization.deleteMany();
-    await testDb.lead.deleteMany();
-    await testDb.incidentReport.deleteMany();
     await testDb.checklistTemplate.deleteMany();
     await testDb.contract.deleteMany();
     await testDb.quoteSnapshot.deleteMany();
     await testDb.quoteAreaLine.deleteMany();
     await testDb.quoteAddOnLine.deleteMany();
     await testDb.quote.deleteMany();
+    await testDb.site.deleteMany();
+    await testDb.clientOrganization.deleteMany();
+    await testDb.lead.deleteMany();
     await testDb.pricingPolicy.deleteMany();
-    await testDb.sitePerformanceSnapshot.deleteMany();
-    await testDb.siteSupplyAllocation.deleteMany();
     try {
       await testDb.siteTemplate.deleteMany();
       await testDb.jobTemplate.deleteMany();
