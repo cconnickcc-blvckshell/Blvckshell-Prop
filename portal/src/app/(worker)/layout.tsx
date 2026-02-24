@@ -22,9 +22,9 @@ export default async function WorkerLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <WorkerNav userName={user.name ?? "User"} role={user.role} />
-      <main>{children}</main>
+      <main className="pb-20">{children}</main>
     </div>
   );
 }

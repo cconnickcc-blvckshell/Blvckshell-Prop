@@ -6,7 +6,7 @@ export default async function VendorTeamPage() {
   if (!user.workforceAccountId) {
     return (
       <div className="mx-auto max-w-4xl p-6">
-        <p className="text-gray-600">No workforce account linked.</p>
+        <p className="text-zinc-400">No workforce account linked.</p>
       </div>
     );
   }
@@ -30,7 +30,7 @@ export default async function VendorTeamPage() {
   if (!account) {
     return (
       <div className="mx-auto max-w-4xl p-6">
-        <p className="text-gray-600">Account not found.</p>
+        <p className="text-zinc-400">Account not found.</p>
       </div>
     );
   }
@@ -38,23 +38,23 @@ export default async function VendorTeamPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Team</h1>
-        <p className="text-gray-600">{account.displayName}</p>
+        <h1 className="text-2xl font-bold text-white">Team</h1>
+        <p className="text-zinc-400">{account.displayName}</p>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Users</h2>
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+        <h2 className="mb-4 text-lg font-semibold text-white">Users</h2>
         <ul className="space-y-3">
           {account.users.map((u) => (
             <li
               key={u.id}
-              className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0"
+              className="flex items-center justify-between border-b border-zinc-800 pb-3 last:border-0"
             >
               <div>
-                <p className="font-medium text-gray-900">{u.name}</p>
-                <p className="text-sm text-gray-500">{u.email}</p>
+                <p className="font-medium text-white">{u.name}</p>
+                <p className="text-sm text-zinc-500">{u.email}</p>
               </div>
-              <span className="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+              <span className="rounded bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-400">
                 {u.role.replace(/_/g, " ")}
               </span>
             </li>
@@ -62,26 +62,26 @@ export default async function VendorTeamPage() {
         </ul>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Workers (job assignment)</h2>
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+        <h2 className="mb-4 text-lg font-semibold text-white">Workers (job assignment)</h2>
         <ul className="space-y-3">
           {account.workers.map((w) => (
             <li
               key={w.id}
-              className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0"
+              className="flex items-center justify-between border-b border-zinc-800 pb-3 last:border-0"
             >
               <div>
-                <p className="font-medium text-gray-900">{w.user.name}</p>
-                <p className="text-sm text-gray-500">{w.user.email}</p>
+                <p className="font-medium text-white">{w.user.name}</p>
+                <p className="text-sm text-zinc-500">{w.user.email}</p>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-zinc-500">
                 {w.hasPhotoIdOnFile ? "Photo ID on file" : "No photo ID"}
               </span>
             </li>
           ))}
         </ul>
         {account.workers.length === 0 && (
-          <p className="text-sm text-gray-500">No workers in this account yet.</p>
+          <p className="text-sm text-zinc-500">No workers in this account yet.</p>
         )}
       </div>
     </div>

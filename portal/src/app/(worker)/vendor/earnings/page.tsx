@@ -1,21 +1,16 @@
 import { requireVendorOwner } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 
-/**
- * Vendor earnings page: Shows payout totals by period (D4)
- * Vendor owners see aggregate totals, not per-worker breakdown
- */
 export default async function VendorEarningsPage() {
   const user = await requireVendorOwner();
   if (!user.workforceAccountId) {
     return (
       <div className="mx-auto max-w-4xl p-6">
-        <p className="text-gray-600">No workforce account linked.</p>
+        <p className="text-zinc-400">No workforce account linked.</p>
       </div>
     );
   }
 
-  // Get all payout lines for this workforce account
   const payoutLines = await prisma.payoutLine.findMany({
     where: {
       workforceAccountId: user.workforceAccountId,
@@ -37,7 +32,6 @@ export default async function VendorEarningsPage() {
     },
   });
 
-  // Get job statuses separately (PayoutLine doesn't have job relation)
   const jobIds = payoutLines.map(line => line.jobId).filter((id): id is string => id != null);
   const jobs = jobIds.length > 0 ? await prisma.job.findMany({
     where: { id: { in: jobIds } },
@@ -45,7 +39,6 @@ export default async function VendorEarningsPage() {
   }) : [];
   const jobStatusMap = new Map(jobs.map(j => [j.id, j.status]));
 
-  // Group by payout batch period
   const byPeriod = new Map<
     string,
     {
@@ -101,43 +94,43 @@ export default async function VendorEarningsPage() {
   const totalPending = periods.reduce((sum, p) => sum + p.pendingCents, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen p-4">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Payout Totals</h1>
-          <p className="text-gray-600">Aggregate payout totals by period</p>
+          <h1 className="text-2xl font-bold text-white">Payout Totals</h1>
+          <p className="text-zinc-400">Aggregate payout totals by period</p>
         </div>
 
         {/* Summary Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-lg bg-white p-6 shadow">
-            <p className="text-sm font-medium text-gray-600">Total Earnings</p>
-            <p className="mt-2 text-2xl font-bold text-gray-900">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+            <p className="text-sm font-medium text-zinc-400">Total Earnings</p>
+            <p className="mt-2 text-2xl font-bold text-white">
               ${(totalEarnings / 100).toFixed(2)}
             </p>
           </div>
-          <div className="rounded-lg bg-white p-6 shadow">
-            <p className="text-sm font-medium text-gray-600">Paid</p>
-            <p className="mt-2 text-2xl font-bold text-green-600">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+            <p className="text-sm font-medium text-zinc-400">Paid</p>
+            <p className="mt-2 text-2xl font-bold text-emerald-400">
               ${(totalPaid / 100).toFixed(2)}
             </p>
           </div>
-          <div className="rounded-lg bg-white p-6 shadow">
-            <p className="text-sm font-medium text-gray-600">Pending</p>
-            <p className="mt-2 text-2xl font-bold text-yellow-600">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+            <p className="text-sm font-medium text-zinc-400">Pending</p>
+            <p className="mt-2 text-2xl font-bold text-amber-400">
               ${(totalPending / 100).toFixed(2)}
             </p>
           </div>
         </div>
 
         {/* Periods List */}
-        <div className="rounded-lg bg-white shadow">
-          <div className="border-b px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">By Period</h2>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
+          <div className="border-b border-zinc-800 px-6 py-4">
+            <h2 className="text-lg font-semibold text-white">By Period</h2>
           </div>
-          <div className="divide-y">
+          <div className="divide-y divide-zinc-800/50">
             {periods.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-zinc-500">
                 No payout periods yet. Jobs will appear here once they are approved and included in payout batches.
               </div>
             ) : (
@@ -145,25 +138,25 @@ export default async function VendorEarningsPage() {
                 <div key={period.batchId} className="px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-white">
                         {period.periodStart.toLocaleDateString()} –{" "}
                         {period.periodEnd.toLocaleDateString()}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-zinc-400">
                         {period.jobCount} job{period.jobCount !== 1 ? "s" : ""} • Status:{" "}
                         {period.batchStatus}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-white">
                         ${(period.totalCents / 100).toFixed(2)}
                       </p>
                       <div className="mt-1 flex gap-2 text-xs">
-                        <span className="text-green-600">
+                        <span className="text-emerald-400">
                           Paid: ${(period.paidCents / 100).toFixed(2)}
                         </span>
                         {period.pendingCents > 0 && (
-                          <span className="text-yellow-600">
+                          <span className="text-amber-400">
                             Pending: ${(period.pendingCents / 100).toFixed(2)}
                           </span>
                         )}

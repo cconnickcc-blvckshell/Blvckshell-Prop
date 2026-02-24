@@ -7,7 +7,7 @@ export default async function VendorJobsPage() {
   if (!user.workforceAccountId) {
     return (
       <div className="mx-auto max-w-4xl p-6">
-        <p className="text-gray-600">No workforce account linked.</p>
+        <p className="text-zinc-400">No workforce account linked.</p>
       </div>
     );
   }
@@ -28,58 +28,58 @@ export default async function VendorJobsPage() {
   });
 
   const statusColor: Record<string, string> = {
-    SCHEDULED: "bg-blue-100 text-blue-800",
-    COMPLETED_PENDING_APPROVAL: "bg-yellow-100 text-yellow-800",
-    APPROVED_PAYABLE: "bg-green-100 text-green-800",
-    PAID: "bg-gray-100 text-gray-800",
-    CANCELLED: "bg-red-100 text-red-800",
+    SCHEDULED: "border-blue-500/40 bg-blue-500/20 text-blue-300",
+    COMPLETED_PENDING_APPROVAL: "border-amber-500/40 bg-amber-500/20 text-amber-300",
+    APPROVED_PAYABLE: "border-emerald-500/40 bg-emerald-500/20 text-emerald-300",
+    PAID: "border-zinc-600/40 bg-zinc-600/20 text-zinc-400",
+    CANCELLED: "border-red-500/40 bg-red-500/20 text-red-300",
   };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Vendor Jobs</h1>
-        <p className="text-gray-600">Jobs assigned to your company (read-only; no pricing or approvals here)</p>
+        <h1 className="text-2xl font-bold text-white">Vendor Jobs</h1>
+        <p className="text-zinc-400">Jobs assigned to your company (read-only; no pricing or approvals here)</p>
       </div>
 
-      <div className="rounded-lg bg-white shadow">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-zinc-800">
+            <thead className="bg-zinc-800/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Site
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Assigned to
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Scheduled
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Status
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-zinc-800/50">
               {jobs.map((job) => (
                 <tr key={job.id}>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-white">
                     {job.site.name}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-400">
                     {job.assignedWorker?.user.name ?? "Unassigned"}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-400">
                     {new Date(job.scheduledStart).toLocaleString()}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                        statusColor[job.status] ?? "bg-gray-100 text-gray-800"
+                      className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${
+                        statusColor[job.status] ?? "border-zinc-600/40 bg-zinc-600/20 text-zinc-400"
                       }`}
                     >
                       {job.status.replace(/_/g, " ")}
@@ -88,7 +88,7 @@ export default async function VendorJobsPage() {
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                     <Link
                       href={`/jobs/${job.id}`}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="text-zinc-400 hover:text-white"
                     >
                       View
                     </Link>
@@ -99,7 +99,7 @@ export default async function VendorJobsPage() {
           </table>
         </div>
         {jobs.length === 0 && (
-          <div className="p-6 text-center text-gray-500">
+          <div className="p-6 text-center text-zinc-500">
             No jobs assigned to your company yet.
           </div>
         )}

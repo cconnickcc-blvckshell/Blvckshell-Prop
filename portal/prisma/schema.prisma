@@ -110,6 +110,9 @@ model Worker {
   userId             String             @unique
   workforceAccountId String
   hasPhotoIdOnFile   Boolean            @default(false)
+  availabilityNotes          String?
+  preferredShifts            String[]          @default([])
+  unavailableDates           DateTime[]        @default([])
   isActive           Boolean            @default(true)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -149,6 +152,8 @@ model Site {
   clientOrganizationId     String
   name                     String
   address                  String
+  lat                        Float?
+  lng                        Float?
   accessInstructions       String?
   serviceWindow            String?
   estimatedDurationMinutes Int?
@@ -446,6 +451,8 @@ model Job {
   endedAt                    DateTime?
   actualDurationMinutes      Int?
   checkInMethod              String?
+  checkedInAt                DateTime?
+  checkedOutAt               DateTime?
   createdAt                  DateTime          @default(now())
   pricingModel               JobPricingModel?  @default(Fixed)
   billableAmountCents        Int?
