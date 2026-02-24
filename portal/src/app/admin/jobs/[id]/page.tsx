@@ -3,6 +3,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import JobAdminActions from "@/components/admin/JobAdminActions";
+import JobPreflightPanel from "@/components/admin/JobPreflightPanel";
 
 export default async function AdminJobDetailPage({
   params,
@@ -347,6 +348,11 @@ export default async function AdminJobDetailPage({
             </div>
           )}
         </>
+      )}
+
+      {/* Pre-flight check panel */}
+      {job.status === "COMPLETED_PENDING_APPROVAL" && (
+        <JobPreflightPanel jobId={job.id} />
       )}
 
       {/* Admin actions: Approve / Reject / Cancel */}

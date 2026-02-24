@@ -57,7 +57,12 @@ export default async function WorkforceDetailPage({
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{account.displayName}</h1>
         <p className="text-zinc-400">
-          {account.type} • {account.workers.length} worker(s)
+          {account.type} • {account.classification} • {account.workers.length} worker(s)
+          {account.complianceSuspended && (
+            <span className="ml-2 inline-flex rounded-full border border-red-500/40 bg-red-500/20 px-2 py-0.5 text-xs font-semibold text-red-300">
+              Compliance suspended
+            </span>
+          )}
         </p>
       </div>
 
@@ -110,6 +115,14 @@ export default async function WorkforceDetailPage({
               <dd className="text-white">{account.wsibAccountNumber}</dd>
             </div>
           )}
+          <div>
+            <dt className="text-zinc-500">Classification</dt>
+            <dd className="text-white">{account.classification}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Payment method</dt>
+            <dd className="text-white">{account.allowedPaymentMethod}</dd>
+          </div>
         </dl>
       </div>
 

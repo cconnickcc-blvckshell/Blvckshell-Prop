@@ -6,6 +6,8 @@ import Link from "next/link";
 import InvoiceDraftActions from "./InvoiceDraftActions";
 import InvoiceStatusActions from "./InvoiceStatusActions";
 import AddContractBaseButton from "./AddContractBaseButton";
+import PaymentPanel from "@/components/admin/PaymentPanel";
+import { listPaymentsForInvoice } from "@/server/actions/payment-actions";
 
 export default async function InvoiceDetailPage({
   params,
@@ -16,6 +18,12 @@ export default async function InvoiceDetailPage({
   const { id } = await params;
   const invoice = await getInvoiceWithDetails(id);
   if (!invoice) notFound();
+
+  const payments = await listPaymentsForInvoice(id);
+  const client = await prisma.clientOrganization.findUnique({
+    where: { id: invoice.clientId },
+    select: { requiredPaymentRail: true },
+  });
 
   const clientSites =
     invoice.status === "Draft"
@@ -229,6 +237,15 @@ export default async function InvoiceDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Payments */}
+      <PaymentPanel
+        invoiceId={invoice.id}
+        invoiceStatus={invoice.status}
+        totalCents={invoice.totalCents}
+        clientPaymentRail={client?.requiredPaymentRail ?? "STRIPE"}
+        payments={JSON.parse(JSON.stringify(payments))}
+      />
 
       <p className="text-xs text-zinc-500">
         Created by {invoice.createdBy.name} on{" "}

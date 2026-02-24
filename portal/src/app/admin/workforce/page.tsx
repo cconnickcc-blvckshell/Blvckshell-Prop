@@ -54,6 +54,9 @@ export default async function WorkforcePage() {
                   Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">
+                  Classification
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">
@@ -80,6 +83,14 @@ export default async function WorkforcePage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
                     {account.type}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm">
+                    <span className="text-zinc-300">{account.classification}</span>
+                    {account.complianceSuspended && (
+                      <span className="ml-2 inline-flex rounded-full border border-red-500/40 bg-red-500/20 px-2 py-0.5 text-xs font-semibold text-red-300">
+                        Suspended
+                      </span>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
                     {account.primaryContactName}
