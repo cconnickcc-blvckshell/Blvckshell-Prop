@@ -19,19 +19,19 @@ export default async function ContactPage({
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
       <h1 className="text-3xl font-bold tracking-tight text-white">Contact</h1>
       <p className="mt-4 text-zinc-400">
-        Request a quote, book a portfolio walkthrough, or ask a question. We’ll respond within one business day.
+        Request a quote, book a portfolio walkthrough, or ask a question. We&apos;ll respond within one business day.
       </p>
       {isSampleRequest && (
         <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
           <p className="text-sm text-emerald-300">
-            <strong>Sample report request.</strong> Share your details below and we'll send you an anonymized example of a completion report.
+            <strong>Sample report request.</strong> Share your details below and we&apos;ll send you an anonymized example of a completion report.
           </p>
         </div>
       )}
       {isQuoteRequest && (
         <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
           <p className="text-sm text-emerald-300">
-            <strong>Request a quote.</strong> Tell us about your sites and we’ll send a ballpark range and next steps.
+            <strong>Request a quote.</strong> Tell us about your sites and we&apos;ll send a ballpark range and next steps.
           </p>
         </div>
       )}
@@ -47,11 +47,11 @@ export default async function ContactPage({
           </li>
           <li>
             <span className="text-zinc-300">Phone available when we connect</span>
-            <span className="ml-2 text-zinc-500">- share your number in the form and we’ll call you.</span>
+            <span className="ml-2 text-zinc-500">- share your number in the form and we&apos;ll call you.</span>
           </li>
         </ul>
         <p className="mt-4 text-sm text-zinc-500">
-          Prefer to book a site walk? Say so in your message and we’ll send a link or coordinate a time.
+          Prefer to book a site walk? Say so in your message and we&apos;ll send a link or coordinate a time.
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export default async function ContactPage({
       <div className="mt-10 rounded-lg border border-zinc-800/80 bg-zinc-900/30 px-4 py-4">
         <p className="text-sm font-medium text-zinc-300">What happens next</p>
         <p className="mt-1 text-sm text-zinc-500">
-          We’ll reply within one business day. If you asked for a quote, we’ll confirm your details and schedule a site walk or send a proposal. You can reply by email or phone-whichever you prefer.
+          We&apos;ll reply within one business day. If you asked for a quote, we&apos;ll confirm your details and schedule a site walk or send a proposal. You can reply by email or phone-whichever you prefer.
         </p>
       </div>
     </div>

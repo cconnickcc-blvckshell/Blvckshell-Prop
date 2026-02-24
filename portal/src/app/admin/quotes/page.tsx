@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { listQuotes } from "@/server/actions/quote-actions";
 import Link from "next/link";
+import { formatQuoteStatus } from "@/lib/format";
 
 export default async function AdminQuotesPage() {
   await requireAdmin();
@@ -32,7 +33,7 @@ export default async function AdminQuotesPage() {
                     {q.site.name}
                   </Link>
                   <p className="text-xs text-zinc-500">
-                    {q.pricingPolicy.cityCode} • {q.visitsPerWeek} visits/wk • {q.status}
+                    {q.pricingPolicy.cityCode} • {q.visitsPerWeek} visits/wk • {formatQuoteStatus(q.status)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -45,7 +46,7 @@ export default async function AdminQuotesPage() {
                           : "border-amber-500/40 bg-amber-500/20 text-amber-300"
                     }`}
                   >
-                    {q.status}
+                    {formatQuoteStatus(q.status)}
                   </span>
                   <Link
                     href={`/admin/quotes/${q.id}/pricing`}

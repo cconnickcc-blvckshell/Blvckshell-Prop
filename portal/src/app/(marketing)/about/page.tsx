@@ -27,7 +27,7 @@ export default function AboutPage() {
             <strong className="text-white">Operating region:</strong> We launch in Windsor-Essex and serve Ontario-wide coverage as we expand. One consistent footprint - no geographic ambiguity on coverage, staffing, or response times.
           </p>
           <p>
-            Our network includes internal crews and vetted subcontractors. All are onboarded with compliance documentation (COI, WSIB) and trained on your scope. Work is assigned, completed, and approved through our portal-one place for scheduling, evidence, and payouts. Accountability remains with Blvckshell; we don’t subcontract anonymously.
+            Our network includes internal crews and vetted subcontractors. All are onboarded with compliance documentation (COI, WSIB) and trained on your scope. Work is assigned, completed, and approved through our portal-one place for scheduling, evidence, and payouts. Accountability remains with Blvckshell; we don&apos;t subcontract anonymously.
           </p>
           <p>
             For custom scope or multi-site programs, get in touch.
@@ -37,7 +37,7 @@ export default function AboutPage() {
 
       <ScrollReveal delay={0.15}>
         <section className="mt-10">
-          <h2 className="text-headline font-semibold text-white">What We Don’t Do</h2>
+          <h2 className="text-headline font-semibold text-white">What We Don&apos;t Do</h2>
           <p className="mt-4 text-zinc-400">
             Clear boundaries reduce disputes and set expectations.
           </p>
@@ -64,9 +64,9 @@ export default function AboutPage() {
 
       <ScrollReveal delay={0.2}>
         <section className="mt-12">
-          <h2 className="text-headline font-semibold text-white">How We're Built</h2>
+          <h2 className="text-headline font-semibold text-white">How We&apos;re Built</h2>
           <p className="mt-4 text-zinc-400">
-            These aren't promises we'll add later-they're how we operate.
+            These aren&apos;t promises we&apos;ll add later-they&apos;re how we operate.
           </p>
           
           <StaggerContainer className="mt-8 space-y-6">
@@ -74,7 +74,7 @@ export default function AboutPage() {
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <h3 className="font-semibold text-white">Accountability Design</h3>
                 <p className="mt-2 text-sm text-zinc-400">
-                  Every task is designed to be photo-verified and logged from day one. Responsibility is assigned, not diffused. When something is missed, there's a clear path to resolution.
+                  Every task is designed to be photo-verified and logged from day one. Responsibility is assigned, not diffused. When something is missed, there&apos;s a clear path to resolution.
                 </p>
               </div>
             </StaggerItem>
@@ -83,7 +83,7 @@ export default function AboutPage() {
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <h3 className="font-semibold text-white">Failure-Mode Awareness</h3>
                 <p className="mt-2 text-sm text-zinc-400">
-                  We've thought through what can go wrong-missed visits, quality issues, safety concerns-and built escalation logic and response protocols into our systems before they're needed.
+                  We&apos;ve thought through what can go wrong-missed visits, quality issues, safety concerns-and built escalation logic and response protocols into our systems before they&apos;re needed.
                 </p>
               </div>
             </StaggerItem>
@@ -92,7 +92,7 @@ export default function AboutPage() {
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <h3 className="font-semibold text-white">Growth Limits</h3>
                 <p className="mt-2 text-sm text-zinc-400">
-                  We cap active properties early. This isn't a limitation-it's intentional. We'd rather do fewer sites well than many sites poorly. Quality over scale.
+                  We cap active properties early. This isn&apos;t a limitation-it&apos;s intentional. We&apos;d rather do fewer sites well than many sites poorly. Quality over scale.
                 </p>
               </div>
             </StaggerItem>
@@ -101,7 +101,7 @@ export default function AboutPage() {
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <h3 className="font-semibold text-white">Issue Handling Before Complaints</h3>
                 <p className="mt-2 text-sm text-zinc-400">
-                  Safety and damage issues are reported same day with documented response times. We don't wait for complaints-we catch issues early and escalate proactively.
+                  Safety and damage issues are reported same day with documented response times. We don&apos;t wait for complaints-we catch issues early and escalate proactively.
                 </p>
               </div>
             </StaggerItem>
@@ -110,7 +110,7 @@ export default function AboutPage() {
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <h3 className="font-semibold text-white">Supervision Model</h3>
                 <p className="mt-2 text-sm text-zinc-400">
-                  Every completion requires approval. Site managers review evidence, checklists, and quality before sign-off. This isn't optional-it's how we operate.
+                  Every completion requires approval. Site managers review evidence, checklists, and quality before sign-off. This isn&apos;t optional-it&apos;s how we operate.
                 </p>
               </div>
             </StaggerItem>
@@ -131,11 +131,11 @@ export default function AboutPage() {
         <section className="mt-12">
           <h2 className="text-headline font-semibold text-white">Why This Matters</h2>
           <p className="mt-4 text-zinc-400">
-            Property managers hire cleaners to avoid problems, not to admire resumes. Our value isn't in years of experience-it's in systems thinking, accountability design, and risk awareness that prevent problems before they happen.
+            Property managers hire cleaners to avoid problems, not to admire resumes. Our value isn&apos;t in years of experience-it&apos;s in systems thinking, accountability design, and risk awareness that prevent problems before they happen.
           </p>
           <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/30 p-6">
             <p className="text-sm text-zinc-300">
-              <strong>Transparency:</strong> We're upfront about being new. We're also upfront about being unusually prepared. That combination-honesty plus structure-is rare in this industry.
+              <strong>Transparency:</strong> We&apos;re upfront about being new. We&apos;re also upfront about being unusually prepared. That combination-honesty plus structure-is rare in this industry.
             </p>
           </div>
         </section>

@@ -168,7 +168,7 @@ export default function PilotsPage() {
             <Link href="/contact" className="font-medium text-white underline decoration-zinc-600 underline-offset-2 hover:decoration-white">
               Contact us
             </Link>{" "}
-            and we'll recommend based on where your pain points are.
+            and we&apos;ll recommend based on where your pain points are.
           </p>
         </div>
       </ScrollReveal>

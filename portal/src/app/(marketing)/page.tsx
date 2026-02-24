@@ -212,10 +212,10 @@ export default function HomePage() {
           <div className="mx-auto max-w-6xl">
             <h2 className="text-headline font-semibold text-white">Proof & Accountability</h2>
             <p className="mt-4 max-w-2xl text-zinc-400">
-              Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review-this isn't added later, it's built in from the start.
+              Our operations are structured to produce proof by default. Every job is designed to be tied to clear standards and your review-this isn&apos;t added later, it&apos;s built in from the start.
             </p>
             <p className="mt-3 max-w-2xl text-sm font-medium text-zinc-300">
-              If a visit can't be evidenced and reviewed, it isn't considered complete.
+              If a visit can&apos;t be evidenced and reviewed, it isn&apos;t considered complete.
             </p>
             <p className="mt-2 max-w-2xl text-sm text-zinc-500">
               Our documentation exists to protect you during audits, disputes, and board review.
@@ -409,7 +409,7 @@ export default function HomePage() {
               Get a no-obligation site evaluation. See how we run your sites with a guided tour of our portal and process.
             </p>
             <p className="mt-2 text-sm text-zinc-500">
-              We'll respond within one business day.
+              We&apos;ll respond within one business day.
             </p>
             <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
               <Link

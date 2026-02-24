@@ -88,13 +88,13 @@ export default async function JobDetailPage({
   // Only the assigned worker can complete the job (must have workerId)
   if (!user.workerId) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen p-4">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-lg bg-white p-8 shadow">
-            <p className="text-gray-600">
+          <div className="rounded-lg bg-zinc-900/50 border border-zinc-800 p-8 shadow-xl">
+            <p className="text-zinc-400">
               This job is assigned to your organization. Only the assigned worker can complete the checklist. Please log in as that worker or assign the job to yourself from the admin panel.
             </p>
-            <p className="mt-4 text-sm text-gray-500">
+            <p className="mt-4 text-sm text-zinc-500">
               Job: {job.site.name} — {job.status}
             </p>
           </div>
@@ -106,10 +106,10 @@ export default async function JobDetailPage({
   const checklistTemplate = job.site.checklistTemplates?.find((t) => t.isActive) ?? null;
   if (!checklistTemplate) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen p-4">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-lg bg-white p-8 shadow">
-            <p className="text-gray-600">
+          <div className="rounded-lg bg-zinc-900/50 border border-zinc-800 p-8 shadow-xl">
+            <p className="text-zinc-400">
               No checklist template available for this site. Please contact admin.
             </p>
           </div>
@@ -122,10 +122,10 @@ export default async function JobDetailPage({
   const runResult = await createOrGetChecklistRun(job.id);
   if (!runResult.success || !runResult.run) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen p-4">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-lg bg-white p-8 shadow">
-            <p className="text-gray-600">{runResult.error ?? "Could not load checklist."}</p>
+          <div className="rounded-lg bg-zinc-900/50 border border-zinc-800 p-8 shadow-xl">
+            <p className="text-zinc-400">{runResult.error ?? "Could not load checklist."}</p>
           </div>
         </div>
       </div>

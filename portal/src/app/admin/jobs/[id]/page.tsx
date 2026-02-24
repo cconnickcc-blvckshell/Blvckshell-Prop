@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import JobAdminActions from "@/components/admin/JobAdminActions";
 import JobPreflightPanel from "@/components/admin/JobPreflightPanel";
+import { formatJobStatus, formatChecklistRunStatus } from "@/lib/format";
 
 export default async function AdminJobDetailPage({
   params,
@@ -158,7 +159,7 @@ export default async function AdminJobDetailPage({
           </p>
         </div>
         <span className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-sm font-semibold ${statusBadge}`}>
-          {job.status.replace(/_/g, " ")}
+          {formatJobStatus(job.status)}
         </span>
       </div>
 
@@ -191,7 +192,7 @@ export default async function AdminJobDetailPage({
                     : "border-zinc-500/40 bg-zinc-500/20 text-zinc-300"
                 }`}
               >
-                {latestRun.status}
+                {formatChecklistRunStatus(latestRun.status)}
               </span>
               <span>Completed by: {latestRun.completedByWorker.user.name}</span>
               {latestRun.submittedAt && (

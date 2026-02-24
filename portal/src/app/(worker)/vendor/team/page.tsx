@@ -1,5 +1,6 @@
 import { requireVendorOwner } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import { formatRole } from "@/lib/format";
 
 export default async function VendorTeamPage() {
   const user = await requireVendorOwner();
@@ -55,7 +56,7 @@ export default async function VendorTeamPage() {
                 <p className="text-sm text-zinc-500">{u.email}</p>
               </div>
               <span className="rounded bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-400">
-                {u.role.replace(/_/g, " ")}
+                {formatRole(u.role)}
               </span>
             </li>
           ))}

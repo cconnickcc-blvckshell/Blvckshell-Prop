@@ -1,5 +1,6 @@
 import { requireVendorOwner } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import { formatPayoutStatus } from "@/lib/format";
 
 export default async function VendorEarningsPage() {
   const user = await requireVendorOwner();
@@ -144,7 +145,7 @@ export default async function VendorEarningsPage() {
                       </p>
                       <p className="text-sm text-zinc-400">
                         {period.jobCount} job{period.jobCount !== 1 ? "s" : ""} • Status:{" "}
-                        {period.batchStatus}
+                        {formatPayoutStatus(period.batchStatus)}
                       </p>
                     </div>
                     <div className="text-right">

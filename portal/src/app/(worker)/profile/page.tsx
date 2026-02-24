@@ -1,6 +1,7 @@
 import { requireWorker } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import ProfileEditor from "@/components/worker/ProfileEditor";
+import { formatRole, formatClassification } from "@/lib/format";
 
 export default async function ProfilePage() {
   const user = await requireWorker();
@@ -62,7 +63,7 @@ export default async function ProfilePage() {
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">Role</span>
-              <span className="text-zinc-200">{userData.role.replace(/_/g, " ")}</span>
+              <span className="text-zinc-200">{formatRole(userData.role)}</span>
             </div>
             {account && (
               <>
@@ -72,7 +73,7 @@ export default async function ProfilePage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Type</span>
-                  <span className="text-zinc-200">{account.type} · {account.classification}</span>
+                  <span className="text-zinc-200">{account.type} · {formatClassification(account.classification)}</span>
                 </div>
               </>
             )}

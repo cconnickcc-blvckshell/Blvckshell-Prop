@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { formatClassification } from "@/lib/format";
 
 export default async function WorkforcePage() {
   await requireAdmin();
@@ -85,7 +86,7 @@ export default async function WorkforcePage() {
                     {account.type}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className="text-zinc-300">{account.classification}</span>
+                    <span className="text-zinc-300">{formatClassification(account.classification)}</span>
                     {account.complianceSuspended && (
                       <span className="ml-2 inline-flex rounded-full border border-red-500/40 bg-red-500/20 px-2 py-0.5 text-xs font-semibold text-red-300">
                         Suspended

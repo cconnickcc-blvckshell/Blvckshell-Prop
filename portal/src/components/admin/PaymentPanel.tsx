@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { recordPayment, settlePayment } from "@/server/actions/payment-actions";
+import { formatPaymentStatus, formatPaymentRail } from "@/lib/format";
 
 interface PaymentRecord {
   id: string;
@@ -197,14 +198,14 @@ export default function PaymentPanel({
             <tbody className="divide-y divide-zinc-800">
               {payments.map((p) => (
                 <tr key={p.id}>
-                  <td className="py-2 text-sm text-zinc-300">{p.provider}</td>
+                  <td className="py-2 text-sm text-zinc-300">{formatPaymentRail(p.provider)}</td>
                   <td className="py-2 text-sm text-zinc-400">{p.providerRef || "—"}</td>
                   <td className="py-2 text-right text-sm font-medium text-zinc-200">
                     ${(p.amountCents / 100).toFixed(2)}
                   </td>
                   <td className="py-2">
                     <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold ${statusBadge[p.status] ?? ""}`}>
-                      {p.status}
+                      {formatPaymentStatus(p.status)}
                     </span>
                   </td>
                   <td className="py-2 text-right">

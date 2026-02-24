@@ -62,7 +62,7 @@ export default function ServicesPage() {
               <h2 className="text-headline font-semibold text-white">{title}</h2>
               <p className="mt-3 text-zinc-400">{summary}</p>
               <div className="mt-6">
-                <p className="text-sm font-semibold text-zinc-300">What's included:</p>
+                <p className="text-sm font-semibold text-zinc-300">What&apos;s included:</p>
                 <ul className="mt-3 space-y-2 text-sm text-zinc-400">
                   {included.map((item, j) => (
                     <li key={j} className="flex gap-3">

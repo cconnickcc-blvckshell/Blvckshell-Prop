@@ -1,6 +1,7 @@
 import { requireVendorOwner } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { formatJobStatus } from "@/lib/format";
 
 export default async function VendorJobsPage() {
   const user = await requireVendorOwner();
@@ -82,7 +83,7 @@ export default async function VendorJobsPage() {
                         statusColor[job.status] ?? "border-zinc-600/40 bg-zinc-600/20 text-zinc-400"
                       }`}
                     >
-                      {job.status.replace(/_/g, " ")}
+                      {formatJobStatus(job.status)}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm">

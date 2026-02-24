@@ -6,6 +6,7 @@ import {
   executeBulkJobActionAction,
 } from "@/server/actions/bulk-actions";
 import type { BulkJobAction } from "@/server/bulk-actions/jobs";
+import { formatJobStatus } from "@/lib/format";
 
 type JobItem = { id: string; status: string };
 
@@ -85,9 +86,9 @@ export default function BulkJobActionsPanel({ jobs }: { jobs: JobItem[] }) {
             }}
             className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white"
           >
-            <option value="approve">Approve (COMPLETED_PENDING_APPROVAL → APPROVED_PAYABLE)</option>
-            <option value="reject">Reject (COMPLETED_PENDING_APPROVAL → SCHEDULED)</option>
-            <option value="cancel">Cancel (SCHEDULED → CANCELLED)</option>
+            <option value="approve">Approve (Pending Approval → Approved)</option>
+            <option value="reject">Reject (Pending Approval → Scheduled)</option>
+            <option value="cancel">Cancel</option>
           </select>
         </label>
         {(action === "reject" || action === "cancel") && (
@@ -128,7 +129,7 @@ export default function BulkJobActionsPanel({ jobs }: { jobs: JobItem[] }) {
                   className="rounded border-zinc-600"
                 />
                 <span className="text-sm text-zinc-300">
-                  {job.id.slice(-8)} — {job.status}
+                  {formatJobStatus(job.status)}
                 </span>
               </li>
             ))}
@@ -166,7 +167,7 @@ export default function BulkJobActionsPanel({ jobs }: { jobs: JobItem[] }) {
           {preview.invalid.length > 0 && (
             <ul className="mt-2 text-xs text-red-300">
               {preview.invalid.map((i) => (
-                <li key={i.id}>{i.id.slice(-8)}: {i.error}</li>
+                <li key={i.id}>{i.error}</li>
               ))}
             </ul>
           )}
@@ -175,12 +176,11 @@ export default function BulkJobActionsPanel({ jobs }: { jobs: JobItem[] }) {
 
       {result && (
         <div className="mt-4 rounded border border-emerald-800 bg-emerald-900/20 p-4">
-          <p className="text-sm font-medium text-white">Done. Bulk operation ID: {result.bulkOperationId}</p>
-          <p className="mt-1 text-xs text-zinc-400">Succeeded: {result.succeeded.length}</p>
+          <p className="text-sm font-medium text-white">Done — {result.succeeded.length} succeeded</p>
           {result.failed.length > 0 && (
             <ul className="mt-2 text-xs text-red-300">
               {result.failed.map((f) => (
-                <li key={f.id}>{f.id}: {f.message}</li>
+                <li key={f.id}>{f.message}</li>
               ))}
             </ul>
           )}

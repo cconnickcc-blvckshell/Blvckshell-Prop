@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { formatPayoutStatus } from "@/lib/format";
 
 export default async function PayoutBatchDetailPage({
   params,
@@ -63,7 +64,7 @@ export default async function PayoutBatchDetailPage({
               statusColor[batch.status] ?? "bg-zinc-600/30 text-zinc-300"
             }`}
           >
-            {batch.status}
+            {formatPayoutStatus(batch.status)}
           </span>
         </div>
       </div>
@@ -122,7 +123,7 @@ export default async function PayoutBatchDetailPage({
                     {line.workforceAccount.displayName}
                   </td>
                   <td className="py-2 text-sm text-zinc-300">
-                    {line.description ?? `Job ${line.jobId ?? "—"}`}
+                    {line.description ?? "—"}
                   </td>
                   <td className="py-2 text-right text-sm font-medium text-zinc-200">
                     ${(line.amountCents / 100).toFixed(2)}

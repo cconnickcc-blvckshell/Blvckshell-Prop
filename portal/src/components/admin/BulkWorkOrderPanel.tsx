@@ -6,6 +6,7 @@ import {
   executeBulkWorkOrderTransitionAction,
 } from "@/server/actions/bulk-actions";
 import type { WorkOrderStatus } from "@prisma/client";
+import { formatWorkOrderStatus } from "@/lib/format";
 
 const STATUS_OPTIONS: { value: WorkOrderStatus; label: string }[] = [
   { value: "APPROVED", label: "Approved" },
@@ -95,7 +96,7 @@ export default function BulkWorkOrderPanel({ workOrders }: { workOrders: WorkOrd
             {workOrders.map((w) => (
               <li key={w.id} className="flex items-center gap-2">
                 <input type="checkbox" checked={selectedIds.has(w.id)} onChange={() => toggleOne(w.id)} className="rounded border-zinc-600" />
-                <span className="text-sm text-zinc-300">{w.id.slice(-8)} — {w.status}</span>
+                <span className="text-sm text-zinc-300">{formatWorkOrderStatus(w.status)}</span>
               </li>
             ))}
           </ul>

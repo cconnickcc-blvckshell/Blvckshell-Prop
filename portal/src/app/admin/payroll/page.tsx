@@ -2,6 +2,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import PayrollActions from "./PayrollActions";
+import { formatTimeEntryStatus } from "@/lib/format";
 
 export default async function PayrollPage() {
   await requireAdmin();
@@ -61,7 +62,7 @@ export default async function PayrollPage() {
             className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 text-center shadow-xl"
           >
             <p className="text-2xl font-bold text-white">{totalsByStatus[status] || 0}</p>
-            <p className="text-xs text-zinc-400">{status}</p>
+            <p className="text-xs text-zinc-400">{formatTimeEntryStatus(status)}</p>
           </div>
         ))}
       </div>
@@ -136,7 +137,7 @@ export default async function PayrollPage() {
                         statusClass[entry.status] ?? ""
                       }`}
                     >
-                      {entry.status}
+                      {formatTimeEntryStatus(entry.status)}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-400">

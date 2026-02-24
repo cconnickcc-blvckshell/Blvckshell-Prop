@@ -2,6 +2,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import BulkWorkOrderPanel from "@/components/admin/BulkWorkOrderPanel";
+import { formatWorkOrderStatus } from "@/lib/format";
 
 export default async function WorkOrdersPage() {
   await requireAdmin();
@@ -71,7 +72,7 @@ export default async function WorkOrdersPage() {
                         statusColor[wo.status] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"
                       }`}
                     >
-                      {wo.status}
+                      {formatWorkOrderStatus(wo.status)}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-sm text-zinc-300 sm:px-6">

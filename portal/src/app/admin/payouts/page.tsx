@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import CreatePayoutBatchForm from "@/components/admin/CreatePayoutBatchForm";
 import MarkBatchPaidButton from "@/components/admin/MarkBatchPaidButton";
+import { formatPayoutStatus } from "@/lib/format";
 
 export default async function PayoutsPage() {
   await requireAdmin();
@@ -143,7 +144,7 @@ export default async function PayoutsPage() {
         </div>
         {approvedJobs.length === 0 && (
           <div className="p-8 text-center text-sm text-zinc-500">
-            No jobs in APPROVED_PAYABLE status. Jobs will appear here after admin approval.
+            No approved jobs found in this period. Jobs will appear here after admin approval.
           </div>
         )}
       </section>
@@ -197,7 +198,7 @@ export default async function PayoutsPage() {
                           statusColor[batch.status] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"
                         }`}
                       >
-                        {batch.status}
+                        {formatPayoutStatus(batch.status)}
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
@@ -243,7 +244,7 @@ export default async function PayoutsPage() {
                         statusColor[batch.status] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"
                       }`}
                     >
-                      {batch.status}
+                      {formatPayoutStatus(batch.status)}
                     </span>
                     <span className="text-sm text-zinc-400">
                       {batch.payoutLines.length} line(s) • ${(totalCents / 100).toFixed(2)}

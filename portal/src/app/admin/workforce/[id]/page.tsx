@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { formatRole, formatJobStatus, formatClassification, formatPaymentRail } from "@/lib/format";
 
 export default async function WorkforceDetailPage({
   params,
@@ -57,7 +58,7 @@ export default async function WorkforceDetailPage({
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{account.displayName}</h1>
         <p className="text-zinc-400">
-          {account.type} • {account.classification} • {account.workers.length} worker(s)
+          {account.type} • {formatClassification(account.classification)} • {account.workers.length} worker(s)
           {account.complianceSuspended && (
             <span className="ml-2 inline-flex rounded-full border border-red-500/40 bg-red-500/20 px-2 py-0.5 text-xs font-semibold text-red-300">
               Compliance suspended
@@ -117,11 +118,11 @@ export default async function WorkforceDetailPage({
           )}
           <div>
             <dt className="text-zinc-500">Classification</dt>
-            <dd className="text-white">{account.classification}</dd>
+            <dd className="text-white">{formatClassification(account.classification)}</dd>
           </div>
           <div>
             <dt className="text-zinc-500">Payment method</dt>
-            <dd className="text-white">{account.allowedPaymentMethod}</dd>
+            <dd className="text-white">{formatPaymentRail(account.allowedPaymentMethod)}</dd>
           </div>
         </dl>
       </div>
@@ -143,7 +144,7 @@ export default async function WorkforceDetailPage({
                 <tr key={w.id}>
                   <td className="px-4 py-2 text-sm text-white">{w.user.name}</td>
                   <td className="px-4 py-2 text-sm text-zinc-400">{w.user.email}</td>
-                  <td className="px-4 py-2 text-sm text-zinc-400">{w.user.role}</td>
+                  <td className="px-4 py-2 text-sm text-zinc-400">{formatRole(w.user.role)}</td>
                 </tr>
               ))}
             </tbody>
@@ -167,7 +168,7 @@ export default async function WorkforceDetailPage({
                 {job.site.name} — {new Date(job.scheduledStart).toLocaleDateString()}
               </Link>
               <span className="rounded border border-zinc-600 bg-zinc-800/50 px-2 py-0.5 text-xs text-zinc-300">
-                {job.status}
+                {formatJobStatus(job.status)}
               </span>
             </li>
           ))}

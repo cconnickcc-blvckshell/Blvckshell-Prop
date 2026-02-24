@@ -39,6 +39,7 @@ export default async function ClientJobsPage() {
             No jobs yet.
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
               <tr>
@@ -81,6 +82,7 @@ export default async function ClientJobsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

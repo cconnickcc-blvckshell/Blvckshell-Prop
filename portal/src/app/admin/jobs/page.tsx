@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import BulkJobActionsPanel from "@/components/admin/BulkJobActionsPanel";
 import { runFlagOverdueApprovals } from "@/server/actions/bulk-actions";
+import { formatJobStatus } from "@/lib/format";
 
 export default async function AdminJobsPage({
   searchParams,
@@ -137,7 +138,7 @@ export default async function AdminJobsPage({
                         statusColor[job.status] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"
                       }`}
                     >
-                      {job.status.replace(/_/g, " ")}
+                      {formatJobStatus(job.status)}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
@@ -173,7 +174,7 @@ export default async function AdminJobsPage({
                       statusColor[job.status] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"
                     }`}
                   >
-                    {job.status.replace(/_/g, " ")}
+                    {formatJobStatus(job.status)}
                   </span>
                   <span className="text-sm font-medium text-emerald-400">
                     ${(job.payoutAmountCents / 100).toFixed(2)}

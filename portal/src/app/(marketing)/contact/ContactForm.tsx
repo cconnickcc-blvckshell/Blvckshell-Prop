@@ -86,7 +86,7 @@ export default function ContactForm({
         <label htmlFor="message" className="block text-sm font-medium text-zinc-300">Message</label>
         <textarea id="message" name="message" rows={4} className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500" placeholder="Tell us about your needs, ask questions, or request a site walk..." />
       </div>
-      {status === "success" && <p className="rounded-md bg-green-900/40 p-4 text-sm text-green-300">Thanks. We've received your message and will respond within one business day.</p>}
+      {status === "success" && <p className="rounded-md bg-green-900/40 p-4 text-sm text-green-300">Thanks. We&apos;ve received your message and will respond within one business day.</p>}
       {status === "error" && <p className="rounded-md bg-red-900/40 p-4 text-sm text-red-300">{errorMessage}</p>}
       <button type="submit" disabled={status === "sending"} className="w-full rounded-md bg-white px-6 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200 disabled:opacity-50">
         {status === "sending" ? "Sending…" : "Send message"}

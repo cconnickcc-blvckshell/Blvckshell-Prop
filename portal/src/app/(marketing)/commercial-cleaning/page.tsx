@@ -28,7 +28,7 @@ export default function CommercialCleaningPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
         <ScrollReveal>
-          <h2 className="text-headline font-semibold text-white">What's included</h2>
+          <h2 className="text-headline font-semibold text-white">What&apos;s included</h2>
           <ul className="mt-6 space-y-3 text-zinc-300">
             <li className="flex gap-3">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
@@ -58,9 +58,9 @@ export default function CommercialCleaningPage() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <h2 className="mt-12 text-headline font-semibold text-white">What's excluded</h2>
+          <h2 className="mt-12 text-headline font-semibold text-white">What&apos;s excluded</h2>
           <p className="mt-4 text-zinc-400">
-            Tenant-only areas unless in scope. Hazmat, specialized equipment (e.g. floor stripping), and after-hours only by agreement. We'll confirm at walkthrough.
+            Tenant-only areas unless in scope. Hazmat, specialized equipment (e.g. floor stripping), and after-hours only by agreement. We&apos;ll confirm at walkthrough.
           </p>
         </ScrollReveal>
 
@@ -71,7 +71,7 @@ export default function CommercialCleaningPage() {
           </p>
           <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/30 p-4">
             <p className="text-sm text-zinc-300">
-              <strong className="text-white">Why we avoid hourly billing:</strong> Hourly billing creates disputes and misaligned incentives. When scope is locked upfront, you know what you're paying for and we're incentivized to complete efficiently, not drag out time.
+              <strong className="text-white">Why we avoid hourly billing:</strong> Hourly billing creates disputes and misaligned incentives. When scope is locked upfront, you know what you&apos;re paying for and we&apos;re incentivized to complete efficiently, not drag out time.
             </p>
           </div>
         </ScrollReveal>
@@ -83,7 +83,7 @@ export default function CommercialCleaningPage() {
           </p>
           <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/30 p-4">
             <p className="text-sm text-zinc-300">
-              <strong className="text-white">Why scope lock matters:</strong> We define scope upfront so there's no ambiguity about what's included. Add-ons are quoted separately, preventing scope creep and surprise charges.
+              <strong className="text-white">Why scope lock matters:</strong> We define scope upfront so there&apos;s no ambiguity about what&apos;s included. Add-ons are quoted separately, preventing scope creep and surprise charges.
             </p>
           </div>
         </ScrollReveal>

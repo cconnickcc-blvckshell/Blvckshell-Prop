@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { listSiteSnapshots, getSitesForFinance } from "@/server/actions/finance-actions";
 import Link from "next/link";
+import { formatSnapshotStatus } from "@/lib/format";
 
 export default async function AdminFinancePage() {
   await requireAdmin();
@@ -34,7 +35,7 @@ export default async function AdminFinancePage() {
                       : "border-zinc-500/40 bg-zinc-500/20 text-zinc-300"
                   }`}
                 >
-                  {s.status}
+                  {formatSnapshotStatus(s.status)}
                 </span>
                 <span className="text-zinc-400">
                   Net ${(s.netRevenueCents / 100).toFixed(0)} • Margin {(s.grossMarginBps / 100).toFixed(1)}%
