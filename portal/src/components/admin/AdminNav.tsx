@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/admin/workorders", label: "Work Orders" },
   { href: "/admin/incidents", label: "Incidents" },
   { href: "/admin/payouts", label: "Payouts" },
+  { href: "/admin/payroll", label: "Payroll" },
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/audit", label: "Audit" },
   { href: "/admin/docs", label: "Docs" },
