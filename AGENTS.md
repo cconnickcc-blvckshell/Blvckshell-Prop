@@ -75,6 +75,10 @@ New fields on existing models:
 - Security headers (HSTS, X-Frame-Options, etc.) are set in `next.config.js` `headers()`.
 - `trustHost: true` in NextAuth config prevents signout redirect loops on Vercel.
 
+### Next.js Upgrade Path
+
+Currently on Next.js 14.2.35. Two known high-severity CVEs exist (Image Optimizer DoS GHSA-9g9p-9gw9-jx7f, Server Components deserialization DoS GHSA-h25m-26qc-wcjf). Mitigations applied: restricted `remotePatterns`, `minimumCacheTTL: 60`, `dangerouslyAllowSVG: false`, `bodySizeLimit: '10mb'` for server actions. Full fix requires upgrading to Next.js 15+, which is a major version change requiring React 19 and App Router API changes. Plan this as a dedicated sprint.
+
 ### Server-side modules
 
 - `src/lib/preconditions.ts` — Structured pre-flight checks (job approval, invoice send, payout finalize). Returns typed `{ code, message }` failures for UI rendering.

@@ -11,6 +11,8 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
       },
     ],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: false,
   },
   experimental: {
     serverActions: {
