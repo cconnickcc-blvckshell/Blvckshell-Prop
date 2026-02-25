@@ -6,9 +6,9 @@ import {
   executeBulkJobActionAction,
 } from "@/server/actions/bulk-actions";
 import type { BulkJobAction } from "@/server/bulk-actions/jobs";
-import { formatJobStatus } from "@/lib/format";
 
-type JobItem = { id: string; status: string };
+
+type JobItem = { id: string; status: string; siteName: string; scheduledStart: string };
 
 export default function BulkJobActionsPanel({ jobs }: { jobs: JobItem[] }) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -129,7 +129,7 @@ export default function BulkJobActionsPanel({ jobs }: { jobs: JobItem[] }) {
                   className="rounded border-zinc-600"
                 />
                 <span className="text-sm text-zinc-300">
-                  {formatJobStatus(job.status)}
+                  {job.siteName} — {new Date(job.scheduledStart).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}
                 </span>
               </li>
             ))}

@@ -60,9 +60,20 @@ New fields on existing models:
 - Bottom tab navigation (`WorkerNav.tsx`) replaces top-only nav. It has a fixed bottom bar with tabs: Jobs, Schedule, Earnings, Profile, and a "More" menu for `VENDOR_OWNER` role.
 - The worker layout adds `pb-20` to `<main>` to account for the bottom tab bar.
 - `searchParams` in Jobs page uses `Promise<{ date?: string }>` pattern for Next.js 14 App Router.
-- **Rate limiter**: `src/middleware.ts` limits `/api/auth` to 5 requests per 15-minute window (in-memory). Restarting the dev server clears the rate limit store.
+- **Rate limiter**: `src/middleware.ts` limits `/api/auth` to 20 requests and `/api/lead` + `/api/evidence/upload` to 30 requests per 15-minute window (in-memory). Restarting the dev server clears the rate limit store. The store is bounded to 10k entries for serverless safety.
 - **Server components cannot use `onClick`** — any event handlers in worker pages must be in a separate client component (e.g., `JobsWeekStrip`, `ProfileEditor`).
 - `worker-actions.ts` provides `checkIn`/`checkOut` server actions for job time tracking, using `checkedInAt`/`checkedOutAt` fields on the Job model.
+
+### Hardening layer
+
+- `src/lib/logger.ts` — Structured JSON error logger ("tattletale"). Use `logError()`, `logWarn()`, `logInfo()` with `ErrorContext` for all error handling.
+- `src/lib/safe-action.ts` — `safeAction(name, fn)` wraps server actions in try/catch + logging. Returns `{ success, error }` on failure, never crashes.
+- `src/lib/env.ts` — Validates required env vars (`DATABASE_URL`, `NEXTAUTH_SECRET`) at import time. Import in critical entry points.
+- Error boundaries (`error.tsx`) exist for every route group: root, admin, worker, client, marketing, plus `global-error.tsx`.
+- Loading skeletons (`loading.tsx`) exist for admin, worker, client, marketing route groups.
+- Not-found pages (`not-found.tsx`) exist for root, admin, worker.
+- Security headers (HSTS, X-Frame-Options, etc.) are set in `next.config.js` `headers()`.
+- `trustHost: true` in NextAuth config prevents signout redirect loops on Vercel.
 
 ### Server-side modules
 

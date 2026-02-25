@@ -3,23 +3,48 @@ import type { NextRequest } from "next/server";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 
 /**
- * Middleware: Rate limiting only.
- * Route protection is handled by layout/server guards (requireAdmin, requireWorker) to avoid
- * redirect loops caused by getToken() returning null in Edge after login.
+ * Middleware: Rate limiting for credential submission only.
+ *
+ * CRITICAL: Do NOT rate-limit NextAuth's internal GET routes:
+ *   /api/auth/providers — fetched on every login page load
+ *   /api/auth/csrf — fetched before every sign-in/sign-out
+ *   /api/auth/session — fetched on every page for session check
+ *   /api/auth/error — redirect target on auth failures
+ *
+ * Only rate-limit the actual login attempt (POST to /api/auth/callback).
  */
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const method = request.method;
 
-  // Rate limiting for sensitive endpoints
-  if (pathname.startsWith("/api/auth") || pathname === "/api/lead" || pathname.startsWith("/api/evidence/upload")) {
+  // Only rate-limit actual credential submissions (POST), not NextAuth internal GETs
+  const isAuthPost =
+    method === "POST" && pathname.startsWith("/api/auth/callback");
+  const isLeadPost = method === "POST" && pathname === "/api/lead";
+  const isEvidenceUpload = pathname.startsWith("/api/evidence/upload");
+
+  if (isAuthPost || isLeadPost || isEvidenceUpload) {
     const ip = getClientIP(request);
-    const limit = pathname.startsWith("/api/auth") ? 5 : 10; // 5 login attempts, 10 for lead/upload
+    const limit = isAuthPost ? 10 : 30; // 10 login attempts, 30 for others
     const windowMs = 15 * 60 * 1000; // 15 minutes
     const result = checkRateLimit(ip, limit, windowMs);
+
     if (!result.allowed) {
+      // For auth POST, redirect to login with error instead of raw JSON
+      if (isAuthPost) {
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("error", "RateLimit");
+        return NextResponse.redirect(loginUrl);
+      }
+
       return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
-        { status: 429 }
+        { error: "Too many requests. Please wait a few minutes and try again." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((result.resetAt - Date.now()) / 1000)),
+          },
+        }
       );
     }
   }
@@ -29,7 +54,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/api/auth/:path*",
+    "/api/auth/callback/:path*",
     "/api/lead",
     "/api/evidence/upload",
   ],

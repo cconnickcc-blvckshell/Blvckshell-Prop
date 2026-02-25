@@ -3,7 +3,13 @@ import { auth } from "@/lib/auth";
 import LoginForm from "@/components/forms/LoginForm";
 import Link from "next/link";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+  const rateLimited = params.error === "RateLimit";
   let session = null;
 
   try {
@@ -48,8 +54,8 @@ export default async function LoginPage() {
   }
 
   if (session) {
-    if (session.user.role === "ADMIN") {
-      redirect("/admin/jobs");
+    if (session.user.role === "ADMIN" || session.user.role === "FOUNDER") {
+      redirect("/admin");
     }
     if (session.user.role === "CLIENT") {
       redirect("/client");
@@ -68,6 +74,11 @@ export default async function LoginPage() {
             Sign in to your account
           </p>
         </div>
+        {rateLimited && (
+          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
+            Too many login attempts. Please wait a few minutes and try again.
+          </div>
+        )}
         <LoginForm />
         <p className="text-center text-xs text-zinc-500">
           <Link href="/" className="hover:text-zinc-400">← Back to home</Link>

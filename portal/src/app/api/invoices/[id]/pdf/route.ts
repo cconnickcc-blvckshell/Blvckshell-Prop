@@ -103,6 +103,10 @@ export async function GET(
     doc.font("Helvetica");
 
     let y = tableTop + rowHeight + 6;
+    if (!invoice.lineItems || invoice.lineItems.length === 0) {
+      doc.fontSize(10).text("No line items", colDesc, y);
+      y += rowHeight;
+    }
     for (const line of invoice.lineItems) {
       doc.fontSize(9).text(line.description.slice(0, 50), colDesc, y, { width: 260 });
       doc.text(String(line.qty), colQty, y);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/server/guards/rbac";
 import { recordPayment } from "@/server/actions/payment-actions";
 
 /**
@@ -9,6 +10,11 @@ import { recordPayment } from "@/server/actions/payment-actions";
  * Blvckshell remains the system of record; Stripe is a settlement rail.
  */
 export async function POST(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const stripe = getStripe();
   if (!stripe) {
     return NextResponse.json(

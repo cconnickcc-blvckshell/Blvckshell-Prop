@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { approveCompletion, rejectCompletion } from "@/server/actions/job-actions";
-import { transitionJob } from "@/lib/state-machine";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface JobAdminActionsProps {
   jobId: string;
@@ -22,6 +22,8 @@ export default function JobAdminActions({
   const [isPending, startTransition] = useTransition();
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
 
   const handleApprove = () => {
     setError(null);
@@ -35,12 +37,16 @@ export default function JobAdminActions({
     });
   };
 
-  const handleReject = () => {
+  const handleRejectClick = () => {
     if (!rejectReason.trim()) {
       setError("Please provide a rejection reason.");
       return;
     }
-    if (!confirm("Reject this completion and request resubmission? This will be audited.")) return;
+    setRejectModalOpen(true);
+  };
+
+  const handleRejectConfirm = () => {
+    setRejectModalOpen(false);
     setError(null);
     startTransition(async () => {
       const result = await rejectCompletion(jobId, rejectReason.trim());
@@ -52,11 +58,14 @@ export default function JobAdminActions({
     });
   };
 
-  const handleCancel = () => {
-    if (!confirm("Cancel this job? This cannot be undone and will be audited.")) return;
+  const handleCancelClick = () => {
+    setCancelModalOpen(true);
+  };
+
+  const handleCancelConfirm = () => {
+    setCancelModalOpen(false);
     setError(null);
     startTransition(async () => {
-      // We need to call transitionJob from client - use a server action
       const res = await fetch(`/api/admin/jobs/${jobId}/cancel`, {
         method: "POST",
       });
@@ -97,7 +106,7 @@ export default function JobAdminActions({
               />
               <button
                 type="button"
-                onClick={handleReject}
+                onClick={handleRejectClick}
                 disabled={isPending || !rejectReason.trim()}
                 className="rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-50"
               >
@@ -110,7 +119,7 @@ export default function JobAdminActions({
         {canCancel && (
           <button
             type="button"
-            onClick={handleCancel}
+            onClick={handleCancelClick}
             disabled={isPending}
             className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 hover:bg-red-500/20 disabled:opacity-50"
           >
@@ -118,6 +127,28 @@ export default function JobAdminActions({
           </button>
         )}
       </div>
+
+      <ConfirmModal
+        open={cancelModalOpen}
+        title="Cancel Job"
+        message="Cancel this job? This cannot be undone and will be audited."
+        confirmLabel="Cancel Job"
+        confirmVariant="danger"
+        onConfirm={handleCancelConfirm}
+        onCancel={() => setCancelModalOpen(false)}
+        pending={isPending}
+      />
+
+      <ConfirmModal
+        open={rejectModalOpen}
+        title="Reject Completion"
+        message="Reject this completion and request resubmission? This will be audited."
+        confirmLabel="Reject"
+        confirmVariant="danger"
+        onConfirm={handleRejectConfirm}
+        onCancel={() => setRejectModalOpen(false)}
+        pending={isPending}
+      />
     </div>
   );
 }

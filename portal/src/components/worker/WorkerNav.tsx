@@ -36,7 +36,7 @@ function TabIcon({ name, className }: { name: string; className?: string }) {
   }
 }
 
-export default function WorkerNav({ userName, role }: { userName: string; role: string }) {
+export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName: string; role: string; jobsBadge?: number }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const isVendorOwner = role === "VENDOR_OWNER";
@@ -96,11 +96,16 @@ export default function WorkerNav({ userName, role }: { userName: string; role: 
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
+              className={`relative flex flex-col items-center gap-0.5 px-3 py-1 ${
                 isActive(tab.href) ? "text-emerald-400" : "text-zinc-500"
               }`}
             >
               <TabIcon name={tab.icon} />
+              {tab.href === "/jobs" && jobsBadge > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">
+                  {jobsBadge > 9 ? "9+" : jobsBadge}
+                </span>
+              )}
               <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
           ))}
