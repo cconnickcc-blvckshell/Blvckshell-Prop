@@ -17,10 +17,16 @@ export default function CreateJobForm({
   action,
   sites,
   workers,
+  prefillSiteId,
+  prefillWorkerId,
+  prefillPayout,
 }: {
   action: (formData: FormData) => Promise<{ error?: string; success?: boolean }>;
   sites: Site[];
   workers: Worker[];
+  prefillSiteId?: string;
+  prefillWorkerId?: string;
+  prefillPayout?: string;
 }) {
   const router = useRouter();
   const [state, setState] = useState<State | undefined>(undefined);
@@ -44,7 +50,7 @@ export default function CreateJobForm({
       )}
       <div>
         <label htmlFor="siteId" className="block text-sm font-medium text-zinc-300">Site *</label>
-        <select id="siteId" name="siteId" required className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white">
+        <select id="siteId" name="siteId" required defaultValue={prefillSiteId ?? ""} className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white">
           <option value="">Select site</option>
           {sites.map((s) => (
             <option key={s.id} value={s.id}>
@@ -55,7 +61,7 @@ export default function CreateJobForm({
       </div>
       <div>
         <label htmlFor="assignedWorkerId" className="block text-sm font-medium text-zinc-300">Assigned worker *</label>
-        <select id="assignedWorkerId" name="assignedWorkerId" required className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white">
+        <select id="assignedWorkerId" name="assignedWorkerId" required defaultValue={prefillWorkerId ?? ""} className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white">
           <option value="">Select worker</option>
           {workers.map((w) => (
             <option key={w.id} value={w.id}>
@@ -76,7 +82,7 @@ export default function CreateJobForm({
       </div>
       <div>
         <label htmlFor="payoutDollars" className="block text-sm font-medium text-zinc-300">Payout ($) *</label>
-        <input id="payoutDollars" name="payoutDollars" type="number" step="0.01" min="0" required className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" placeholder="85.00" />
+        <input id="payoutDollars" name="payoutDollars" type="number" step="0.01" min="0" required defaultValue={prefillPayout ?? ""} className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" placeholder="85.00" />
       </div>
       <div className="flex gap-3">
         <button type="submit" disabled={isSubmitting} className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">

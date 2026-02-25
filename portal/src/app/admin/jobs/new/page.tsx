@@ -4,8 +4,13 @@ import Link from "next/link";
 import { createJob } from "../actions";
 import CreateJobForm from "./CreateJobForm";
 
-export default async function NewJobPage() {
+export default async function NewJobPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ siteId?: string; workerId?: string; payout?: string }>;
+}) {
   await requireAdmin();
+  const { siteId: prefillSiteId, workerId: prefillWorkerId, payout: prefillPayout } = await searchParams;
 
   const [sites, workers] = await Promise.all([
     prisma.site.findMany({
@@ -44,7 +49,14 @@ export default async function NewJobPage() {
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">Create job</h1>
         <p className="mt-1 text-zinc-400">Schedule a job at a site and assign a worker.</p>
       </div>
-      <CreateJobForm action={createJob} sites={sites} workers={workers} />
+      <CreateJobForm
+        action={createJob}
+        sites={sites}
+        workers={workers}
+        prefillSiteId={prefillSiteId}
+        prefillWorkerId={prefillWorkerId}
+        prefillPayout={prefillPayout}
+      />
     </div>
   );
 }

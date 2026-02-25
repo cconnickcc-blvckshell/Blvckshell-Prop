@@ -123,6 +123,7 @@ model Worker {
   incidentReports    IncidentReport[]
   assignedJobs       Job[]              @relation("AssignedWorker")
   jobCompletions     JobCompletion[]
+  recurringSchedules RecurringSchedule[]
   siteAssignments    SiteAssignment[]
   timeEntries        TimeEntry[]
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -162,6 +163,8 @@ model Site {
   doNotEnterUnits          Boolean              @default(true)
   isActive                 Boolean              @default(true)
   lifecycleStatus          SiteLifecycleStatus  @default(ACTIVE)
+  qualityScore             Int?                 // 0-100, rolling average from checklist pass rates
+  qualityTrend             String?              // "up", "down", "stable"
   siteTemplateId           String?
   siteTemplateVersion      Int?
   accessCredentials        AccessCredential[]
@@ -173,6 +176,7 @@ model Site {
   jobs                     Job[]
   quotes                   Quote[]
   clientOrganization       ClientOrganization   @relation(fields: [clientOrganizationId], references: [id])
+  recurringSchedules       RecurringSchedule[]
   siteAssignments          SiteAssignment[]
   siteTemplate             SiteTemplate?        @relation(fields: [siteTemplateId], references: [id])
   siteSupplyAllocations    SiteSupplyAllocation[]
@@ -861,6 +865,29 @@ model QuoteAddOnLine {
   quote                    Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
   @@index([quoteId])
+}
+
+// --- Recurring Schedule ---
+model RecurringSchedule {
+  id                         String           @id @default(cuid())
+  siteId                     String
+  assignedWorkerId           String?
+  assignedWorkforceAccountId String?
+  dayOfWeek                  Int              // 0=Sun, 1=Mon, ..., 6=Sat
+  startTime                  String           // "06:00" (24h format)
+  estimatedDurationMinutes   Int              @default(60)
+  payoutAmountCents          Int
+  isActive                   Boolean          @default(true)
+  lastGeneratedDate          DateTime?        // last date a job was auto-generated
+  createdAt                  DateTime         @default(now())
+  updatedAt                  DateTime         @updatedAt
+  site                       Site             @relation(fields: [siteId], references: [id])
+  assignedWorker             Worker?          @relation(fields: [assignedWorkerId], references: [id])
+
+  @@index([siteId])
+  @@index([assignedWorkerId])
+  @@index([isActive])
+  @@index([dayOfWeek])
 }
 
 // --- Rate Card: DB-backed area × size × finish matrix ---

@@ -28,6 +28,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           serviceWindow: true,
           estimatedDurationMinutes: true,
           requiredPhotoCount: true,
+          qualityScore: true,
+          qualityTrend: true,
           checklistTemplates: { where: { isActive: true } },
         },
       },
@@ -42,7 +44,17 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <Link href="/admin/clients" className="text-sm text-zinc-400 hover:text-white">
           ← Locations
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">{client.name}</h1>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold tracking-tight text-white">{client.name}</h1>
+          <a
+            href={`/api/reports/client/${client.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center rounded-lg border border-zinc-600 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800 shrink-0"
+          >
+            ↓ Download Report
+          </a>
+        </div>
         <p className="mt-1 text-zinc-400">
           {client.primaryContactName} • {client.primaryContactEmail} • {client.primaryContactPhone}
         </p>
@@ -59,7 +71,21 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
-                  <p className="font-medium text-white">{site.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-white">{site.name}</p>
+                    {site.qualityScore != null && (
+                      <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${
+                        site.qualityScore >= 80 ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
+                        : site.qualityScore >= 50 ? "border-amber-500/40 bg-amber-500/20 text-amber-300"
+                        : "border-red-500/40 bg-red-500/20 text-red-300"
+                      }`}>
+                        {site.qualityScore}%
+                        {site.qualityTrend === "up" && " ↑"}
+                        {site.qualityTrend === "down" && " ↓"}
+                        {site.qualityTrend === "stable" && " →"}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-zinc-500">{site.address}</p>
                   <p className="text-xs text-zinc-500 mt-1">
                     {site.serviceWindow ?? "—"} • {site.estimatedDurationMinutes ?? "—"} min • Photos: {site.requiredPhotoCount}

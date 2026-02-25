@@ -158,9 +158,18 @@ export default async function AdminJobDetailPage({
             {(job.payoutAmountCents / 100).toFixed(2)}
           </p>
         </div>
-        <span className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-sm font-semibold ${statusBadge}`}>
-          {formatJobStatus(job.status)}
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href={`/admin/jobs/new?siteId=${job.siteId}${job.assignedWorkerId ? `&workerId=${job.assignedWorkerId}` : ""}&payout=${(job.payoutAmountCents / 100).toFixed(2)}`}
+            prefetch={false}
+            className="inline-flex items-center rounded-lg border border-zinc-600 px-3 py-1.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+          >
+            Duplicate
+          </Link>
+          <span className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${statusBadge}`}>
+            {formatJobStatus(job.status)}
+          </span>
+        </div>
       </div>
 
       {/* Assigned to */}

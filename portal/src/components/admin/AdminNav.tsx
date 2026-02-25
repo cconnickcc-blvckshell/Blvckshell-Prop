@@ -9,11 +9,13 @@ import NotificationBell from "@/components/admin/NotificationBell";
 const navLinks = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/jobs", label: "Jobs" },
+  { href: "/admin/schedules", label: "Schedules" },
   { href: "/admin/clients", label: "Locations" },
   { href: "/admin/workforce", label: "Workforce" },
   { href: "/admin/quotes", label: "Quotes" },
   { href: "/admin/invoices", label: "Invoices" },
   { href: "/admin/finance", label: "Finance" },
+  { href: "/admin/analytics", label: "Analytics" },
   { href: "/admin/workorders", label: "Work Orders" },
   { href: "/admin/incidents", label: "Incidents" },
   { href: "/admin/payouts", label: "Payouts" },
