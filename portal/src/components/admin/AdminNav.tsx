@@ -6,9 +6,10 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 const navLinks = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/clients", label: "Locations" },
   { href: "/admin/workforce", label: "Workforce" },
-  { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/quotes", label: "Quotes" },
   { href: "/admin/invoices", label: "Invoices" },
   { href: "/admin/finance", label: "Finance" },
@@ -24,6 +25,11 @@ const navLinks = [
 export default function AdminNav({ userName, userRole }: { userName: string; userRole: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname === "/admin";
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950 shadow-lg">
@@ -45,7 +51,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                   href={href}
                   prefetch={false}
                   className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                    pathname === href || pathname.startsWith(href + "/")
+                    isActive(href)
                       ? "bg-zinc-800 text-white"
                       : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
                   }`}
@@ -98,7 +104,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                   prefetch={false}
                   onClick={() => setMobileOpen(false)}
                   className={`rounded-md px-3 py-2.5 text-sm font-medium ${
-                    pathname === href || pathname.startsWith(href + "/")
+                    isActive(href)
                       ? "bg-zinc-800 text-white"
                       : "text-zinc-300 hover:bg-zinc-800/50"
                   }`}
