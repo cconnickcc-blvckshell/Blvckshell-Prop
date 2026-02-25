@@ -2,6 +2,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatCents } from "@/lib/format";
+import { logError } from "@/lib/logger";
 
 export default async function AdminDashboardPage() {
   await requireAdmin();
@@ -10,60 +11,70 @@ export default async function AdminDashboardPage() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-  const [
-    pendingApproval,
-    scheduledToday,
-    approvedUnpaid,
-    totalJobsMonth,
-    revenueMonth,
-    payoutsPendingMonth,
-    overdueInvoices,
-    activeWorkers,
-    recentAudit,
-  ] = await Promise.all([
-    prisma.job.count({ where: { status: "COMPLETED_PENDING_APPROVAL" } }),
-    prisma.job.count({
-      where: {
-        status: "SCHEDULED",
-        scheduledStart: {
-          gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-          lt: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1),
-        },
-      },
-    }),
-    prisma.job.count({ where: { status: "APPROVED_PAYABLE" } }),
-    prisma.job.count({
-      where: { scheduledStart: { gte: monthStart, lte: monthEnd }, status: { not: "CANCELLED" } },
-    }),
-    prisma.invoice.aggregate({
-      where: { status: { in: ["Sent", "Paid"] }, periodStart: { gte: monthStart } },
-      _sum: { totalCents: true },
-    }),
-    prisma.payoutLine.aggregate({
-      where: { status: "PENDING" },
-      _sum: { amountCents: true },
-    }),
-    prisma.invoice.count({
-      where: { status: "Sent", dueAt: { lt: now } },
-    }),
-    prisma.worker.count({ where: { isActive: true } }),
-    prisma.auditLog.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      select: {
-        id: true,
-        entityType: true,
-        entityId: true,
-        fromState: true,
-        toState: true,
-        createdAt: true,
-        actorUser: { select: { name: true } },
-      },
-    }),
-  ]);
+  let pendingApproval = 0;
+  let scheduledToday = 0;
+  let approvedUnpaid = 0;
+  let totalJobsMonth = 0;
+  let revenueCents = 0;
+  let payoutsPending = 0;
+  let overdueInvoices = 0;
+  let activeWorkers = 0;
+  let recentAudit: { id: string; entityType: string; fromState: string | null; toState: string | null; createdAt: Date; actorUserId: string }[] = [];
 
-  const revenueCents = revenueMonth._sum.totalCents ?? 0;
-  const payoutsPending = payoutsPendingMonth._sum.amountCents ?? 0;
+  try {
+    const results = await Promise.all([
+      prisma.job.count({ where: { status: "COMPLETED_PENDING_APPROVAL" } }),
+      prisma.job.count({
+        where: {
+          status: "SCHEDULED",
+          scheduledStart: {
+            gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+            lt: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1),
+          },
+        },
+      }),
+      prisma.job.count({ where: { status: "APPROVED_PAYABLE" } }),
+      prisma.job.count({
+        where: { scheduledStart: { gte: monthStart, lte: monthEnd }, status: { not: "CANCELLED" } },
+      }),
+      prisma.invoice.aggregate({
+        where: { status: { in: ["Sent", "Paid"] }, periodStart: { gte: monthStart } },
+        _sum: { totalCents: true },
+      }),
+      prisma.payoutLine.aggregate({
+        where: { status: "PENDING" },
+        _sum: { amountCents: true },
+      }),
+      prisma.invoice.count({
+        where: { status: "Sent", dueAt: { lt: now } },
+      }),
+      prisma.worker.count({ where: { isActive: true } }),
+      prisma.auditLog.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        select: {
+          id: true,
+          entityType: true,
+          fromState: true,
+          toState: true,
+          createdAt: true,
+          actorUserId: true,
+        },
+      }),
+    ]);
+
+    pendingApproval = results[0];
+    scheduledToday = results[1];
+    approvedUnpaid = results[2];
+    totalJobsMonth = results[3];
+    revenueCents = results[4]._sum.totalCents ?? 0;
+    payoutsPending = results[5]._sum.amountCents ?? 0;
+    overdueInvoices = results[6];
+    activeWorkers = results[7];
+    recentAudit = results[8];
+  } catch (error) {
+    logError(error, { where: "admin-dashboard" });
+  }
 
   const cards = [
     { label: "Pending Approval", value: pendingApproval, href: "/admin/jobs", color: "text-amber-400", urgent: pendingApproval > 0 },
@@ -135,7 +146,7 @@ export default async function AdminDashboardPage() {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="shrink-0 h-2 w-2 rounded-full bg-emerald-400" />
                   <span className="text-zinc-300 truncate">
-                    {log.actorUser.name} — {log.entityType}
+                    {log.entityType}
                     {log.fromState && log.toState && `: ${log.fromState} → ${log.toState}`}
                   </span>
                 </div>
