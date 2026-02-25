@@ -344,6 +344,11 @@ export default function JobDetailClient({
           }}
           onUploadComplete={() => {
             setCameraOpen(null);
+            // Fetch updated evidence list to update photo count
+            fetch(`/api/jobs/${job.id}/evidence`)
+              .then((r) => r.ok ? r.json() : null)
+              .then((data) => { if (data?.evidence) setUploadedPhotos(data.evidence); })
+              .catch(() => {});
             router.refresh();
           }}
         />
