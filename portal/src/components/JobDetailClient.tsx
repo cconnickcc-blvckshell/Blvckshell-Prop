@@ -332,10 +332,20 @@ export default function JobDetailClient({
 
   return (
     <div className="min-h-screen bg-zinc-950 p-4 text-zinc-100 sm:p-6">
-      {cameraOpen && (
+      {cameraOpen && existingCompletion?.id && (
         <EvidenceCameraCapture
           onDone={handleCameraDone}
           onCancel={() => setCameraOpen(null)}
+          uploadConfig={{
+            jobId: job.id,
+            completionId: existingCompletion.id,
+            checklistRunId: checklistRunId ?? undefined,
+            itemId: typeof cameraOpen === "object" && "itemId" in cameraOpen ? cameraOpen.itemId : undefined,
+          }}
+          onUploadComplete={() => {
+            setCameraOpen(null);
+            router.refresh();
+          }}
         />
       )}
       <div className="mx-auto max-w-3xl">

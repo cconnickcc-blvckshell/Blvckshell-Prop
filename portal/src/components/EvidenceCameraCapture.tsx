@@ -7,6 +7,14 @@ export type RedactionType = "auto" | "manual" | "none";
 interface EvidenceCameraCaptureProps {
   onDone: (blob: Blob, redactionType: RedactionType) => void;
   onCancel: () => void;
+  /** Direct upload config — bypasses callback chain issues */
+  uploadConfig?: {
+    jobId: string;
+    completionId: string;
+    checklistRunId?: string;
+    itemId?: string;
+  };
+  onUploadComplete?: () => void;
 }
 
 interface Rect {
@@ -16,7 +24,7 @@ interface Rect {
   h: number;
 }
 
-export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCameraCaptureProps) {
+export default function EvidenceCameraCapture({ onDone, onCancel, uploadConfig, onUploadComplete }: EvidenceCameraCaptureProps) {
   const [step, setStep] = useState<"camera" | "processing" | "review" | "error">("camera");
   const [error, setError] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -256,7 +264,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     img.src = capturedDataUrl.current;
   }, [step, detectedRects, manualRects, drawing]);
 
-  // --- Confirm and send to parent (NOT useCallback — avoid stale closure issues) ---
+  // --- Confirm: build blob then either upload directly or call onDone ---
   function confirmPhoto() {
     const dataUrl = capturedDataUrl.current;
     if (!dataUrl || uploading) return;
@@ -264,21 +272,16 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     setError(null);
 
     const img = new Image();
-    img.onload = () => {
+    img.onload = async () => {
       try {
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
         const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          setError("Failed to process image. Try retaking.");
-          setUploading(false);
-          return;
-        }
+        if (!ctx) { setError("Image processing failed."); setUploading(false); return; }
 
         ctx.drawImage(img, 0, 0);
 
-        // Apply blur to all detected + manual regions
         const allRects = [...detectedRects, ...manualRects];
         for (const rect of allRects) {
           pixelateRegion(ctx, rect, img.width, img.height);
@@ -288,28 +291,44 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
           detectedRects.length > 0 ? "auto" :
           manualRects.length > 0 ? "manual" : "none";
 
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              onDone(blob, redactionType);
-              // Don't setUploading(false) — parent will unmount this component
-            } else {
-              setError("Failed to create image. Try retaking.");
-              setUploading(false);
-            }
-          },
-          "image/jpeg",
-          0.88
-        );
+        // Convert to blob via dataURL (more reliable than toBlob on mobile)
+        const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        const binaryStr = atob(jpegDataUrl.split(",")[1]);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+        const blob = new Blob([bytes], { type: "image/jpeg" });
+
+        // If we have upload config, upload directly (bypasses parent callback chain)
+        if (uploadConfig) {
+          const formData = new FormData();
+          formData.append("file", blob, `evidence-${Date.now()}.jpg`);
+          formData.append("jobId", uploadConfig.jobId);
+          formData.append("completionId", uploadConfig.completionId);
+          formData.append("redactionApplied", "true");
+          formData.append("redactionType", redactionType);
+          if (uploadConfig.itemId) {
+            formData.append("itemId", uploadConfig.itemId);
+            if (uploadConfig.checklistRunId) formData.append("checklistRunId", uploadConfig.checklistRunId);
+          }
+
+          const res = await fetch("/api/evidence/upload", { method: "POST", body: formData });
+          if (res.ok) {
+            onUploadComplete?.();
+          } else {
+            const data = await res.json().catch(() => ({}));
+            setError(data.error || "Upload failed. Try again.");
+            setUploading(false);
+          }
+        } else {
+          // Fallback: use callback (for non-upload use cases)
+          onDone(blob, redactionType);
+        }
       } catch (e) {
-        setError("Processing failed. Try retaking.");
+        setError("Failed to process photo. Try retaking.");
         setUploading(false);
       }
     };
-    img.onerror = () => {
-      setError("Failed to load image. Try retaking.");
-      setUploading(false);
-    };
+    img.onerror = () => { setError("Failed to load image."); setUploading(false); };
     img.src = dataUrl;
   }
 
