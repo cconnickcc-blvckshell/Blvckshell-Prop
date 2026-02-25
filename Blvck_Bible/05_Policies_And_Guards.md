@@ -80,16 +80,20 @@
 **Purpose:** Rate limiting only. Route protection is **not** in middleware (to avoid Edge getToken/session issues).
 
 **Matcher:**  
-- `/api/auth/:path*`  
-- `/api/lead`  
+- `/api/auth/callback/:path*` (POST only — actual login attempts)  
+- `/api/lead` (POST only)  
 - `/api/evidence/upload`  
 
 **Behavior:**  
 - For these paths, reads client IP via `getClientIP(request)`, then `checkRateLimit(ip, limit, windowMs)`.  
-- Auth: limit 5, window 15 minutes.  
-- Lead and evidence upload: limit 10, window 15 minutes.  
-- If not allowed: returns 429 JSON `{ error: "Too many requests. Please try again later." }`.  
+- Auth POST (callback): limit 10, window 15 minutes.  
+- Lead and evidence upload: limit 30, window 15 minutes.  
+- If not allowed:  
+  - Auth POST: redirects to `/login?error=RateLimit`  
+  - Others: returns 429 JSON `{ error: "Too many requests. Please wait a few minutes and try again." }` with `Retry-After` header.  
 - Otherwise: `NextResponse.next()`.
+
+**Critical:** NextAuth internal GET routes (`/api/auth/providers`, `/api/auth/csrf`, `/api/auth/session`, `/api/auth/error`) are **not** rate-limited — these are fetched on every page load.
 
 ---
 
@@ -124,7 +128,85 @@
 | Worker routes | requireWorker(); job access via canAccessJob (assignedWorkerId for workers). |
 | Vendor owner routes | requireVendorOwner(); job/payout access via canAccessWorkforceAccount and assignment. |
 | API routes | Call appropriate guard or canAccess* before performing action. |
-| Rate limit | Middleware on /api/auth/*, /api/lead, /api/evidence/upload. |
+| Rate limit | Middleware on /api/auth/callback/* (POST, 10/15min), /api/lead (POST, 30/15min), /api/evidence/upload (30/15min). |
+
+---
+
+## Preconditions (Pre-flight Checks)
+
+**File:** `src/lib/preconditions.ts`  
+**Purpose:** Structured pre-flight checks before critical transitions. Returns typed failures the UI can render as "why is this blocked?"
+
+### Interface
+
+```typescript
+interface PreconditionResult {
+  passed: boolean;
+  failures: PreconditionFailure[];
+}
+
+interface PreconditionFailure {
+  code: string;   // Machine-readable code (e.g. "NO_SUBMITTED_CHECKLIST")
+  message: string; // Human-readable message
+}
+```
+
+### Functions
+
+| Function | Checks | Failure codes |
+|----------|--------|---------------|
+| checkJobApprovalPreconditions(jobId) | Status is COMPLETED_PENDING_APPROVAL; ≥1 submitted checklist run; billable/payout amounts set; evidence count meets site.requiredPhotoCount | NOT_FOUND, WRONG_STATUS, NO_SUBMITTED_CHECKLIST, NO_BILLABLE_AMOUNT, INSUFFICIENT_EVIDENCE |
+| checkInvoiceSendPreconditions(invoiceId) | Status is Draft; ≥1 line item; no system placeholder lines | NOT_FOUND, WRONG_STATUS, NO_LINE_ITEMS, HAS_PLACEHOLDERS |
+| checkPayoutFinalizePreconditions(batchId) | Status not PAID; ≥1 payout line; no compliance-suspended accounts; no inactive accounts | NOT_FOUND, ALREADY_PAID, NO_LINES, COMPLIANCE_SUSPENDED, INACTIVE_ACCOUNTS |
+
+**Usage:** Call in UI before showing "Approve" / "Send" / "Finalize" buttons to surface blocking reasons to admin.
+
+---
+
+## Compliance Guards
+
+**File:** `src/server/guards/compliance.ts`  
+**Purpose:** Workforce compliance checks. Blocks job assignment and payout for non-compliant accounts.
+
+### Functions
+
+| Function | Purpose | Returns |
+|----------|---------|---------|
+| checkWorkforceCompliance(workforceAccountId) | Full compliance check for a workforce account | `ComplianceCheckResult` |
+| canAssignJob({ workforceAccountId?, workerId? }) | Pre-flight for job assignment | `ComplianceCheckResult` |
+
+### ComplianceCheckResult
+
+```typescript
+interface ComplianceCheckResult {
+  compliant: boolean;
+  issues: ComplianceIssue[];
+}
+
+interface ComplianceIssue {
+  code: string;
+  message: string;
+  severity: "BLOCKING" | "WARNING";
+}
+```
+
+### Compliance Rules
+
+| Check | Applies to | Severity | Code |
+|-------|-----------|----------|------|
+| Account not found | All | BLOCKING | NOT_FOUND |
+| Account inactive | All | BLOCKING | INACTIVE |
+| complianceSuspended = true | All | BLOCKING | SUSPENDED |
+| Missing COI | VENDOR | BLOCKING | MISSING_COI |
+| Expired COI | VENDOR | BLOCKING | EXPIRED_COI |
+| Missing WSIB | VENDOR | BLOCKING | MISSING_WSIB |
+| Expired WSIB | VENDOR | BLOCKING | EXPIRED_WSIB |
+| Missing HST number | VENDOR | WARNING | MISSING_HST |
+
+**Usage:**  
+- Call `canAssignJob()` before assigning a job to a worker/account.  
+- Call `checkWorkforceCompliance()` in payout batch creation to filter out non-compliant accounts.  
+- The `complianceSuspended` flag can be set manually by admin or automatically by a background compliance check.
 
 ---
 

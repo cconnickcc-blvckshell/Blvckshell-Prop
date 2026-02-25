@@ -146,6 +146,82 @@
 
 ---
 
+## Payment Actions
+
+**File:** `src/server/actions/payment-actions.ts`
+
+Provider-agnostic payment ledger. Blvckshell is the system of record; payment providers (Stripe, SparcPay, EFT, cheque) are settlement rails only.
+
+| Action | Purpose | Guard / access |
+|--------|---------|-----------------|
+| recordPayment({ invoiceId, provider, amountCents, providerRef?, metadata? }) | Create a PENDING payment record against an invoice | Admin |
+| settlePayment(paymentId, providerRef?) | Mark payment SETTLED; auto-transitions invoice to Paid if fully settled | Admin |
+| failPayment(paymentId, reason) | Mark payment FAILED with reason | Admin |
+| listPaymentsForInvoice(invoiceId) | List all payments for an invoice | Admin |
+
+**Key behavior:**  
+- `recordPayment`: Cannot record against Draft invoice (must be Sent first).  
+- `settlePayment`: If sum of SETTLED payments >= invoice.totalCents, auto-transitions invoice to Paid and updates linked jobs.  
+- All mutations write AuditLog with fromState/toState.
+
+---
+
+## Notification Actions
+
+**File:** `src/server/actions/notification-actions.ts`
+
+Durable outbox for email/SMS notifications. Write intent in server actions, process async via background worker.
+
+| Action | Purpose | Guard / access |
+|--------|---------|-----------------|
+| queueNotification({ channel, templateKey, recipient, payload, relatedEntityType, relatedEntityId }) | Create PENDING notification in outbox | None (internal use) |
+| markNotificationSent(notificationId, providerMessageId) | Mark notification SENT (called by background worker) | None (internal use) |
+| markNotificationFailed(notificationId, error) | Mark notification FAILED (called by background worker) | None (internal use) |
+| getPendingNotifications(limit?) | Get pending notifications for processing | None (internal use) |
+| getFailedNotifications(limit?) | Get failed notifications for retry | None (internal use) |
+| retryNotification(notificationId) | Reset failed notification to PENDING | None (internal use) |
+
+**Integration:** `/api/notifications/process` cron endpoint calls `getPendingNotifications` and dispatches to SendGrid/Twilio.
+
+---
+
+## Time Entry Actions
+
+**File:** `src/server/actions/timeentry-actions.ts`
+
+Payroll time tracking for employees (not contractors). Contractors are paid via AP/payout.
+
+| Action | Purpose | Guard / access |
+|--------|---------|-----------------|
+| createTimeEntry({ workerId, jobId?, date, regularMinutes, overtimeMinutes?, rateCentsPerHour, notes? }) | Create time entry (employees only) | Admin |
+| approveTimeEntries(entryIds) | Approve submitted entries for payroll export | Admin |
+| exportPayrollBatch({ periodStart, periodEnd, batchRef }) | Export approved entries, mark as EXPORTED, return CSV-ready data | Admin |
+| listTimeEntries(filters?) | List entries with optional filters (workerId, status, period) | Admin |
+
+**Key behavior:**  
+- `createTimeEntry`: Rejects if worker's workforceAccount.classification !== "EMPLOYEE".  
+- `exportPayrollBatch`: Marks entries as EXPORTED with payrollBatchRef; writes AuditLog.  
+- Entry states: DRAFT → SUBMITTED → APPROVED → EXPORTED → PAID.
+
+---
+
+## Worker Actions
+
+**File:** `src/server/actions/worker-actions.ts`
+
+Worker check-in/check-out for job time tracking.
+
+| Action | Purpose | Guard / access |
+|--------|---------|-----------------|
+| checkIn(jobId) | Worker checks in to job; sets checkedInAt, startedAt | Worker (requireWorker, own job) |
+| checkOut(jobId) | Worker checks out of job; sets checkedOutAt, endedAt, actualDurationMinutes | Worker (requireWorker, own job) |
+
+**Key behavior:**  
+- `checkIn`: Requires job status SCHEDULED, not already checked in, assigned to current worker.  
+- `checkOut`: Requires checked in, calculates duration in minutes.
+
+---
+
 ## Form Actions (App Router)
 
 | File | Action | Purpose |
