@@ -110,11 +110,10 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     detectPeople(dataUrl);
   }, [stream]); // eslint-disable-line
 
-  // --- Person detection (COCO-SSD: detects full bodies, not just frontal faces) ---
+  // --- Face/person detection: blazeface first (precise), COCO-SSD fallback (wider coverage) ---
   async function detectPeople(dataUrl: string) {
     let rects: Rect[] = [];
 
-    // Load image
     const img = new Image();
     img.crossOrigin = "anonymous";
     await new Promise<void>((resolve) => {
@@ -123,53 +122,57 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
       img.src = dataUrl;
     });
 
-    // Try COCO-SSD for full person detection
+    // 1. Try blazeface first — precise face bounding boxes
     try {
-      setProcessingMsg("AI scanning...");
+      setProcessingMsg("Detecting faces...");
       const tf = await import("@tensorflow/tfjs-core");
       await import("@tensorflow/tfjs-backend-webgl");
       await tf.ready();
 
-      const cocoSsd = await import("@tensorflow-models/coco-ssd");
-      const model = await cocoSsd.load({ base: "lite_mobilenet_v2" });
-      const predictions = await model.detect(img);
+      const blazeface = await import("@tensorflow-models/blazeface");
+      const model = await blazeface.load();
+      const faces = await model.estimateFaces(img, false);
 
-      // Filter for "person" class only
-      const people = predictions.filter((p) => p.class === "person" && p.score > 0.4);
-
-      // Only blur the HEAD region (top ~30% of body bounding box)
-      rects = people.map((p) => {
-        const [bx, by, bw, bh] = p.bbox;
-        const headH = bh * 0.28;
-        const padX = bw * 0.1;
-        const padY = headH * 0.15;
+      rects = faces.map((pred) => {
+        const start = pred.topLeft as [number, number];
+        const end = pred.bottomRight as [number, number];
+        const fw = end[0] - start[0];
+        const fh = end[1] - start[1];
+        // Moderate padding around the face
+        const padX = fw * 0.25;
+        const padY = fh * 0.25;
         return {
-          x: Math.max(0, bx - padX),
-          y: Math.max(0, by - padY),
-          w: bw + padX * 2,
-          h: headH + padY * 2,
+          x: Math.max(0, start[0] - padX),
+          y: Math.max(0, start[1] - padY),
+          w: fw + padX * 2,
+          h: fh + padY * 2,
         };
       });
     } catch {
-      // COCO-SSD failed, try blazeface as fallback (frontal faces only)
+      // blazeface failed
+    }
+
+    // 2. If blazeface found nothing, try COCO-SSD for people at angles/distance
+    if (rects.length === 0) {
       try {
-        setProcessingMsg("Checking for faces...");
+        setProcessingMsg("Scanning for people...");
         const tf = await import("@tensorflow/tfjs-core");
         await tf.ready();
-        const blazeface = await import("@tensorflow-models/blazeface");
-        const model = await blazeface.load();
-        const faces = await model.estimateFaces(img, false);
 
-        rects = faces.map((pred) => {
-          const start = pred.topLeft as [number, number];
-          const end = pred.bottomRight as [number, number];
-          const pw = (end[0] - start[0]) * 0.3;
-          const ph = (end[1] - start[1]) * 0.3;
+        const cocoSsd = await import("@tensorflow-models/coco-ssd");
+        const model = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+        const predictions = await model.detect(img);
+        const people = predictions.filter((p) => p.class === "person" && p.score > 0.45);
+
+        // Extract head region only (top 25% of body box)
+        rects = people.map((p) => {
+          const [bx, by, bw, bh] = p.bbox;
+          const headH = bh * 0.25;
           return {
-            x: Math.max(0, start[0] - pw),
-            y: Math.max(0, start[1] - ph),
-            w: (end[0] - start[0]) + pw * 2,
-            h: (end[1] - start[1]) + ph * 2,
+            x: Math.max(0, bx),
+            y: Math.max(0, by),
+            w: bw,
+            h: headH,
           };
         });
       } catch {
@@ -194,7 +197,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     const h = Math.min(canvasH - y, Math.round(rect.h));
     if (w <= 2 || h <= 2) return;
 
-    const blockSize = Math.max(4, Math.round(Math.min(w, h) / 12));
+    const blockSize = Math.max(6, Math.round(Math.min(w, h) / 8));
 
     // Read pixels and pixelate
     const imageData = ctx.getImageData(x, y, w, h);
