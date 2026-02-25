@@ -38,6 +38,14 @@ Single Next.js 14 app (App Router) in `portal/` — a facilities services workfo
 - **Prisma**: Uses `@prisma/adapter-pg` driver adapter at runtime. The schema has no `url`/`directUrl` — those are set in `prisma.config.ts`. Run `npx prisma generate` before starting the dev server if `node_modules` were freshly installed.
 - **PostgreSQL**: Local dev uses PostgreSQL 16 with user `portaldev` / password `portaldev` / database `portal_dev`.
 
+### Rate card system
+
+- **RateCard / RateCardEntry** models store area type × size × finish → calibrated minutes matrix. Seeded by `src/server/pricing/seed-rate-card.ts` (called from `prisma/seed.ts`). The seed is idempotent: it checks for an existing active rate card before creating.
+- The quote walkthrough uses **multi-finish selection** (checkboxes, not a single dropdown). Each area line stores `measurements.finishes: string[]` (array of finish keys). Total minutes = sum of minutes for each selected finish × count.
+- Rate card admin editor is on `/admin/pricing` (below the pricing policy editor). Minutes are inline-editable (click the number).
+- `computeAreaMinutesFromRateCard()` in `area-presets.ts` is the new rate card lookup function; the old `computeAreaMinutesFromPreset()` is kept as fallback for lines without `finishes` array.
+- When `DATABASE_URL` env var is set (e.g. to Supabase), the app and seed use that. The seed script sets `NODE_TLS_REJECT_UNAUTHORIZED=0` to handle self-signed certs. The `.env` file at repo root is only loaded if `DATABASE_URL` is not already set in the environment.
+
 ### New models (workforce system foundations)
 
 The following models were added via migration `20260224210215_workforce_system_foundations`:
