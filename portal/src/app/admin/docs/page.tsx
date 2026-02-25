@@ -17,6 +17,32 @@ export default async function AdminDocsPage() {
         </p>
       </div>
 
+      {/* Business Plan - Featured Document */}
+      <section className="mb-10">
+        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-zinc-500">Business Plan</h2>
+        <p className="mb-4 text-sm text-zinc-400">Ontario regional business plan for bank and investor review</p>
+        <Link
+          href="/admin/docs/business-plan"
+          className="group flex items-center gap-4 rounded-xl border border-amber-800/50 bg-gradient-to-r from-amber-900/20 to-zinc-900/50 p-5 shadow-lg transition-all duration-200 hover:border-amber-600/50 hover:from-amber-900/30 hover:shadow-xl active:scale-[0.995] sm:p-6"
+        >
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-600/20 text-amber-500">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <span className="font-semibold text-white group-hover:text-amber-400">Ontario Regional Business Plan</span>
+            <span className="mt-1 block text-xs text-zinc-400">Q1 2026 | Confidential | Bank & Investor Ready</span>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-medium text-amber-500/80">
+            <span>View</span>
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </Link>
+      </section>
+
       {checklists.length > 0 && (
         <section className="mb-10">
           <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-zinc-500">Checklists</h2>
