@@ -36,6 +36,7 @@
     "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^2.95.3",
     "@tensorflow-models/blazeface": "^0.1.0",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs-backend-webgl": "^4.22.0",
     "@tensorflow/tfjs-core": "^4.22.0",
     "@types/react": "^18.3.28",
