@@ -95,3 +95,11 @@ Currently on Next.js 14.2.35. Two known high-severity CVEs exist (Image Optimize
 - `src/server/actions/payment-actions.ts` — Payment recording, settlement, failure. Auto-transitions invoice to Paid when settled >= total.
 - `src/server/actions/notification-actions.ts` — Notification outbox CRUD + retry.
 - `src/server/actions/timeentry-actions.ts` — Time entry CRUD + payroll export batch.
+- `src/server/actions/schedule-actions.ts` — Recurring schedule CRUD + idempotent job generation from schedules.
+- `src/server/actions/quality-actions.ts` — Site quality score computation (30-day rolling checklist pass rate with trend).
+
+### New admin pages
+
+- `/admin/schedules` — Recurring schedule management + job generation (create/pause/delete schedules, generate jobs for week/month/custom range).
+- `/admin/analytics` — Financial analytics dashboard (revenue, AR aging, payout ratio, job volume, top sites by revenue).
+- `/api/reports/client/[clientId]` — PDF service report per client per month (pdfkit). Accepts `?month=YYYY-MM` query param.
