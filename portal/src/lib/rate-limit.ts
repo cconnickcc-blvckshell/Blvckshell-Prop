@@ -1,42 +1,63 @@
 /**
- * Stateless rate limiting for Vercel serverless.
- * Uses a simple sliding window with IP-based tracking.
- * NOTE: In serverless, in-memory state is per-instance and ephemeral.
- * This provides basic protection but is NOT a hard guarantee.
- * For production hardening, migrate to Upstash Redis.
+ * Rate limiting with optional Upstash Redis backend.
+ * Falls back to in-memory if UPSTASH_REDIS_REST_URL is not set.
  */
 
-const store = new Map<string, { count: number; resetAt: number }>();
+const memStore = new Map<string, { count: number; resetAt: number }>();
 
-const MAX_STORE_SIZE = 10000;
+async function checkRedisRateLimit(
+  ip: string,
+  limit: number,
+  windowMs: number
+): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-function cleanup() {
-  const now = Date.now();
-  if (store.size > MAX_STORE_SIZE) {
-    for (const [key, entry] of store.entries()) {
-      if (entry.resetAt < now) store.delete(key);
+  if (!url || !token) {
+    return checkMemoryRateLimit(ip, limit, windowMs);
+  }
+
+  try {
+    const { Redis } = await import("@upstash/redis");
+    const redis = new Redis({ url, token });
+
+    const key = `rl:${ip}`;
+    const current = await redis.incr(key);
+
+    if (current === 1) {
+      await redis.pexpire(key, windowMs);
     }
-    if (store.size > MAX_STORE_SIZE) {
-      const entries = Array.from(store.entries());
-      entries.sort((a, b) => a[1].resetAt - b[1].resetAt);
-      for (let i = 0; i < entries.length / 2; i++) {
-        store.delete(entries[i][0]);
-      }
-    }
+
+    const ttl = await redis.pttl(key);
+    const resetAt = Date.now() + (ttl > 0 ? ttl : windowMs);
+
+    return {
+      allowed: current <= limit,
+      remaining: Math.max(0, limit - current),
+      resetAt,
+    };
+  } catch {
+    return checkMemoryRateLimit(ip, limit, windowMs);
   }
 }
 
-export function checkRateLimit(
+function checkMemoryRateLimit(
   ip: string,
   limit: number,
   windowMs: number
 ): { allowed: boolean; remaining: number; resetAt: number } {
-  cleanup();
   const now = Date.now();
-  const entry = store.get(ip);
+
+  if (memStore.size > 10000) {
+    for (const [key, entry] of memStore.entries()) {
+      if (entry.resetAt < now) memStore.delete(key);
+    }
+  }
+
+  const entry = memStore.get(ip);
 
   if (!entry || entry.resetAt < now) {
-    store.set(ip, { count: 1, resetAt: now + windowMs });
+    memStore.set(ip, { count: 1, resetAt: now + windowMs });
     return { allowed: true, remaining: limit - 1, resetAt: now + windowMs };
   }
 
@@ -47,6 +68,8 @@ export function checkRateLimit(
   entry.count++;
   return { allowed: true, remaining: limit - entry.count, resetAt: entry.resetAt };
 }
+
+export const checkRateLimit = checkRedisRateLimit;
 
 export function getClientIP(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");

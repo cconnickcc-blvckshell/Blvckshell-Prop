@@ -4,23 +4,33 @@ import Link from "next/link";
 import BulkJobActionsPanel from "@/components/admin/BulkJobActionsPanel";
 import { runFlagOverdueApprovals } from "@/server/actions/bulk-actions";
 import { formatJobStatus } from "@/lib/format";
+import FilterBar from "@/components/admin/FilterBar";
+import ExportCSVButton from "@/components/admin/ExportCSVButton";
 
 export default async function AdminJobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ siteId?: string }>;
+  searchParams: Promise<{ siteId?: string; status?: string; q?: string; from?: string; to?: string }>;
 }) {
   await requireAdmin();
-  // Non-blocking: flag overdue approvals (skip if migration not run — avoids 500)
   void runFlagOverdueApprovals().catch(() => {});
 
-  const { siteId } = await searchParams;
+  const { siteId, status, q, from, to } = await searchParams;
+
+  const where: Record<string, unknown> = {
+    ...(siteId ? { siteId } : {}),
+    ...(status ? { status } : { status: { not: "CANCELLED" as const } }),
+    ...(q ? { site: { name: { contains: q, mode: "insensitive" as const } } } : {}),
+    ...(from || to ? {
+      scheduledStart: {
+        ...(from ? { gte: new Date(from) } : {}),
+        ...(to ? { lte: new Date(to + "T23:59:59") } : {}),
+      },
+    } : {}),
+  };
 
   const jobs = await prisma.job.findMany({
-    where: {
-      status: { not: "CANCELLED" },
-      ...(siteId ? { siteId } : {}),
-    },
+    where,
     select: {
       id: true,
       siteId: true,
@@ -81,13 +91,35 @@ export default async function AdminJobsPage({
             {siteName ? "Job history for this site" : "Manage and review job completions"}
           </p>
         </div>
-        <Link
-          href="/admin/jobs/new"
-          className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
-        >
-          Create job
-        </Link>
+        <div className="flex items-center gap-2">
+          <ExportCSVButton endpoint="/api/admin/export/jobs" filename={`jobs-${new Date().toISOString().split("T")[0]}.csv`} />
+          <Link
+            href="/admin/jobs/new"
+            prefetch={false}
+            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
+          >
+            Create job
+          </Link>
+        </div>
       </div>
+
+      <FilterBar
+        filters={[
+          {
+            key: "status",
+            label: "Status",
+            type: "select",
+            options: [
+              { value: "SCHEDULED", label: "Scheduled" },
+              { value: "COMPLETED_PENDING_APPROVAL", label: "Pending Approval" },
+              { value: "APPROVED_PAYABLE", label: "Approved" },
+              { value: "PAID", label: "Paid" },
+            ],
+          },
+          { key: "from", label: "From", type: "date" },
+          { key: "to", label: "To", type: "date" },
+        ]}
+      />
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
         <div className="overflow-x-auto">
@@ -163,6 +195,7 @@ export default async function AdminJobsPage({
               <div key={job.id} className="flex flex-col gap-2 px-4 py-4">
                 <Link
                   href={`/admin/jobs/${job.id}`}
+                  prefetch={false}
                   className="font-medium text-white hover:text-emerald-400"
                 >
                   {job.site.name}
@@ -184,6 +217,7 @@ export default async function AdminJobsPage({
                 </div>
                 <Link
                   href={`/admin/jobs/${job.id}`}
+                  prefetch={false}
                   className="text-sm font-medium text-zinc-300 hover:text-white"
                 >
                   View →
@@ -197,6 +231,7 @@ export default async function AdminJobsPage({
             <p className="text-sm text-zinc-500 mb-4">No jobs yet.</p>
             <Link
               href="/admin/jobs/new"
+              prefetch={false}
               className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
             >
               Create your first job

@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
     const ip = getClientIP(request);
     const limit = isAuthPost ? 10 : 30; // 10 login attempts, 30 for others
     const windowMs = 15 * 60 * 1000; // 15 minutes
-    const result = checkRateLimit(ip, limit, windowMs);
+    const result = await checkRateLimit(ip, limit, windowMs);
 
     if (!result.allowed) {
       // For auth POST, redirect to login with error instead of raw JSON

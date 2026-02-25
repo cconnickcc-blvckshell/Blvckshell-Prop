@@ -1,11 +1,21 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import FilterBar from "@/components/admin/FilterBar";
 
-export default async function AdminClientsPage() {
+export default async function AdminClientsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   await requireAdmin();
 
+  const { q } = await searchParams;
+
   const clients = await prisma.clientOrganization.findMany({
+    where: {
+      ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
+    },
     include: {
       _count: { select: { sites: true } },
       sites: { where: { isActive: true }, select: { id: true, name: true } },
@@ -22,11 +32,14 @@ export default async function AdminClientsPage() {
         </div>
         <Link
           href="/admin/clients/new"
+          prefetch={false}
           className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
         >
           Add client
         </Link>
       </div>
+
+      <FilterBar filters={[]} />
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
         <div className="overflow-x-auto">
@@ -43,7 +56,7 @@ export default async function AdminClientsPage() {
               {clients.map((client) => (
                 <tr key={client.id} className="hover:bg-zinc-800/30 transition-colors">
                   <td className="whitespace-nowrap px-6 py-4">
-                    <Link href={`/admin/clients/${client.id}`} className="font-medium text-white hover:text-emerald-400">
+                    <Link href={`/admin/clients/${client.id}`} prefetch={false} className="font-medium text-white hover:text-emerald-400">
                       {client.name}
                     </Link>
                   </td>
@@ -54,7 +67,7 @@ export default async function AdminClientsPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">{client._count.sites}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right">
-                    <Link href={`/admin/clients/${client.id}`} className="font-medium text-emerald-400 hover:text-emerald-300">
+                    <Link href={`/admin/clients/${client.id}`} prefetch={false} className="font-medium text-emerald-400 hover:text-emerald-300">
                       View
                     </Link>
                   </td>
@@ -65,13 +78,13 @@ export default async function AdminClientsPage() {
           <div className="divide-y divide-zinc-800 md:hidden">
             {clients.map((client) => (
               <div key={client.id} className="flex flex-col gap-2 px-4 py-4">
-                <Link href={`/admin/clients/${client.id}`} className="font-medium text-white hover:text-emerald-400">
+                <Link href={`/admin/clients/${client.id}`} prefetch={false} className="font-medium text-white hover:text-emerald-400">
                   {client.name}
                 </Link>
                 <p className="text-sm text-zinc-400">{client.primaryContactName}</p>
                 <p className="text-xs text-zinc-500">{client.primaryContactEmail}</p>
                 <p className="text-sm text-zinc-400">{client._count.sites} site(s)</p>
-                <Link href={`/admin/clients/${client.id}`} className="text-sm font-medium text-zinc-300 hover:text-white">
+                <Link href={`/admin/clients/${client.id}`} prefetch={false} className="text-sm font-medium text-zinc-300 hover:text-white">
                   View →
                 </Link>
               </div>
@@ -81,7 +94,7 @@ export default async function AdminClientsPage() {
         {clients.length === 0 && (
           <div className="p-8 text-center text-sm text-zinc-500">
             No clients yet.{" "}
-            <Link href="/admin/clients/new" className="text-emerald-400 hover:text-emerald-300">
+            <Link href="/admin/clients/new" prefetch={false} className="text-emerald-400 hover:text-emerald-300">
               Add your first client
             </Link>
           </div>
