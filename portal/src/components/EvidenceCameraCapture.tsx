@@ -137,16 +137,17 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
       // Filter for "person" class only
       const people = predictions.filter((p) => p.class === "person" && p.score > 0.4);
 
+      // Only blur the HEAD region (top ~30% of body bounding box)
       rects = people.map((p) => {
         const [bx, by, bw, bh] = p.bbox;
-        // Add 10% padding
+        const headH = bh * 0.28;
         const padX = bw * 0.1;
-        const padY = bh * 0.1;
+        const padY = headH * 0.15;
         return {
           x: Math.max(0, bx - padX),
           y: Math.max(0, by - padY),
           w: bw + padX * 2,
-          h: bh + padY * 2,
+          h: headH + padY * 2,
         };
       });
     } catch {
@@ -193,7 +194,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     const h = Math.min(canvasH - y, Math.round(rect.h));
     if (w <= 2 || h <= 2) return;
 
-    const blockSize = Math.max(6, Math.round(Math.min(w, h) / 8));
+    const blockSize = Math.max(4, Math.round(Math.min(w, h) / 12));
 
     // Read pixels and pixelate
     const imageData = ctx.getImageData(x, y, w, h);
