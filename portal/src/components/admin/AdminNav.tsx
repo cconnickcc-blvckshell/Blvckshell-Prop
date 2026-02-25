@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import NotificationBell from "@/components/admin/NotificationBell";
 
 const navLinks = [
   { href: "/admin", label: "Dashboard" },
@@ -63,6 +64,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
           </div>
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <span className="hidden truncate text-sm text-zinc-400 sm:inline">{userName}</span>
             <span className="rounded-md bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-300">
               {userRole}

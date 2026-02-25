@@ -43,9 +43,17 @@ export default async function SchedulePage() {
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto max-w-lg">
-        <div className="mb-4">
-          <h1 className="text-xl font-bold text-white">Schedule</h1>
-          <p className="text-sm text-zinc-400">Upcoming jobs</p>
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-white">Schedule</h1>
+            <p className="text-sm text-zinc-400">Upcoming jobs</p>
+          </div>
+          <a
+            href="/api/worker/ical"
+            className="text-xs text-emerald-400 hover:text-emerald-300"
+          >
+            Add to calendar (iCal)
+          </a>
         </div>
 
         {grouped.size === 0 ? (

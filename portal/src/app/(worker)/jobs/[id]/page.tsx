@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { canAccessJob } from "@/server/guards/rbac";
 import { createOrGetChecklistRun } from "@/server/actions/checklist-run-actions";
 import JobDetailClient from "@/components/JobDetailClient";
+import CheckInOutPanel from "@/components/worker/CheckInOutPanel";
 
 export default async function JobDetailPage({
   params,
@@ -37,6 +38,8 @@ export default async function JobDetailPage({
       startedAt: true,
       endedAt: true,
       actualDurationMinutes: true,
+      checkedInAt: true,
+      checkedOutAt: true,
       checkInMethod: true,
       createdAt: true,
       pricingModel: true,
@@ -209,13 +212,25 @@ export default async function JobDetailPage({
       : checklistTemplate.items;
 
   return (
-    <JobDetailClient
-      job={job}
-      checklistTemplate={{ ...checklistTemplate, items: checklistItemsForRun }}
-      checklistRunId={runResult.run.id}
-      initialRunItems={runResult.runItems}
-      currentWorkerId={user.workerId}
-      requiredPhotoCount={job.site.requiredPhotoCount}
-    />
+    <>
+      {(job.status === "SCHEDULED" || job.checkedInAt) && (
+        <div className="mx-auto max-w-lg px-4 pt-4">
+          <CheckInOutPanel
+            jobId={job.id}
+            status={job.status}
+            checkedInAt={job.checkedInAt?.toISOString() ?? null}
+            checkedOutAt={job.checkedOutAt?.toISOString() ?? null}
+          />
+        </div>
+      )}
+      <JobDetailClient
+        job={job}
+        checklistTemplate={{ ...checklistTemplate, items: checklistItemsForRun }}
+        checklistRunId={runResult.run.id}
+        initialRunItems={runResult.runItems}
+        currentWorkerId={user.workerId}
+        requiredPhotoCount={job.site.requiredPhotoCount}
+      />
+    </>
   );
 }

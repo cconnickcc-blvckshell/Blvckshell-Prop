@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import * as bcrypt from "bcryptjs";
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import { passwordSchema } from "@/lib/validations";
 
 export async function createWorkforceAccount(formData: FormData) {
   const user = await requireAdmin();
@@ -24,8 +25,12 @@ export async function createWorkforceAccount(formData: FormData) {
   if (!type || !displayName || !primaryContactName || !primaryContactEmail || !primaryContactPhone) {
     return { error: "Type, display name, and primary contact (name, email, phone) are required." };
   }
-  if (!userName || !userEmail || !userPassword || userPassword.length < 8) {
-    return { error: "First user name, email, and password (min 8 chars) are required." };
+  if (!userName || !userEmail || !userPassword) {
+    return { error: "First user name, email, and password are required." };
+  }
+  const passwordResult = passwordSchema.safeParse(userPassword);
+  if (!passwordResult.success) {
+    return { error: passwordResult.error.issues.map((e: { message: string }) => e.message).join(". ") };
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email: userEmail } });
