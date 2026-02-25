@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireClient } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import PayNowButton from "@/components/client/PayNowButton";
 
 export default async function ClientInvoiceDetailPage({
   params,
@@ -78,6 +79,9 @@ export default async function ClientInvoiceDetailPage({
         >
           Download PDF
         </a>
+        {invoice.status === "Sent" && (
+          <PayNowButton invoiceId={invoice.id} totalCents={invoice.totalCents} />
+        )}
       </div>
 
       <div className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">

@@ -70,7 +70,7 @@ export default async function AdminJobsPage({
 
   return (
     <div className="w-full">
-      <BulkJobActionsPanel jobs={jobs.map((j) => ({ id: j.id, status: j.status }))} />
+      <BulkJobActionsPanel jobs={jobs.map((j) => ({ id: j.id, status: j.status, siteName: j.site?.name ?? "", scheduledStart: j.scheduledStart?.toISOString() ?? "" }))} />
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

@@ -76,11 +76,21 @@ export default async function EarningsPage() {
                       <h2 className="font-semibold text-white">{monthLabel}</h2>
                       <p className="text-xs text-zinc-500">{monthJobs.length} job{monthJobs.length !== 1 ? "s" : ""}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-white">${(monthTotal / 100).toFixed(2)}</p>
-                      {monthPaid < monthTotal && (
-                        <p className="text-xs text-amber-400">${((monthTotal - monthPaid) / 100).toFixed(2)} pending</p>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="font-semibold text-white">${(monthTotal / 100).toFixed(2)}</p>
+                        {monthPaid < monthTotal && (
+                          <p className="text-xs text-amber-400">${((monthTotal - monthPaid) / 100).toFixed(2)} pending</p>
+                        )}
+                      </div>
+                      <a
+                        href={`/api/worker/paystub?month=${monthKey}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-emerald-400 hover:text-emerald-300"
+                      >
+                        Download statement
+                      </a>
                     </div>
                   </div>
                   <div className="divide-y divide-zinc-800/50">
