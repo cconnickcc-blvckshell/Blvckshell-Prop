@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   createQuoteAreaLine,
@@ -35,16 +35,15 @@ const PRESETS = [
   { value: "L", label: "L" },
 ] as const;
 
-const FINISHES = [
-  { value: "carpet", label: "Carpet" },
-  { value: "tile", label: "Tile" },
-  { value: "vinyl", label: "Vinyl" },
-  { value: "mixed", label: "Mixed" },
-  { value: "glass-heavy", label: "Glass-heavy" },
-  { value: "chrome", label: "Chrome" },
-  { value: "concrete", label: "Concrete" },
-  { value: "premium", label: "Premium" },
-];
+type RateCardEntryData = {
+  areaType: string;
+  size: string;
+  sizeLabel: string;
+  finish: string;
+  finishLabel: string;
+  minutes: number;
+  description: string | null;
+};
 
 type AreaLine = {
   id: string;
@@ -84,6 +83,7 @@ type WalkthroughScopeClientProps = {
   buildingClass: BuildingClass | null;
   riskRulesKeys: string[];
   billingRateCentsPerHour: number;
+  rateCardEntries: RateCardEntryData[];
 };
 
 function baseMinutesFromLines(lines: AreaLine[]): number {
@@ -91,6 +91,15 @@ function baseMinutesFromLines(lines: AreaLine[]): number {
     (sum, l) => sum + (l.overrideMinutes ?? l.computedMinutes),
     0
   );
+}
+
+function formatFinishes(measurements: Record<string, unknown>): string {
+  const finishes = measurements.finishes as string[] | undefined;
+  if (!finishes || finishes.length === 0) {
+    const finish = measurements.finish as string | undefined;
+    return finish || "";
+  }
+  return finishes.join(" + ");
 }
 
 export default function WalkthroughScopeClient({
@@ -106,6 +115,7 @@ export default function WalkthroughScopeClient({
   buildingClass: initialBuildingClass,
   riskRulesKeys,
   billingRateCentsPerHour,
+  rateCardEntries,
 }: WalkthroughScopeClientProps) {
   const router = useRouter();
   const [areaLines, setAreaLines] = useState<AreaLine[]>(initialAreaLines);
@@ -142,15 +152,52 @@ export default function WalkthroughScopeClient({
 
   const refresh = () => router.refresh();
 
-  // --- Area line form state ---
+  // --- Area line form state (multi-finish) ---
   const [areaForm, setAreaForm] = useState<{
     type: QuoteAreaType;
     preset: "S" | "M" | "L";
-    finish: string;
+    selectedFinishes: string[];
     count: string;
     overrideMinutes: string;
     overrideReason: string;
-  }>({ type: "HALLWAYS", preset: "M", finish: "", count: "1", overrideMinutes: "", overrideReason: "" });
+  }>({ type: "HALLWAYS", preset: "M", selectedFinishes: [], count: "1", overrideMinutes: "", overrideReason: "" });
+
+  const availableFinishes = useMemo(() => {
+    return rateCardEntries.filter(
+      (e) => e.areaType === areaForm.type && e.size === areaForm.preset
+    );
+  }, [rateCardEntries, areaForm.type, areaForm.preset]);
+
+  const sizeLabel = useMemo(() => {
+    const entry = rateCardEntries.find(
+      (e) => e.areaType === areaForm.type && e.size === areaForm.preset
+    );
+    return entry?.sizeLabel ?? "";
+  }, [rateCardEntries, areaForm.type, areaForm.preset]);
+
+  const computedMinutesPreview = useMemo(() => {
+    const count = parseInt(areaForm.count || "1", 10) || 1;
+    let total = 0;
+    for (const f of areaForm.selectedFinishes) {
+      const entry = availableFinishes.find((e) => e.finish === f);
+      if (entry) total += entry.minutes;
+    }
+    return total * count;
+  }, [availableFinishes, areaForm.selectedFinishes, areaForm.count]);
+
+  function toggleFinish(finish: string) {
+    setAreaForm((f) => {
+      const current = f.selectedFinishes;
+      const next = current.includes(finish)
+        ? current.filter((v) => v !== finish)
+        : [...current, finish];
+      return { ...f, selectedFinishes: next };
+    });
+  }
+
+  useEffect(() => {
+    setAreaForm((f) => ({ ...f, selectedFinishes: [] }));
+  }, [areaForm.type, areaForm.preset]);
 
   async function handleAddAreaLine(e: React.FormEvent) {
     e.preventDefault();
@@ -162,8 +209,18 @@ export default function WalkthroughScopeClient({
       setPending(false);
       return;
     }
-    const measurements: Record<string, unknown> = { preset: areaForm.preset, count };
-    if (areaForm.finish) measurements.finish = areaForm.finish;
+    if (areaForm.selectedFinishes.length === 0) {
+      setError("Select at least one finish");
+      setPending(false);
+      return;
+    }
+    const measurements: Record<string, unknown> = {
+      preset: areaForm.preset,
+      size: areaForm.preset,
+      sizeLabel,
+      finishes: areaForm.selectedFinishes,
+      count,
+    };
     const payload: CreateQuoteAreaLinePayload = {
       type: areaForm.type,
       measurements,
@@ -187,7 +244,7 @@ export default function WalkthroughScopeClient({
     setPending(false);
     if (result.ok) {
       refresh();
-      setAreaForm({ type: "HALLWAYS", preset: "M", finish: "", count: "1", overrideMinutes: "", overrideReason: "" });
+      setAreaForm({ type: "HALLWAYS", preset: "M", selectedFinishes: [], count: "1", overrideMinutes: "", overrideReason: "" });
     } else {
       setError(result.error ?? "Failed");
     }
@@ -417,114 +474,168 @@ export default function WalkthroughScopeClient({
             {areaLines.length === 0 ? (
               <li className="py-3 text-sm text-zinc-500">No area lines. Add one below.</li>
             ) : (
-              areaLines.map((line) => (
-                <li key={line.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0">
-                  <div>
-                    <span className="font-medium text-white">{AREA_TYPES.find(a => a.value === line.type)?.label ?? line.type}</span>
-                    <span className="ml-2 text-zinc-400">
-                      ({(line.measurements as { preset?: string })?.preset ?? "—"})
-                    </span>
-                    <span className="ml-2 text-zinc-500">
-                      {line.overrideMinutes ?? line.computedMinutes} min
-                      {line.overrideMinutes != null && line.overrideReason && (
-                        <span className="ml-1 text-xs">override: {line.overrideReason}</span>
+              areaLines.map((line) => {
+                const m = line.measurements as Record<string, unknown>;
+                const finishesStr = formatFinishes(m);
+                const sizeLbl = (m.sizeLabel as string) || (m.preset as string) || "—";
+                return (
+                  <li key={line.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0">
+                    <div>
+                      <span className="font-medium text-white">
+                        {AREA_TYPES.find((a) => a.value === line.type)?.label ?? line.type}
+                      </span>
+                      <span className="ml-2 text-zinc-400">
+                        {(m.preset as string) || "—"}
+                        {(m.sizeLabel as string) ? ` (${m.sizeLabel as string})` : ""}
+                      </span>
+                      {finishesStr && (
+                        <span className="ml-2 text-zinc-500">{finishesStr}</span>
                       )}
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAreaLine(line.id)}
-                      disabled={pending}
-                      className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))
+                      <span className="ml-2 text-zinc-500">
+                        = {line.overrideMinutes ?? line.computedMinutes} min
+                        {line.overrideMinutes != null && line.overrideReason && (
+                          <span className="ml-1 text-xs">override: {line.overrideReason}</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAreaLine(line.id)}
+                        disabled={pending}
+                        className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                );
+              })
             )}
           </ul>
 
-          <form onSubmit={handleAddAreaLine} className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-4">
-            <div>
-              <label className="block text-xs text-zinc-400">Type</label>
-              <select
-                value={areaForm.type}
-                onChange={(e) => setAreaForm((f) => ({ ...f, type: e.target.value as QuoteAreaType }))}
-                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
-              >
-                {AREA_TYPES.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-400">Preset</label>
-              <select
-                value={areaForm.preset}
-                onChange={(e) => setAreaForm((f) => ({ ...f, preset: e.target.value as "S" | "M" | "L" }))}
-                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
-              >
-                {PRESETS.map((p) => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-400">Count</label>
-              <input
-                type="number"
-                min={1}
-                max={100}
-                value={areaForm.count}
-                onChange={(e) => setAreaForm((f) => ({ ...f, count: e.target.value }))}
-                className="mt-0.5 w-20 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-400">Finish</label>
-              <select
-                value={areaForm.finish}
-                onChange={(e) => setAreaForm((f) => ({ ...f, finish: e.target.value }))}
-                className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
-              >
-                <option value="">—</option>
-                {FINISHES.map((f) => (
-                  <option key={f.value} value={f.value}>{f.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-400">Override min (optional)</label>
-              <input
-                type="number"
-                min={0}
-                max={999}
-                value={areaForm.overrideMinutes}
-                onChange={(e) => setAreaForm((f) => ({ ...f, overrideMinutes: e.target.value }))}
-                className="mt-0.5 w-20 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
-              />
-            </div>
-            {areaForm.overrideMinutes.trim() && (
-              <div className="min-w-[160px]">
-                <label className="block text-xs text-zinc-400">Override reason (required)</label>
+          <form onSubmit={handleAddAreaLine} className="space-y-4 rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-4">
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <label className="block text-xs text-zinc-400">Type</label>
+                <select
+                  value={areaForm.type}
+                  onChange={(e) => setAreaForm((f) => ({ ...f, type: e.target.value as QuoteAreaType, selectedFinishes: [] }))}
+                  className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+                >
+                  {AREA_TYPES.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-zinc-400">Size</label>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={areaForm.preset}
+                    onChange={(e) => setAreaForm((f) => ({ ...f, preset: e.target.value as "S" | "M" | "L", selectedFinishes: [] }))}
+                    className="mt-0.5 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+                  >
+                    {PRESETS.map((p) => (
+                      <option key={p.value} value={p.value}>{p.label}</option>
+                    ))}
+                  </select>
+                  {sizeLabel && (
+                    <span className="text-xs text-zinc-400">({sizeLabel})</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-zinc-400">Count</label>
                 <input
-                  type="text"
-                  value={areaForm.overrideReason}
-                  onChange={(e) => setAreaForm((f) => ({ ...f, overrideReason: e.target.value }))}
-                  placeholder="Reason"
-                  className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={areaForm.count}
+                  onChange={(e) => setAreaForm((f) => ({ ...f, count: e.target.value }))}
+                  className="mt-0.5 w-20 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
                 />
               </div>
+            </div>
+
+            {/* Multi-finish checkboxes */}
+            <div>
+              <label className="block text-xs text-zinc-400 mb-2">Finishes (select multiple)</label>
+              {availableFinishes.length === 0 ? (
+                <p className="text-xs text-zinc-500">No finishes configured for this area type + size</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                  {availableFinishes.map((entry) => (
+                    <label
+                      key={entry.finish}
+                      className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm cursor-pointer transition-colors ${
+                        areaForm.selectedFinishes.includes(entry.finish)
+                          ? "border-emerald-500/50 bg-emerald-500/10 text-white"
+                          : "border-zinc-700 bg-zinc-800/50 text-zinc-300 hover:border-zinc-600"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={areaForm.selectedFinishes.includes(entry.finish)}
+                        onChange={() => toggleFinish(entry.finish)}
+                        className="rounded border-zinc-600"
+                      />
+                      <span className="flex-1">
+                        {entry.finishLabel}
+                        {entry.description && (
+                          <span className="ml-1 text-xs text-zinc-500">— {entry.description}</span>
+                        )}
+                      </span>
+                      <span className="text-xs font-mono text-zinc-400">{entry.minutes} min</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Running total */}
+            {areaForm.selectedFinishes.length > 0 && (
+              <div className="flex items-center gap-3 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2">
+                <span className="text-sm text-zinc-300">Total:</span>
+                <span className="text-lg font-bold text-emerald-400">{computedMinutesPreview} min</span>
+                <span className="text-xs text-zinc-500">
+                  ({areaForm.selectedFinishes.length} finish{areaForm.selectedFinishes.length > 1 ? "es" : ""} × {areaForm.count || "1"})
+                </span>
+              </div>
             )}
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
-            >
-              Add area line
-            </button>
+
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <label className="block text-xs text-zinc-400">Override min (optional)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={999}
+                  value={areaForm.overrideMinutes}
+                  onChange={(e) => setAreaForm((f) => ({ ...f, overrideMinutes: e.target.value }))}
+                  className="mt-0.5 w-20 rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+                />
+              </div>
+              {areaForm.overrideMinutes.trim() && (
+                <div className="min-w-[160px]">
+                  <label className="block text-xs text-zinc-400">Override reason (required)</label>
+                  <input
+                    type="text"
+                    value={areaForm.overrideReason}
+                    onChange={(e) => setAreaForm((f) => ({ ...f, overrideReason: e.target.value }))}
+                    placeholder="Reason"
+                    className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
+                  />
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={pending || areaForm.selectedFinishes.length === 0}
+                className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+              >
+                Add area line
+              </button>
+            </div>
           </form>
         </div>
 

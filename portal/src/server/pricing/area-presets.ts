@@ -71,4 +71,25 @@ export function clampMinutes(value: number): number {
   return Math.min(MAX_COMPUTED_MINUTES, Math.max(MIN_MINUTES, Math.round(value)));
 }
 
+/**
+ * Compute total minutes from DB rate card entries using multi-finish selection.
+ * Total = sum of minutes for each selected finish × count.
+ */
+export function computeAreaMinutesFromRateCard(
+  entries: { areaType: string; size: string; finish: string; minutes: number }[],
+  type: string,
+  size: string,
+  finishes: string[],
+  count: number
+): number {
+  let total = 0;
+  for (const f of finishes) {
+    const entry = entries.find(
+      (e) => e.areaType === type && e.size === size && e.finish === f
+    );
+    if (entry) total += entry.minutes;
+  }
+  return Math.min(MAX_COMPUTED_MINUTES, Math.max(MIN_MINUTES, Math.round(total * count)));
+}
+
 export const AREA_PRESET_MINUTES = BASE_MINUTES;

@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { computeQuoteSnapshot, persistQuoteSnapshot } from "@/server/pricing/quote-engine";
 import {
   computeAreaMinutesFromPreset,
+  computeAreaMinutesFromRateCard,
   clampMinutes,
   type AreaMeasurements,
 } from "@/server/pricing/area-presets";
@@ -301,15 +302,35 @@ export async function createQuoteAreaLine(
   }
 
   let computedMinutes: number;
-  const fromPreset = computeAreaMinutesFromPreset(payload.type, payload.measurements ?? {});
-  if (fromPreset !== null) {
-    computedMinutes = fromPreset;
+  const measurements = payload.measurements ?? {};
+  const finishes = Array.isArray(measurements.finishes) ? measurements.finishes as string[] : [];
+
+  if (finishes.length > 0) {
+    const rateCard = await prisma.rateCard.findFirst({
+      where: { isActive: true },
+      include: { entries: true },
+    });
+    const entries = rateCard?.entries ?? [];
+    const count = typeof measurements.count === "number" && measurements.count > 0 ? measurements.count : 1;
+    const size = (measurements.preset ?? measurements.size ?? "M") as string;
+    computedMinutes = computeAreaMinutesFromRateCard(
+      entries.map((e) => ({ areaType: e.areaType, size: e.size, finish: e.finish, minutes: e.minutes })),
+      payload.type,
+      size,
+      finishes,
+      count
+    );
   } else {
-    const raw = payload.computedMinutes;
-    if (typeof raw !== "number" || !Number.isFinite(raw)) {
-      return { ok: false, error: "computedMinutes required when not using preset" };
+    const fromPreset = computeAreaMinutesFromPreset(payload.type, measurements);
+    if (fromPreset !== null) {
+      computedMinutes = fromPreset;
+    } else {
+      const raw = payload.computedMinutes;
+      if (typeof raw !== "number" || !Number.isFinite(raw)) {
+        return { ok: false, error: "computedMinutes required when not using preset" };
+      }
+      computedMinutes = clampMinutes(raw);
     }
-    computedMinutes = clampMinutes(raw);
   }
 
   if (payload.overrideMinutes != null) {

@@ -863,6 +863,37 @@ model QuoteAddOnLine {
   @@index([quoteId])
 }
 
+// --- Rate Card: DB-backed area × size × finish matrix ---
+model RateCard {
+  id        String          @id @default(cuid())
+  version   String          // e.g. "2026-03-v1"
+  name      String          @default("Default")
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  entries   RateCardEntry[]
+
+  @@unique([version])
+  @@index([isActive])
+}
+
+model RateCardEntry {
+  id          String        @id @default(cuid())
+  rateCardId  String
+  areaType    QuoteAreaType
+  size        String        // "S", "M", "L"
+  sizeLabel   String        // "1 car", "500-1500 sqft", etc.
+  finish      String        // "standard", "chrome", "tile", etc.
+  finishLabel String        // "Chrome polishing", "Tile mopping", etc.
+  minutes     Int           // minutes for this specific combination
+  description String?       // "Streak-free chrome polish, 2-3 cars"
+  sortOrder   Int           @default(0)
+  rateCard    RateCard      @relation(fields: [rateCardId], references: [id], onDelete: Cascade)
+
+  @@unique([rateCardId, areaType, size, finish])
+  @@index([rateCardId])
+  @@index([areaType])
+}
+
 model QuoteSnapshot {
   id                            String   @id @default(cuid())
   quoteId                       String

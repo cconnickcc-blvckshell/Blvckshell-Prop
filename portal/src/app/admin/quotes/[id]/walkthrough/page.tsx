@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/server/guards/rbac";
 import { getQuote } from "@/server/actions/quote-actions";
+import { getActiveRateCard } from "@/server/actions/rate-card-actions";
 import Link from "next/link";
 import WalkthroughScopeClient from "./WalkthroughScopeClient";
 
@@ -11,17 +12,27 @@ export default async function QuoteWalkthroughPage({
 }) {
   await requireAdmin();
   const { id } = await params;
-  const quote = await getQuote(id);
+  const [quote, rateCard] = await Promise.all([getQuote(id), getActiveRateCard()]);
   if (!quote) notFound();
+
+  const rateCardEntries = (rateCard?.entries ?? []).map((e) => ({
+    areaType: e.areaType,
+    size: e.size,
+    sizeLabel: e.sizeLabel,
+    finish: e.finish,
+    finishLabel: e.finishLabel,
+    minutes: e.minutes,
+    description: e.description,
+  }));
 
   return (
     <div className="w-full space-y-6">
       <div>
-        <Link href="/admin/quotes" prefetch={false} className="text-sm text-zinc-400 hover:text-white">← Quotes</Link>
+        <Link href="/admin/quotes" prefetch={false} className="text-sm text-zinc-400 hover:text-white">&larr; Quotes</Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">
           Walkthrough: {quote.site.name}
         </h1>
-        <p className="text-zinc-400">Measurements → minutes (override requires reason)</p>
+        <p className="text-zinc-400">Measurements &rarr; minutes (override requires reason)</p>
       </div>
       <WalkthroughScopeClient
         quoteId={id}
@@ -41,6 +52,7 @@ export default async function QuoteWalkthroughPage({
           ? Object.keys(quote.pricingPolicy.riskRules as object).filter((k) => !k.startsWith("buildingClass_"))
           : []}
         billingRateCentsPerHour={quote.billingRateCentsPerHour}
+        rateCardEntries={rateCardEntries}
       />
     </div>
   );

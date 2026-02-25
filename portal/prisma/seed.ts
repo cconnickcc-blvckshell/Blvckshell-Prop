@@ -9,6 +9,7 @@ import * as path from "path";
 import { PrismaClient, type UserRole } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import * as bcrypt from "bcryptjs";
+import { seedRateCard } from "../src/server/pricing/seed-rate-card";
 
 // Load .env from portal/ or repo root so DATABASE_URL is set when running from portal
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
@@ -449,6 +450,9 @@ async function main() {
       reportedAt: new Date(baseDate.getTime() - 3 * 24 * 60 * 60 * 1000),
     },
   });
+
+  // Seed rate card
+  await seedRateCard(prisma);
 
   console.log("Seed complete.");
   console.log("  Admin: admin@blvckshell.com / password123");
