@@ -31,7 +31,8 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
         <div className="flex h-14 items-center justify-between md:h-16">
           <div className="flex min-w-0 flex-1 items-center gap-6">
             <Link
-              href="/admin/jobs"
+              href="/admin"
+              prefetch={false}
               className="shrink-0 text-lg font-bold tracking-tight text-white md:text-xl"
             >
               BLVCKSHELL Admin
@@ -42,6 +43,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 <Link
                   key={href}
                   href={href}
+                  prefetch={false}
                   className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     pathname === href || pathname.startsWith(href + "/")
                       ? "bg-zinc-800 text-white"
@@ -93,6 +95,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 <Link
                   key={href}
                   href={href}
+                  prefetch={false}
                   onClick={() => setMobileOpen(false)}
                   className={`rounded-md px-3 py-2.5 text-sm font-medium ${
                     pathname === href || pathname.startsWith(href + "/")
