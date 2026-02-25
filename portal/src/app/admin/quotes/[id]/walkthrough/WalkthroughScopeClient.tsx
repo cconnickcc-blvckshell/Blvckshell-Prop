@@ -83,6 +83,7 @@ type WalkthroughScopeClientProps = {
   riskFactors: string[] | null;
   buildingClass: BuildingClass | null;
   riskRulesKeys: string[];
+  billingRateCentsPerHour: number;
 };
 
 function baseMinutesFromLines(lines: AreaLine[]): number {
@@ -104,6 +105,7 @@ export default function WalkthroughScopeClient({
   riskFactors: initialRiskFactors,
   buildingClass: initialBuildingClass,
   riskRulesKeys,
+  billingRateCentsPerHour,
 }: WalkthroughScopeClientProps) {
   const router = useRouter();
   const [areaLines, setAreaLines] = useState<AreaLine[]>(initialAreaLines);
@@ -316,7 +318,7 @@ export default function WalkthroughScopeClient({
               />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400">Travel min/visit</label>
+              <label className="block text-xs text-zinc-400">Travel time (min)</label>
               <input
                 type="number"
                 min={0}
@@ -327,7 +329,7 @@ export default function WalkthroughScopeClient({
               />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400">Winter delta min</label>
+              <label className="block text-xs text-zinc-400">Extra winter minutes</label>
               <input
                 type="number"
                 min={-999}
@@ -338,23 +340,31 @@ export default function WalkthroughScopeClient({
               />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400">Supply cost ¢/mo</label>
+              <label className="block text-xs text-zinc-400">Monthly supplies ($)</label>
               <input
                 type="number"
+                step="0.01"
                 min={0}
-                value={monthlySupplyCostCents}
-                onChange={(e) => setMonthlySupplyCostCents(parseInt(e.target.value, 10) || 0)}
+                value={(monthlySupplyCostCents / 100).toFixed(2)}
+                onChange={(e) => setMonthlySupplyCostCents(Math.round(parseFloat(e.target.value || "0") * 100))}
                 className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
               />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400">Expected sub ¢/hr</label>
+              <label className="block text-xs text-zinc-400">Subcontractor rate ($/hr)</label>
               <input
                 type="number"
+                step="0.01"
                 min={0}
-                value={expectedSubcontractorRateCentsPerHour}
-                onChange={(e) => setExpectedSubcontractorRateCentsPerHour(e.target.value)}
-                placeholder="Optional"
+                value={expectedSubcontractorRateCentsPerHour.trim() === "" ? "" : (parseInt(expectedSubcontractorRateCentsPerHour) / 100).toFixed(2)}
+                onChange={(e) => {
+                  if (e.target.value === "") {
+                    setExpectedSubcontractorRateCentsPerHour("");
+                  } else {
+                    setExpectedSubcontractorRateCentsPerHour(String(Math.round(parseFloat(e.target.value) * 100)));
+                  }
+                }}
+                placeholder="e.g. 30.00"
                 className="mt-0.5 w-full rounded border border-zinc-600 bg-zinc-800 px-2 py-1.5 text-sm text-white"
               />
             </div>
@@ -410,7 +420,7 @@ export default function WalkthroughScopeClient({
               areaLines.map((line) => (
                 <li key={line.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0">
                   <div>
-                    <span className="font-medium text-white">{line.type}</span>
+                    <span className="font-medium text-white">{AREA_TYPES.find(a => a.value === line.type)?.label ?? line.type}</span>
                     <span className="ml-2 text-zinc-400">
                       ({(line.measurements as { preset?: string })?.preset ?? "—"})
                     </span>
@@ -611,6 +621,16 @@ export default function WalkthroughScopeClient({
         <p className="mt-2 text-xs text-zinc-500">
           {visitsPerWeek} visits/week → ~{((totalMinutesPerVisit / 60) * visitsPerWeek * 4.33).toFixed(1)} hrs/mo
         </p>
+        {/* Live price estimate */}
+        <div className="mt-3 border-t border-zinc-700 pt-3">
+          <p className="text-xs text-zinc-500">Estimated monthly price</p>
+          <p className="text-2xl font-bold text-emerald-400">
+            ${((totalMinutesPerVisit / 60) * visitsPerWeek * 4.33 * (billingRateCentsPerHour / 100)).toFixed(0)}
+          </p>
+          <p className="text-[10px] text-zinc-600">
+            Based on ${(billingRateCentsPerHour / 100).toFixed(0)}/hr × {((totalMinutesPerVisit / 60) * visitsPerWeek * 4.33).toFixed(1)} hrs/mo
+          </p>
+        </div>
         <div className="mt-4">
           {!canGoToPricing ? (
             <p className="text-sm text-amber-400">

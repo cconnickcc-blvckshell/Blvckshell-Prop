@@ -220,8 +220,14 @@ export default function JobDetailClient({
   );
 
   const handleRemoveUploadedPhoto = async (evidenceId: string) => {
-    // TODO: Implement delete evidence action
-    setUploadedPhotos((prev) => prev.filter((e) => e.id !== evidenceId));
+    try {
+      const res = await fetch(`/api/evidence/${evidenceId}`, { method: "DELETE" });
+      if (res.ok) {
+        setUploadedPhotos((prev) => prev.filter((p) => p.id !== evidenceId));
+      }
+    } catch {
+      // Silently fail — photo stays
+    }
   };
 
   const handleSaveDraft = async () => {

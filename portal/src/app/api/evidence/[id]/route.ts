@@ -67,3 +67,52 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const evidence = await prisma.evidence.findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        jobCompletion: {
+          select: {
+            job: {
+              select: { assignedWorkerId: true, status: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!evidence) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    if (
+      evidence.jobCompletion.job.status !== "SCHEDULED" ||
+      evidence.jobCompletion.job.assignedWorkerId !== user.workerId
+    ) {
+      return NextResponse.json(
+        { error: "Cannot delete evidence for this job" },
+        { status: 403 }
+      );
+    }
+
+    await prisma.evidence.delete({ where: { id: params.id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Error deleting evidence:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

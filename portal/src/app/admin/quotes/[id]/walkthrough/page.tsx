@@ -17,7 +17,7 @@ export default async function QuoteWalkthroughPage({
   return (
     <div className="w-full space-y-6">
       <div>
-        <Link href="/admin/quotes" className="text-sm text-zinc-400 hover:text-white">← Quotes</Link>
+        <Link href="/admin/quotes" prefetch={false} className="text-sm text-zinc-400 hover:text-white">← Quotes</Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">
           Walkthrough: {quote.site.name}
         </h1>
@@ -40,6 +40,7 @@ export default async function QuoteWalkthroughPage({
         riskRulesKeys={quote.pricingPolicy?.riskRules && typeof quote.pricingPolicy.riskRules === "object"
           ? Object.keys(quote.pricingPolicy.riskRules as object).filter((k) => !k.startsWith("buildingClass_"))
           : []}
+        billingRateCentsPerHour={quote.billingRateCentsPerHour}
       />
     </div>
   );
