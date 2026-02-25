@@ -109,6 +109,40 @@ Evidence must be provably tied to the correct job/run/item. No ambiguity.
 
 ---
 
+## LAW 5: Compliance Enforcement
+
+Workforce accounts must be compliant to receive job assignments and payouts.
+
+**Definition**
+
+- A "compliant" workforce account has:
+  - `isActive = true`
+  - `complianceSuspended = false`
+  - For VENDOR type: valid (non-expired) COI and WSIB documents on file
+
+**Implementation**
+
+- **`compliance.ts` guard:** `checkWorkforceCompliance(accountId)` and `canAssignJob()` return BLOCKING issues if non-compliant.
+- **Job assignment:** `canAssignJob()` must pass before assigning a job to a worker/account.
+- **Payout creation:** `createPayoutBatch()` should exclude or flag non-compliant accounts.
+- **Payout finalization:** `checkPayoutFinalizePreconditions()` blocks finalization if any line has compliance-suspended accounts.
+
+**Compliance flags**
+
+| Flag | Location | Effect |
+|------|----------|--------|
+| `isActive = false` | WorkforceAccount | Blocks all job assignment and payouts |
+| `complianceSuspended = true` | WorkforceAccount | Blocks all job assignment and payouts |
+| Missing/expired COI | ComplianceDocument | BLOCKING for VENDOR accounts |
+| Missing/expired WSIB | ComplianceDocument | BLOCKING for VENDOR accounts |
+| Missing HST number | WorkforceAccount | WARNING only (not blocking) |
+
+**Why**
+
+Ensures Blvckshell does not assign work to or pay contractors who are not properly insured, which would create legal/liability exposure.
+
+---
+
 ## Acceptance Criteria (Must Pass)
 
 **Data integrity**
@@ -120,6 +154,8 @@ Evidence must be provably tied to the correct job/run/item. No ambiguity.
 - Cannot approve job without frozen facts (approvedAt, approvedBillableCents, approvedPayoutCents).
 - Cannot modify frozen facts after approval.
 - Cannot send invoice if any placeholder line exists.
+- Cannot assign job to compliance-suspended workforce account.
+- Cannot finalize payout batch containing compliance-suspended accounts.
 
 **Auditability**
 

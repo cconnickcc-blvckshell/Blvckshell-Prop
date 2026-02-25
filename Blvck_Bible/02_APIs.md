@@ -23,7 +23,7 @@
 |----------|--------|
 | **Purpose** | NextAuth.js handlers (sign-in, sign-out, session, callbacks). |
 | **Auth** | N/A (entry point for auth). |
-| **Rate limit** | 5 requests per 15 minutes per IP (middleware). |
+| **Rate limit** | 10 requests per 15 minutes per IP (POST to /api/auth/callback only; GET routes are not rate-limited). |
 | **File** | `src/app/api/auth/[...nextauth]/route.ts` |
 | **Export** | `GET`, `POST` (handlers from auth config). |
 
@@ -37,7 +37,7 @@
 |----------|--------|
 | **Purpose** | Submit marketing lead from contact/pilot form. |
 | **Auth** | None (public). |
-| **Rate limit** | 10 requests per 15 minutes per IP (middleware). |
+| **Rate limit** | 30 requests per 15 minutes per IP (middleware). |
 | **File** | `src/app/api/lead/route.ts` |
 
 **Request:** JSON body validated by `leadSchema` (Zod).  
@@ -55,7 +55,7 @@
 |----------|--------|
 | **Purpose** | Upload one evidence file (photo) for a job completion. |
 | **Auth** | Caller must be authenticated; upload action may enforce worker/completion ownership. |
-| **Rate limit** | 10 requests per 15 minutes per IP (middleware). |
+| **Rate limit** | 30 requests per 15 minutes per IP (middleware). |
 | **File** | `src/app/api/evidence/upload/route.ts` |
 
 **Request:** `multipart/form-data` (FormData).  
@@ -141,6 +141,124 @@
 
 ---
 
+## Stripe Integration
+
+### POST `/api/stripe/checkout`
+
+| Property | Value |
+|----------|--------|
+| **Purpose** | Create a Stripe Checkout session for client self-pay. |
+| **Auth** | Authenticated user (getCurrentUser). |
+| **Rate limit** | None. |
+| **File** | `src/app/api/stripe/checkout/route.ts` |
+
+**Request:** JSON body `{ invoiceId: string }`.
+
+**Response:** 200 `{ url: string, sessionId: string }` (redirect to Stripe Checkout); 4xx on error.
+
+**Behavior:**  
+- Loads invoice; requires `status === "Sent"` and `client.requiredPaymentRail === "STRIPE"`.  
+- Creates Stripe Checkout session with invoice metadata.  
+- Returns Checkout URL for client redirect.  
+- **Important:** Blvckshell remains the system of record; Stripe is a settlement rail.
+
+**See:** `lib/stripe.ts`, `payment-actions.ts`.
+
+---
+
+### POST `/api/stripe/webhook`
+
+| Property | Value |
+|----------|--------|
+| **Purpose** | Handle Stripe webhook events (e.g. `checkout.session.completed`). |
+| **Auth** | Stripe signature verification (no user auth). |
+| **Rate limit** | None (Stripe controls call frequency). |
+| **File** | `src/app/api/stripe/webhook/route.ts` |
+
+**Request:** Raw body from Stripe with `stripe-signature` header.
+
+**Response:** 200 `{ received: true }` on success; 400 on signature failure.
+
+**Behavior:**  
+- Verifies webhook signature using `STRIPE_WEBHOOK_SECRET`.  
+- On `checkout.session.completed`:  
+  - Creates `Payment` record with `status: "SETTLED"`.  
+  - If total settled >= invoice total, transitions invoice to `Paid`.  
+  - Writes AuditLog with `actorUserId: "system"`.  
+  - Queues payment confirmation notification.
+
+**Environment:** Requires `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
+
+---
+
+## Notification System
+
+### POST `/api/notifications/process`
+
+| Property | Value |
+|----------|--------|
+| **Purpose** | Process pending notifications from the outbox (cron job endpoint). |
+| **Auth** | Bearer token matching `CRON_SECRET` (if set). |
+| **Rate limit** | None. |
+| **File** | `src/app/api/notifications/process/route.ts` |
+
+**Request:** POST (body optional).
+
+**Response:** 200 `{ processed: number, sent: number, failed: number }`.
+
+**Behavior:**  
+- Fetches up to 50 `PENDING` notifications from `NotificationOutbox`.  
+- For EMAIL: integrates with SendGrid (if `SENDGRID_API_KEY` set) or marks as sent in dev mode.  
+- For SMS: integrates with Twilio (if `TWILIO_ACCOUNT_SID` set) or marks as sent in dev mode.  
+- On failure: sets `status: "FAILED"` with error message.
+
+**Usage:** Called by Vercel Cron or external scheduler. Frequency: every 1–5 minutes.
+
+---
+
+## Worker Endpoints
+
+### GET `/api/worker/paystub`
+
+| Property | Value |
+|----------|--------|
+| **Purpose** | Generate PDF pay statement for authenticated worker. |
+| **Auth** | Authenticated worker (getCurrentUser with workerId). |
+| **Rate limit** | None. |
+| **File** | `src/app/api/worker/paystub/route.ts` |
+
+**Query params:** `month` (YYYY-MM format, required).
+
+**Response:** PDF stream with `Content-Disposition: attachment; filename="pay-statement-YYYY-MM.pdf"`.
+
+**Behavior:**  
+- Loads worker info and jobs in `APPROVED_PAYABLE` or `PAID` for the given month.  
+- Generates PDF using pdfkit with:  
+  - Header (BLVCKSHELL, worker name, email, account, period).  
+  - Job table (date, site, amount, status).  
+  - Totals (total, paid, pending).
+
+**Error:** 400 if month param invalid; 404 if worker not found.
+
+---
+
+### PATCH `/api/worker/profile`
+
+| Property | Value |
+|----------|--------|
+| **Purpose** | Update worker's profile (name, phone). |
+| **Auth** | Authenticated user (getCurrentUser). |
+| **Rate limit** | None. |
+| **File** | `src/app/api/worker/profile/route.ts` |
+
+**Request:** JSON body `{ name: string, phone?: string }`.
+
+**Response:** 200 `{ success: true }` on success; 400 if name missing.
+
+**Behavior:** Updates `User.name` and `User.phone` for authenticated user.
+
+---
+
 ### GET `/api/health`
 
 | Property | Value |
@@ -158,14 +276,19 @@
 
 **File:** `src/middleware.ts`  
 **Matcher:**  
-- `/api/auth/:path*`  
-- `/api/lead`  
+- `/api/auth/callback/:path*` (POST only — login attempts)  
+- `/api/lead` (POST only)  
 - `/api/evidence/upload`  
 
 **Limits:**  
-- Auth: 5 requests per 15 minutes per IP.  
-- Lead and evidence upload: 10 requests per 15 minutes per IP.  
-**Implementation:** `checkRateLimit(ip, limit, windowMs)` from `@/lib/rate-limit`; on exceed returns 429 JSON `{ error: "Too many requests. Please try again later." }`.
+- Auth POST (callback): 10 requests per 15 minutes per IP.  
+- Lead and evidence upload: 30 requests per 15 minutes per IP.  
+
+**Critical:** NextAuth internal GET routes (`/api/auth/providers`, `/api/auth/csrf`, `/api/auth/session`, `/api/auth/error`) are **not** rate-limited — these are fetched on every page load for session checks.
+
+**Implementation:** `checkRateLimit(ip, limit, windowMs)` from `@/lib/rate-limit`; on exceed:
+- Auth POST: redirects to `/login?error=RateLimit`
+- Others: returns 429 JSON `{ error: "Too many requests. Please wait a few minutes and try again." }` with `Retry-After` header.
 
 ---
 

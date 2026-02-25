@@ -22,10 +22,11 @@ The Blvckshell portal uses a single PostgreSQL database with Prisma ORM. Models 
 | name | String | Display name |
 | primaryContactName, primaryContactEmail, primaryContactPhone | String | Primary contact |
 | notes | String? | Optional notes |
+| requiredPaymentRail | PaymentRail | Required payment method (STRIPE, SPARC, EFT). Default STRIPE. |
 | createdAt | DateTime | |
 
-**Relations:** clientContacts, contracts, invoices, portalUsers (User), sites.  
-**Usage:** Client org is the billing and access boundary for client portal users.
+**Relations:** clientContacts, contracts, invoices, payments, portalUsers (User), sites.  
+**Usage:** Client org is the billing and access boundary for client portal users. `requiredPaymentRail` enforces which payment method the client uses for self-pay.
 
 ---
 
@@ -101,11 +102,14 @@ The Blvckshell portal uses a single PostgreSQL database with Prisma ORM. Models 
 | Field | Type | Purpose |
 |-------|------|---------|
 | id | String (cuid) | PK |
-| type | Enum (INTERNAL, VENDOR) | |
+| type | WorkforceAccountType | INTERNAL or VENDOR |
+| classification | WorkforceClassification | EMPLOYEE or CONTRACTOR (default CONTRACTOR) |
+| allowedPaymentMethod | PaymentMethodType | PAYROLL, EFT, or CHEQUE (default EFT) |
 | displayName, legalName | String, String? | |
 | primaryContactName, primaryContactEmail, primaryContactPhone | String | |
 | hstNumber, wsibAccountNumber | String? | |
 | isActive | Boolean | Default true |
+| complianceSuspended | Boolean | Blocks job assignment and payout if true (default false) |
 | createdAt, updatedAt | DateTime | |
 
 **Relations:** auditLogs, complianceDocuments, jobs, payoutLines, siteAssignments, users, workOrders, workers.  
@@ -309,12 +313,15 @@ The Blvckshell portal uses a single PostgreSQL database with Prisma ORM. Models 
 | issuedAt, dueAt | DateTime? | |
 | notes | String? | |
 | subtotalCents, taxCents, totalCents | Int | Default 0 |
+| taxJurisdiction | String | Tax jurisdiction code (default "ON") |
+| taxRateBps | Int | Tax rate in basis points (default 1300 = 13%) |
+| taxPolicyVersion | Int | Version of tax policy at invoice creation (default 1) |
 | invoiceTemplateId?, invoiceTemplateVersion? | String?, Int? | |
 | createdById | String | FK User |
 | createdAt, updatedAt | DateTime | |
 
-**Relations:** client, createdBy, lineItems, jobs, adjustments.  
-**Usage:** Invoices are per client; line items link jobs/contracts/adjustments.
+**Relations:** client, createdBy, lineItems, jobs, adjustments, payments.  
+**Usage:** Invoices are per client; line items link jobs/contracts/adjustments. Tax fields are frozen at invoice creation time to ensure reproducible calculations even if tax policy changes.
 
 ---
 
@@ -567,6 +574,88 @@ Sites, Jobs, Contracts, Invoices reference template by id (and optionally versio
 
 ---
 
+## Bounded Area 10: Payments, Notifications, Time Tracking
+
+### Payment
+
+Provider-agnostic payment ledger. Blvckshell is the system of record; payment providers are settlement rails only.
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| id | String (cuid) | PK |
+| invoiceId | String | FK to Invoice |
+| clientId | String | FK to ClientOrganization |
+| provider | PaymentRail | STRIPE, SPARC, EFT, CHEQUE |
+| providerRef | String? | External reference (Stripe session ID, EFT trace, etc.) |
+| amountCents | Int | Payment amount |
+| status | PaymentStatus | PENDING → SETTLED or FAILED |
+| settledAt | DateTime? | When funds confirmed |
+| failedAt | DateTime? | When payment failed |
+| failureReason | String? | Reason for failure |
+| metadata | Json? | Provider-specific data |
+| createdAt, updatedAt | DateTime | |
+
+**Relations:** Invoice, ClientOrganization.  
+**Usage:** Every money-in event creates a Payment record. `settlePayment()` auto-transitions Invoice to Paid when total settled >= totalCents.
+
+**Indexes:** invoiceId, clientId, provider, status, providerRef.
+
+---
+
+### NotificationOutbox
+
+Durable outbox for email/SMS notifications. Write intent in server actions, process async via background worker.
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| id | String (cuid) | PK |
+| channel | NotificationChannel | EMAIL, SMS |
+| templateKey | String | Template identifier (e.g. "payment_received") |
+| recipient | String | Email or phone number |
+| payload | Json | Template variables |
+| relatedEntityType | String | Entity type for audit trail |
+| relatedEntityId | String | Entity ID for audit trail |
+| status | NotificationStatus | PENDING → SENT or FAILED |
+| providerMessageId | String? | SendGrid/Twilio message ID |
+| error | String? | Error message if failed |
+| createdAt | DateTime | Default now() |
+| sentAt | DateTime? | When sent |
+
+**Usage:** All business events write intent here; `/api/notifications/process` cron job dispatches to providers.
+
+**Indexes:** status, relatedEntityType+relatedEntityId, channel, createdAt.
+
+---
+
+### TimeEntry
+
+Payroll time tracking for employees (not contractors). Contractors are paid via AP/payout.
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| id | String (cuid) | PK |
+| workerId | String | FK to Worker |
+| workforceAccountId | String | FK to WorkforceAccount |
+| jobId | String? | FK to Job (optional, for job-linked time) |
+| date | DateTime | Work date |
+| regularMinutes | Int | Regular hours in minutes |
+| overtimeMinutes | Int | OT hours in minutes (default 0) |
+| rateCentsPerHour | Int | Pay rate |
+| status | TimeEntryStatus | DRAFT → SUBMITTED → APPROVED → EXPORTED → PAID |
+| approvedAt | DateTime? | When approved |
+| approvedById | String? | Approving user ID |
+| payrollExportedAt | DateTime? | When exported to payroll |
+| payrollBatchRef | String? | Batch reference for reconciliation |
+| notes | String? | |
+| createdAt, updatedAt | DateTime | |
+
+**Relations:** Worker, WorkforceAccount.  
+**Usage:** `createTimeEntry()` only for EMPLOYEE classification. `exportPayrollBatch()` marks as EXPORTED.
+
+**Indexes:** workerId, workforceAccountId, date, status, payrollBatchRef.
+
+---
+
 ## Enums (Quick Reference)
 
 | Enum | Values |
@@ -587,6 +676,13 @@ Sites, Jobs, Contracts, Invoices reference template by id (and optionally versio
 | SiteLifecycleStatus | PROSPECT, ACTIVE, INACTIVE |
 | QuoteAreaType | LOBBY, HALLWAYS, STAIRWELLS, ELEVATORS, GARBAGE, WASHROOMS, GLASS, OTHER |
 | WorkforceAccountType | INTERNAL, VENDOR |
+| WorkforceClassification | EMPLOYEE, CONTRACTOR |
+| PaymentMethodType | PAYROLL, EFT, CHEQUE |
+| PaymentRail | STRIPE, SPARC, EFT, CHEQUE |
+| PaymentStatus | PENDING, SETTLED, FAILED, REFUNDED |
+| NotificationChannel | EMAIL, SMS |
+| NotificationStatus | PENDING, SENT, FAILED |
+| TimeEntryStatus | DRAFT, SUBMITTED, APPROVED, EXPORTED, PAID |
 | ComplianceDocumentType | COI, WSIB, AGREEMENT, HST, OTHER |
 | AccessCredentialType | KEY, FOB, CODE |
 | AccessCredentialStatus | ACTIVE, LOST, RETURNED |
