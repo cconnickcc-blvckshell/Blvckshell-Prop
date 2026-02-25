@@ -256,55 +256,62 @@ export default function EvidenceCameraCapture({ onDone, onCancel }: EvidenceCame
     img.src = capturedDataUrl.current;
   }, [step, detectedRects, manualRects, drawing]);
 
-  // --- Confirm and send to parent ---
-  const confirmPhoto = useCallback(() => {
-    if (!capturedDataUrl.current || uploading) return;
+  // --- Confirm and send to parent (NOT useCallback — avoid stale closure issues) ---
+  function confirmPhoto() {
+    const dataUrl = capturedDataUrl.current;
+    if (!dataUrl || uploading) return;
     setUploading(true);
     setError(null);
 
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        setError("Failed to process image. Try retaking.");
-        setUploading(false);
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0);
-
-      // Apply blur to all detected + manual regions
-      const allRects = [...detectedRects, ...manualRects];
-      for (const rect of allRects) {
-        pixelateRegion(ctx, rect, img.width, img.height);
-      }
-
-      const redactionType: RedactionType =
-        detectedRects.length > 0 ? "auto" :
-        manualRects.length > 0 ? "manual" : "none";
-
-      canvas.toBlob(
-        (blob) => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          setError("Failed to process image. Try retaking.");
           setUploading(false);
-          if (blob) {
-            onDone(blob, redactionType);
-          } else {
-            setError("Failed to create image. Try retaking.");
-          }
-        },
-        "image/jpeg",
-        0.88
-      );
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0);
+
+        // Apply blur to all detected + manual regions
+        const allRects = [...detectedRects, ...manualRects];
+        for (const rect of allRects) {
+          pixelateRegion(ctx, rect, img.width, img.height);
+        }
+
+        const redactionType: RedactionType =
+          detectedRects.length > 0 ? "auto" :
+          manualRects.length > 0 ? "manual" : "none";
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              onDone(blob, redactionType);
+              // Don't setUploading(false) — parent will unmount this component
+            } else {
+              setError("Failed to create image. Try retaking.");
+              setUploading(false);
+            }
+          },
+          "image/jpeg",
+          0.88
+        );
+      } catch (e) {
+        setError("Processing failed. Try retaking.");
+        setUploading(false);
+      }
     };
     img.onerror = () => {
-      setError("Failed to load captured image. Try retaking.");
+      setError("Failed to load image. Try retaking.");
       setUploading(false);
     };
-    img.src = capturedDataUrl.current;
-  }, [detectedRects, manualRects, onDone, uploading]);
+    img.src = dataUrl;
+  }
 
   // --- Drawing handlers ---
   const getPoint = useCallback((clientX: number, clientY: number) => {
