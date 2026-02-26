@@ -1,32 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import FadeIn from "@/components/animations/FadeIn";
 import ScrollReveal from "@/components/animations/ScrollReveal";
-import ImageTreatment from "@/components/marketing/ImageTreatment";
 import StaggerContainer, { StaggerItem } from "@/components/animations/StaggerContainer";
 
-const IMAGE = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80";
+const IMAGE = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1600";
 
 export default function CondoCleaningPage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative min-h-[50vh] border-b border-zinc-800">
-        <ImageTreatment src={IMAGE} alt="Luxury condo lobby" priority className="absolute inset-0">
-          <div className="relative z-10 flex min-h-[50vh] flex-col justify-end px-4 py-16 sm:px-6 sm:py-24">
-            <div className="mx-auto w-full max-w-4xl">
-              <ScrollReveal>
-                <h1 className="text-headline font-bold tracking-tight text-white">Condo Cleaning</h1>
-              </ScrollReveal>
-              <ScrollReveal delay={0.1}>
-                <p className="mt-4 max-w-2xl text-lg text-zinc-300">
-                  Common areas, lobbies, washrooms, and shared spaces. Site-specific checklists and evidence designed into every visit from day one.
-                </p>
-              </ScrollReveal>
-            </div>
+      <div className="relative h-[40vh] min-h-[300px] overflow-hidden">
+        <img
+          src={IMAGE}
+          alt="Modern condominium building"
+          className="absolute inset-0 h-full w-full object-cover opacity-40"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+        <div className="relative flex h-full items-end pb-12 px-4">
+          <div className="mx-auto max-w-4xl">
+            <h1 className="text-4xl font-bold text-white sm:text-5xl">Condo Cleaning</h1>
+            <p className="mt-2 text-lg text-zinc-400">
+              Common area maintenance built on checklists, evidence, and accountability
+            </p>
           </div>
-        </ImageTreatment>
-      </section>
+        </div>
+      </div>
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
         <ScrollReveal>
@@ -36,7 +37,7 @@ export default function CondoCleaningPage() {
           </p>
         </ScrollReveal>
 
-        <ScrollReveal delay={0.1}>
+        <FadeIn delay={0.1}>
           <div className="mt-8">
             <h3 className="text-lg font-semibold text-white">What&apos;s Included</h3>
             <StaggerContainer className="mt-4 space-y-3">
@@ -59,67 +60,59 @@ export default function CondoCleaningPage() {
               ))}
             </StaggerContainer>
           </div>
-        </ScrollReveal>
+        </FadeIn>
 
-        <ScrollReveal delay={0.2}>
+        <FadeIn delay={0.2}>
           <div className="mt-12">
             <h3 className="text-lg font-semibold text-white">Cleaning Activities</h3>
             <ul className="mt-4 space-y-2 text-zinc-400">
-              <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-                Surface cleaning and sanitization
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-                Floor care (vacuuming, mopping, spot treatment)
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-                Glass and mirror cleaning (ground-level only)
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-                Trash and recycling handling
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-                Odor control and deodorization
-              </li>
+              {[
+                "Surface cleaning and sanitization",
+                "Floor care (vacuuming, mopping, spot treatment)",
+                "Glass and mirror cleaning (ground-level only)",
+                "Trash and recycling handling",
+                "Odor control and deodorization",
+              ].map((item, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                  {item}
+                </li>
+              ))}
             </ul>
           </div>
-        </ScrollReveal>
+        </FadeIn>
 
-        <ScrollReveal delay={0.3}>
+        <FadeIn delay={0.3}>
           <div className="mt-12 rounded-lg border border-zinc-800 bg-zinc-900/30 p-6">
             <h3 className="text-lg font-semibold text-white">How It Works</h3>
             <p className="mt-4 text-sm text-zinc-400">
-              Every visit follows a site-specific checklist. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee-no hourly billing. Hourly billing creates disputes and misaligned incentives; we don&apos;t use it.
+              Every visit follows a site-specific checklist. Photo evidence is captured per area, logged in our portal, and requires your approval before completion. Frequency is set per contract (2x, 3x, or 5x per week) with a flat monthly fee&mdash;no hourly billing. Hourly billing creates disputes and misaligned incentives; we don&apos;t use it.
             </p>
           </div>
-        </ScrollReveal>
+        </FadeIn>
 
-        <ScrollReveal delay={0.4}>
+        <FadeIn delay={0.4}>
           <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <Link
               href="/contact"
-              className="inline-flex justify-center rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-lg"
+              className="inline-flex justify-center rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-500 hover:shadow-lg"
             >
               Request a site evaluation
             </Link>
             <Link
               href="/contact?request=sample-report"
-              className="inline-flex justify-center rounded-lg border border-zinc-600 bg-zinc-900/50 px-8 py-3.5 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
+              className="inline-flex justify-center rounded-lg border border-zinc-600 px-6 py-3 text-sm font-medium text-zinc-300 transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800/50"
             >
               See a sample report
             </Link>
             <Link
               href="/services"
-              className="inline-flex justify-center rounded-lg border border-zinc-600 px-8 py-3.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800/50"
+              className="inline-flex justify-center rounded-lg border border-zinc-600 px-6 py-3 text-sm font-medium text-zinc-400 transition hover:bg-zinc-800/50"
             >
-              ← Back to services
+              &larr; Back to services
             </Link>
           </div>
-        </ScrollReveal>
+        </FadeIn>
       </div>
     </div>
   );

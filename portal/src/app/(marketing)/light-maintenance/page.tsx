@@ -153,7 +153,7 @@ export default function LightMaintenancePage() {
           <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <Link
               href="/contact"
-              className="inline-flex justify-center rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-lg"
+              className="inline-flex justify-center rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-500 hover:shadow-lg"
             >
               Request a site evaluation
             </Link>

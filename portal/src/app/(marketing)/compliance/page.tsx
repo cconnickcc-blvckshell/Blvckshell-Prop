@@ -132,7 +132,7 @@ export default function CompliancePage() {
         <div className="mt-12">
           <Link
             href="/contact"
-            className="inline-block rounded-lg bg-white px-6 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200"
+            className="inline-block rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500"
           >
             Contact us
           </Link>

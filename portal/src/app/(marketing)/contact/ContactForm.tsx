@@ -88,7 +88,7 @@ export default function ContactForm({
       </div>
       {status === "success" && <p className="rounded-md bg-green-900/40 p-4 text-sm text-green-300">Thanks. We&apos;ve received your message and will respond within one business day.</p>}
       {status === "error" && <p className="rounded-md bg-red-900/40 p-4 text-sm text-red-300">{errorMessage}</p>}
-      <button type="submit" disabled={status === "sending"} className="w-full rounded-md bg-white px-6 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200 disabled:opacity-50">
+      <button type="submit" disabled={status === "sending"} className="w-full rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50">
         {status === "sending" ? "Sending…" : "Send message"}
       </button>
     </form>
