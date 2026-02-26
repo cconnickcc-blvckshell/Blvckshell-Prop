@@ -103,3 +103,11 @@ Currently on Next.js 14.2.35. Two known high-severity CVEs exist (Image Optimize
 - `/admin/schedules` — Recurring schedule management + job generation (create/pause/delete schedules, generate jobs for week/month/custom range).
 - `/admin/analytics` — Financial analytics dashboard (revenue, AR aging, payout ratio, job volume, top sites by revenue).
 - `/api/reports/client/[clientId]` — PDF service report per client per month (pdfkit). Accepts `?month=YYYY-MM` query param.
+
+### Marketing site
+
+- Marketing pages live under `src/app/(marketing)/` with shared components in `src/components/marketing/`.
+- All marketing pages use **dark theme** (`bg-zinc-950`). Primary CTAs use `bg-emerald-600` with `hover:bg-emerald-500`.
+- Animation components: `FadeIn` (scroll-triggered fade-in), `ScrollReveal`, `StaggerContainer`/`StaggerItem` — all in `src/components/animations/`.
+- The About page uses a server component (`page.tsx`) with metadata + a client component (`AboutClient.tsx`) to support Framer Motion animations with SEO metadata.
+- Images on service hero sections use raw `<img>` tags (external Unsplash URLs) rather than `next/image` — this is intentional since external URLs from Unsplash would require `remotePatterns` config and the `<img>` tags are acceptable for marketing pages.
