@@ -867,6 +867,79 @@ model QuoteAddOnLine {
   @@index([quoteId])
 }
 
+// --- Worker/Sub Applications ---
+model WorkerApplication {
+  id                    String                @id @default(cuid())
+  status                ApplicationStatus     @default(SUBMITTED)
+  firstName             String
+  lastName              String
+  email                 String
+  phone                 String
+  city                  String
+  province              String                @default("ON")
+  applicationType       ApplicationType       // SUBCONTRACTOR or INDIVIDUAL
+  companyName           String?
+  hasVehicle            Boolean               @default(false)
+  availableDays         String[]              @default([])  // ["Monday","Tuesday",...]
+  availableShift        String?               // "morning", "afternoon", "evening", "flexible"
+  experienceYears       Int?
+  experienceSummary     String?
+  references            Json?                 // [{name, phone, relationship}]
+  hasCOI                Boolean               @default(false)
+  hasWSIB               Boolean               @default(false)
+  hasDriversLicense     Boolean               @default(false)
+  resumePath            String?               // Supabase storage path
+  coiDocPath            String?
+  wsibDocPath           String?
+  agreedToTerms         Boolean               @default(false)
+  agreedToTermsAt       DateTime?
+  agreedToBackgroundCheck Boolean             @default(false)
+  notes                 String?
+  adminNotes            String?
+  reviewedAt            DateTime?
+  reviewedById          String?
+  rejectionReason       String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@index([status])
+  @@index([email])
+  @@index([createdAt])
+}
+
+// --- Client Signup Requests ---
+model ClientSignupRequest {
+  id                    String                @id @default(cuid())
+  status                ApplicationStatus     @default(SUBMITTED)
+  companyName           String
+  contactName           String
+  contactEmail          String
+  contactPhone          String
+  buildingCount         Int?
+  buildingType          String?               // "condo", "commercial", "mixed"
+  city                  String?
+  message               String?
+  reviewedAt            DateTime?
+  reviewedById          String?
+  createdAt             DateTime              @default(now())
+
+  @@index([status])
+  @@index([contactEmail])
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum ApplicationType {
+  SUBCONTRACTOR
+  INDIVIDUAL
+}
+
 // --- Recurring Schedule ---
 model RecurringSchedule {
   id                         String           @id @default(cuid())

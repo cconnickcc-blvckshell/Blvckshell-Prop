@@ -9,6 +9,7 @@ const NAV = [
   { href: "/compliance", label: "Compliance & Risk" },
   { href: "/pilots", label: "Pilots" },
   { href: "/about", label: "About" },
+  { href: "/work-with-us", label: "Work With Us" },
   { href: "/contact", label: "Contact" },
 ];
 

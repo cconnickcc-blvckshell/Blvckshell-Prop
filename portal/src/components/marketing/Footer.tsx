@@ -22,6 +22,8 @@ export default function MarketingFooter() {
               <Link href="/compliance" className="text-zinc-400 transition hover:text-white">Compliance &amp; Risk</Link>
               <Link href="/pilots" className="text-zinc-400 transition hover:text-white">Pilots</Link>
               <Link href="/about" className="text-zinc-400 transition hover:text-white">About</Link>
+              <Link href="/work-with-us" className="text-zinc-400 transition hover:text-white">Work With Us</Link>
+              <Link href="/client-signup" className="text-zinc-400 transition hover:text-white">Client Sign Up</Link>
               <Link href="/contact" className="text-zinc-400 transition hover:text-white">Contact</Link>
               <Link href="/privacy" className="text-zinc-400 transition hover:text-white">Privacy</Link>
               <Link href="/portal" className="text-zinc-400 transition hover:text-white">Portal / Log in</Link>

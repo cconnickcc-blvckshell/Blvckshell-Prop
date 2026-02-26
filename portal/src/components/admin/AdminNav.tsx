@@ -21,6 +21,7 @@ const navLinks = [
   { href: "/admin/payouts", label: "Payouts" },
   { href: "/admin/payroll", label: "Payroll" },
   { href: "/admin/leads", label: "Leads" },
+  { href: "/admin/applications", label: "Applications" },
   { href: "/admin/pricing", label: "Pricing" },
   { href: "/admin/audit", label: "Audit" },
   { href: "/admin/docs", label: "Docs" },
