@@ -111,3 +111,11 @@ Currently on Next.js 14.2.35. Two known high-severity CVEs exist (Image Optimize
 - Animation components: `FadeIn` (scroll-triggered fade-in), `ScrollReveal`, `StaggerContainer`/`StaggerItem` — all in `src/components/animations/`.
 - The About page uses a server component (`page.tsx`) with metadata + a client component (`AboutClient.tsx`) to support Framer Motion animations with SEO metadata.
 - Images on service hero sections use raw `<img>` tags (external Unsplash URLs) rather than `next/image` — this is intentional since external URLs from Unsplash would require `remotePatterns` config and the `<img>` tags are acceptable for marketing pages.
+
+### Signup / application system
+
+- **Worker applications** (`/work-with-us`): Multi-step form (4 steps). Server component page + client component `ApplicationForm.tsx`. API route at `/api/applications/worker` (POST, FormData). Creates `WorkerApplication` record with status `SUBMITTED`.
+- **Client signup** (`/client-signup`): Single-page form. API route at `/api/applications/client` (POST, JSON). Creates `ClientSignupRequest`.
+- **Admin review** (`/admin/applications`): Server component page + client component `ApplicationsManager.tsx`. Uses server actions from `application-actions.ts`. Tabs for worker apps and client signups. Approve creates user/worker/workforce-account automatically.
+- **Server actions** in `src/server/actions/application-actions.ts`: `listWorkerApplications`, `listClientSignups`, `updateApplicationStatus`, `approveClientSignup`, `rejectClientSignup`. All require admin auth via `requireAdmin()`.
+- **Notification templates**: `application_approved`, `application_rejected`, `client_approved` — added to `/api/notifications/process/route.ts` for both EMAIL and SMS channels.
