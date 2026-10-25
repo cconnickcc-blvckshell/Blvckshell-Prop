@@ -20,7 +20,7 @@ Includes marketing pages, `marketing-site.ts`, brand assets under `public/brand/
 
 ## 2. Commit SHA
 
-Recorded after final commit on this branch (see PR description).
+**`aab46b4`** — `feat(marketing): complete Phase 5 brand alignment and acceptance package`
 
 ---
 
