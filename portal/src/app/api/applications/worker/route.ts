@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { queueNotification } from "@/server/actions/notification-actions";
+import { getOperationsNotificationEmail } from "@/lib/operations-notifications";
+import { logError } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -68,48 +69,63 @@ export async function POST(req: NextRequest) {
       references = null;
     }
 
-    const application = await prisma.workerApplication.create({
-      data: {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone.trim(),
-        city: city.trim(),
-        province,
-        applicationType: applicationType as "INDIVIDUAL" | "SUBCONTRACTOR",
-        companyName: companyName?.trim() || null,
-        experienceYears: experienceYears ? parseInt(experienceYears, 10) || null : null,
-        experienceSummary: experienceSummary?.trim() || null,
-        availableDays,
-        availableShift: availableShift || null,
-        hasVehicle,
-        hasDriversLicense,
-        hasCOI,
-        hasWSIB,
-        references: references as object ?? undefined,
-        agreedToTerms,
-        agreedToTermsAt: new Date(),
-        agreedToBackgroundCheck,
-      },
+    const recipient = getOperationsNotificationEmail();
+
+    const application = await prisma.$transaction(async (tx) => {
+      const created = await tx.workerApplication.create({
+        data: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+          city: city.trim(),
+          province,
+          applicationType: applicationType as "INDIVIDUAL" | "SUBCONTRACTOR",
+          companyName: companyName?.trim() || null,
+          experienceYears: experienceYears ? parseInt(experienceYears, 10) || null : null,
+          experienceSummary: experienceSummary?.trim() || null,
+          availableDays,
+          availableShift: availableShift || null,
+          hasVehicle,
+          hasDriversLicense,
+          hasCOI,
+          hasWSIB,
+          references: (references as object) ?? undefined,
+          agreedToTerms,
+          agreedToTermsAt: new Date(),
+          agreedToBackgroundCheck,
+        },
+      });
+
+      if (recipient) {
+        await tx.notificationOutbox.create({
+          data: {
+            channel: "EMAIL",
+            templateKey: "new_worker_application",
+            recipient,
+            payload: {
+              applicantName: `${firstName} ${lastName}`,
+              applicationType,
+              city,
+              applicationId: created.id,
+            },
+            relatedEntityType: "WorkerApplication",
+            relatedEntityId: created.id,
+            status: "PENDING",
+          },
+        });
+      }
+
+      return created;
     });
 
-    await queueNotification({
-      channel: "EMAIL",
-      templateKey: "new_worker_application",
-      recipient: "admin@blvckshell.com",
-      payload: {
-        applicantName: `${firstName} ${lastName}`,
-        applicationType,
-        city,
-        applicationId: application.id,
-      },
-      relatedEntityType: "WorkerApplication",
-      relatedEntityId: application.id,
-    }).catch(() => {});
-
-    return NextResponse.json({ ok: true, applicationId: application.id });
+    return NextResponse.json({
+      ok: true,
+      applicationId: application.id,
+      notificationQueued: Boolean(recipient),
+    });
   } catch (err) {
-    console.error("Worker application error:", err);
+    logError(err, { where: "POST /api/applications/worker" });
     return NextResponse.json(
       { ok: false, error: "An unexpected error occurred. Please try again." },
       { status: 500 }

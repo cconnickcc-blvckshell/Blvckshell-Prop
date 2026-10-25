@@ -26,15 +26,15 @@ export default function CompliancePage() {
           <h2 className="text-headline font-semibold text-white">Insurance & Compliance</h2>
           <ul className="mt-4 space-y-2 text-zinc-300">
             <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
               <strong>COI (Certificate of Insurance)</strong> - On file and available upon request. We maintain current commercial general liability and relevant coverage for our operations.
             </li>
             <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
               <strong>WSIB</strong> - Coverage in place for our workforce. Proof available upon request.
             </li>
             <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
               <strong>HST registered</strong> - Invoices and compliance documentation are issued accordingly.
             </li>
           </ul>
@@ -55,7 +55,7 @@ export default function CompliancePage() {
             ].map((item, i) => (
               <StaggerItem key={i} index={i}>
                 <div className="flex gap-3">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
                   <span className="text-zinc-300">{item}</span>
                 </div>
               </StaggerItem>
@@ -113,15 +113,15 @@ export default function CompliancePage() {
           </p>
           <ul className="mt-4 space-y-2 text-zinc-300">
             <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
               Vetting: COI, WSIB, and scope alignment before they touch your sites.
             </li>
             <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
               Training: Same checklist and documentation standards; they work through our system.
             </li>
             <li className="flex gap-3">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
               Accountability: We remain the single point of contact and liability to you. You don’t manage subs-we do.
             </li>
           </ul>
@@ -132,7 +132,7 @@ export default function CompliancePage() {
         <div className="mt-12">
           <Link
             href="/contact"
-            className="inline-block rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500"
+            className="inline-block rounded-lg bg-brand-gold px-6 py-3 text-sm font-semibold text-brand-black transition hover:bg-brand-gold-light"
           >
             Contact us
           </Link>

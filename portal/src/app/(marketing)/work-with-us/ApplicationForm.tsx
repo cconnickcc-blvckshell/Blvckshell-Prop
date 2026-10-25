@@ -217,15 +217,15 @@ export default function ApplicationForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
-          <svg className="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="rounded-xl border border-brand-gold/20 bg-brand-gold/5 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-gold/10">
+          <svg className="h-8 w-8 text-brand-gold-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
         <h3 className="text-2xl font-bold text-white">Application Received</h3>
         <p className="mt-3 text-zinc-400">
-          We&apos;ll review your application within 3 business days. If selected, we&apos;ll
+          We&apos;ll review your application as openings align with operational needs. If selected, we&apos;ll
           contact you via SMS to confirm your interest and schedule next steps.
         </p>
         {applicationId && (
@@ -249,9 +249,9 @@ export default function ApplicationForm() {
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
                     i < step
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-brand-gold text-white"
                       : i === step
-                        ? "border-2 border-emerald-500 bg-zinc-900 text-emerald-400"
+                        ? "border-2 border-brand-gold bg-zinc-900 text-brand-gold-light"
                         : "border border-zinc-700 bg-zinc-900 text-zinc-500"
                   }`}
                 >
@@ -268,7 +268,7 @@ export default function ApplicationForm() {
               {i < STEPS.length - 1 && (
                 <div
                   className={`mx-2 h-0.5 flex-1 ${
-                    i < step ? "bg-emerald-600" : "bg-zinc-700"
+                    i < step ? "bg-brand-gold" : "bg-zinc-700"
                   }`}
                 />
               )}
@@ -287,7 +287,7 @@ export default function ApplicationForm() {
                 type="text"
                 value={form.firstName}
                 onChange={(e) => updateField("firstName", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="First name"
               />
             </div>
@@ -297,7 +297,7 @@ export default function ApplicationForm() {
                 type="text"
                 value={form.lastName}
                 onChange={(e) => updateField("lastName", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="Last name"
               />
             </div>
@@ -309,7 +309,7 @@ export default function ApplicationForm() {
                 type="email"
                 value={form.email}
                 onChange={(e) => updateField("email", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="you@example.com"
               />
             </div>
@@ -319,7 +319,7 @@ export default function ApplicationForm() {
                 type="tel"
                 value={form.phone}
                 onChange={(e) => updateField("phone", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="(555) 123-4567"
               />
             </div>
@@ -331,7 +331,7 @@ export default function ApplicationForm() {
                 type="text"
                 value={form.city}
                 onChange={(e) => updateField("city", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="Windsor"
               />
             </div>
@@ -340,7 +340,7 @@ export default function ApplicationForm() {
               <select
                 value={form.province}
                 onChange={(e) => updateField("province", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
               >
                 {PROVINCES.map((p) => (
                   <option key={p} value={p}>
@@ -358,7 +358,7 @@ export default function ApplicationForm() {
                   key={type}
                   className={`flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 text-sm transition ${
                     form.applicationType === type
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-300"
+                      ? "border-brand-gold bg-brand-gold/10 text-brand-gold-light"
                       : "border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >
@@ -382,7 +382,7 @@ export default function ApplicationForm() {
                 type="text"
                 value={form.companyName}
                 onChange={(e) => updateField("companyName", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="Your company name"
               />
             </div>
@@ -403,7 +403,7 @@ export default function ApplicationForm() {
                 max="50"
                 value={form.experienceYears}
                 onChange={(e) => updateField("experienceYears", e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
                 placeholder="0"
               />
             </div>
@@ -416,7 +416,7 @@ export default function ApplicationForm() {
               value={form.experienceSummary}
               onChange={(e) => updateField("experienceSummary", e.target.value)}
               rows={4}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
               placeholder="Briefly describe your relevant experience..."
             />
           </div>
@@ -432,7 +432,7 @@ export default function ApplicationForm() {
                   onClick={() => toggleDay(day)}
                   className={`rounded-lg border px-3 py-2 text-sm transition ${
                     form.availableDays.includes(day)
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-300"
+                      ? "border-brand-gold bg-brand-gold/10 text-brand-gold-light"
                       : "border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >
@@ -449,7 +449,7 @@ export default function ApplicationForm() {
                   key={shift.value}
                   className={`flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 text-sm transition ${
                     form.availableShift === shift.value
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-300"
+                      ? "border-brand-gold bg-brand-gold/10 text-brand-gold-light"
                       : "border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >
@@ -472,7 +472,7 @@ export default function ApplicationForm() {
                 type="checkbox"
                 checked={form.hasVehicle}
                 onChange={(e) => updateField("hasVehicle", e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-emerald-500 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-brand-gold focus:ring-brand-gold"
               />
               I have access to a vehicle
             </label>
@@ -481,7 +481,7 @@ export default function ApplicationForm() {
                 type="checkbox"
                 checked={form.hasDriversLicense}
                 onChange={(e) => updateField("hasDriversLicense", e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-emerald-500 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-brand-gold focus:ring-brand-gold"
               />
               I have a valid driver&apos;s license
             </label>
@@ -497,7 +497,7 @@ export default function ApplicationForm() {
                 type="checkbox"
                 checked={form.hasCOI}
                 onChange={(e) => updateField("hasCOI", e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-emerald-500 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-brand-gold focus:ring-brand-gold"
               />
               I have a Certificate of Insurance (COI)
             </label>
@@ -506,7 +506,7 @@ export default function ApplicationForm() {
                 type="checkbox"
                 checked={form.hasWSIB}
                 onChange={(e) => updateField("hasWSIB", e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-emerald-500 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-brand-gold focus:ring-brand-gold"
               />
               I have WSIB coverage
             </label>
@@ -522,7 +522,7 @@ export default function ApplicationForm() {
                 <button
                   type="button"
                   onClick={addReference}
-                  className="text-sm text-emerald-400 hover:text-emerald-300"
+                  className="text-sm text-brand-gold-light hover:text-brand-gold-light"
                 >
                   + Add Reference
                 </button>
@@ -551,14 +551,14 @@ export default function ApplicationForm() {
                     placeholder="Name"
                     value={ref.name}
                     onChange={(e) => updateReference(i, "name", e.target.value)}
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none"
                   />
                   <input
                     type="tel"
                     placeholder="Phone"
                     value={ref.phone}
                     onChange={(e) => updateReference(i, "phone", e.target.value)}
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none"
                   />
                   <input
                     type="text"
@@ -567,7 +567,7 @@ export default function ApplicationForm() {
                     onChange={(e) =>
                       updateReference(i, "relationship", e.target.value)
                     }
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none"
                   />
                 </div>
               </div>
@@ -591,7 +591,7 @@ export default function ApplicationForm() {
                   <label className="block text-xs text-zinc-500 mb-1.5">{label}</label>
                   <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-zinc-700 bg-zinc-800/50 px-4 py-6 text-sm text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-300">
                     {form[key] ? (
-                      <span className="truncate text-emerald-400">
+                      <span className="truncate text-brand-gold-light">
                         {form[key]!.name}
                       </span>
                     ) : (
@@ -630,7 +630,7 @@ export default function ApplicationForm() {
               type="checkbox"
               checked={form.agreedToTerms}
               onChange={(e) => updateField("agreedToTerms", e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-emerald-500 focus:ring-emerald-500"
+              className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-brand-gold focus:ring-brand-gold"
             />
             <span>
               I agree to the{" "}
@@ -638,7 +638,7 @@ export default function ApplicationForm() {
                 href="/compliance"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-emerald-400 underline hover:text-emerald-300"
+                className="text-brand-gold-light underline hover:text-brand-gold-light"
               >
                 BLVCKSHELL Workforce Terms and Conditions
               </a>{" "}
@@ -653,7 +653,7 @@ export default function ApplicationForm() {
               onChange={(e) =>
                 updateField("agreedToBackgroundCheck", e.target.checked)
               }
-              className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-emerald-500 focus:ring-emerald-500"
+              className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-zinc-700 text-brand-gold focus:ring-brand-gold"
             />
             <span>
               I consent to a background check as part of the application process *
@@ -685,7 +685,7 @@ export default function ApplicationForm() {
             type="button"
             disabled={!canAdvance()}
             onClick={() => setStep((s) => s + 1)}
-            className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-medium text-white transition hover:bg-brand-gold disabled:cursor-not-allowed disabled:opacity-50"
           >
             Continue
           </button>
@@ -694,7 +694,7 @@ export default function ApplicationForm() {
             type="button"
             disabled={!canAdvance() || submitting}
             onClick={handleSubmit}
-            className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-medium text-white transition hover:bg-brand-gold disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Submitting..." : "Submit Application"}
           </button>

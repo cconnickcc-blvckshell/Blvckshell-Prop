@@ -21,9 +21,12 @@ export async function middleware(request: NextRequest) {
   const isAuthPost =
     method === "POST" && pathname.startsWith("/api/auth/callback");
   const isLeadPost = method === "POST" && pathname === "/api/lead";
+  const isApplicationPost =
+    method === "POST" &&
+    (pathname === "/api/applications/client" || pathname === "/api/applications/worker");
   const isEvidenceUpload = pathname.startsWith("/api/evidence/upload");
 
-  if (isAuthPost || isLeadPost || isEvidenceUpload) {
+  if (isAuthPost || isLeadPost || isApplicationPost || isEvidenceUpload) {
     const ip = getClientIP(request);
     const limit = isAuthPost ? 10 : 30; // 10 login attempts, 30 for others
     const windowMs = 15 * 60 * 1000; // 15 minutes
@@ -56,6 +59,8 @@ export const config = {
   matcher: [
     "/api/auth/callback/:path*",
     "/api/lead",
+    "/api/applications/client",
+    "/api/applications/worker",
     "/api/evidence/upload",
   ],
 };

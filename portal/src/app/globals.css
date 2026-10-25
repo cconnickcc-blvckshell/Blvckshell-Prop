@@ -1,8 +1,28 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-gold: #d4af37;
+  --color-brand-gold-light: #e5c866;
+  --color-brand-gold-dark: #b8941f;
+  --color-brand-black: #090909;
+  --color-brand-charcoal: #171717;
+  --color-brand-surface: #222222;
+  --color-brand-muted: #a3a3a3;
+}
+
 :root {
   --background: #0a0a0a;
   --foreground: #fafafa;
+
+  /* BLVCKSHELL marketing brand tokens */
+  --brand-black: #090909;
+  --brand-charcoal: #171717;
+  --brand-surface: #222222;
+  --brand-gold: #d4af37;
+  --brand-gold-light: #e5c866;
+  --brand-gold-dark: #b8941f;
+  --brand-white: #f7f7f7;
+  --brand-muted: #a3a3a3;
   
   /* Luxury color palette */
   --zinc-50: #fafafa;

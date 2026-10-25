@@ -49,7 +49,17 @@ const nextConfig = {
       },
       {
         source: '/services/light-maintenance',
-        destination: '/light-maintenance',
+        destination: '/facilities-support',
+        permanent: true,
+      },
+      {
+        source: '/light-maintenance',
+        destination: '/facilities-support',
+        permanent: true,
+      },
+      {
+        source: '/pilots',
+        destination: '/introductory-offers',
         permanent: true,
       },
     ];

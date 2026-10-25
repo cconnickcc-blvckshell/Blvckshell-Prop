@@ -41,7 +41,7 @@ export default function LightMaintenancePage() {
             ].map((item, i) => (
               <StaggerItem key={i} index={i}>
                 <div className="flex gap-3">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
                   <span className="text-zinc-300">{item}</span>
                 </div>
               </StaggerItem>
@@ -62,7 +62,7 @@ export default function LightMaintenancePage() {
               ].map((item, i) => (
                 <StaggerItem key={i} index={i}>
                   <div className="flex gap-3">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
                     <span className="text-zinc-300">{item}</span>
                   </div>
                 </StaggerItem>
@@ -83,7 +83,7 @@ export default function LightMaintenancePage() {
               ].map((item, i) => (
                 <StaggerItem key={i} index={i}>
                   <div className="flex gap-3">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
                     <span className="text-zinc-300">{item}</span>
                   </div>
                 </StaggerItem>
@@ -105,7 +105,7 @@ export default function LightMaintenancePage() {
               ].map((item, i) => (
                 <StaggerItem key={i} index={i}>
                   <div className="flex gap-3">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
                     <span className="text-zinc-300">{item}</span>
                   </div>
                 </StaggerItem>
@@ -126,7 +126,7 @@ export default function LightMaintenancePage() {
               ].map((item, i) => (
                 <StaggerItem key={i} index={i}>
                   <div className="flex gap-3">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden />
                     <span className="text-zinc-300">{item}</span>
                   </div>
                 </StaggerItem>
@@ -153,7 +153,7 @@ export default function LightMaintenancePage() {
           <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <Link
               href="/contact"
-              className="inline-flex justify-center rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-emerald-500 hover:shadow-lg"
+              className="inline-flex justify-center rounded-lg bg-brand-gold px-6 py-3 text-sm font-semibold text-brand-black transition-all duration-200 hover:bg-brand-gold-light hover:shadow-lg"
             >
               Request a site evaluation
             </Link>

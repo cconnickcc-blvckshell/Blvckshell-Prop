@@ -11,6 +11,9 @@ function getEmailSubject(templateKey: string, payload: Record<string, unknown>):
     case "application_approved": return `Welcome to BLVCKSHELL`;
     case "application_rejected": return `BLVCKSHELL Application Update`;
     case "client_approved": return `Welcome to BLVCKSHELL — ${payload.companyName ?? "Client Portal"}`;
+    case "new_lead": return `New website lead — ${payload.name ?? "BLVCKSHELL"}`;
+    case "new_worker_application": return `New worker application — ${payload.applicantName ?? "BLVCKSHELL"}`;
+    case "new_client_signup": return `New client signup request — ${payload.companyName ?? "BLVCKSHELL"}`;
     default: return `BLVCKSHELL Notification`;
   }
 }
@@ -59,6 +62,29 @@ function getEmailHtml(templateKey: string, payload: Record<string, unknown>): st
         <p style="color:#a1a1aa;">Your client portal account for <strong style="color:#fff;">${payload.companyName}</strong> is ready.</p>
         <p style="color:#fff;margin:12px 0;">Your temporary password: <strong style="color:#34d399;">${payload.tempPassword}</strong></p>
         <p style="color:#a1a1aa;">Log in at: <a href="${payload.portalUrl}/login" style="color:#34d399;">${payload.portalUrl}/login</a></p>
+      `);
+    case "new_lead":
+      return wrap(`
+        <p style="color:#d4af37;font-size:18px;font-weight:700;margin:0 0 12px 0;">New website lead</p>
+        <p style="color:#fff;margin:8px 0;"><strong>${payload.name}</strong> &lt;${payload.email}&gt;</p>
+        ${payload.phone ? `<p style="color:#a1a1aa;">Phone: ${payload.phone}</p>` : ""}
+        ${payload.company ? `<p style="color:#a1a1aa;">Company: ${payload.company}</p>` : ""}
+        ${payload.serviceInterest ? `<p style="color:#a1a1aa;">Service: ${payload.serviceInterest}</p>` : ""}
+        ${payload.sourcePage ? `<p style="color:#71717a;font-size:12px;">Source: ${payload.sourcePage}</p>` : ""}
+        <p style="color:#71717a;font-size:12px;margin-top:16px;">Lead ID: ${payload.leadId}. Review in Admin → Leads.</p>
+      `);
+    case "new_worker_application":
+      return wrap(`
+        <p style="color:#d4af37;font-size:18px;font-weight:700;margin:0 0 12px 0;">New worker application</p>
+        <p style="color:#fff;">${payload.applicantName} (${payload.applicationType}) — ${payload.city ?? ""}</p>
+        <p style="color:#71717a;font-size:12px;">Application ID: ${payload.applicationId}. Review in Admin → Applications.</p>
+      `);
+    case "new_client_signup":
+      return wrap(`
+        <p style="color:#d4af37;font-size:18px;font-weight:700;margin:0 0 12px 0;">New client signup request</p>
+        <p style="color:#fff;">${payload.companyName} — ${payload.contactName}</p>
+        <p style="color:#a1a1aa;">${payload.contactEmail}</p>
+        <p style="color:#71717a;font-size:12px;">Signup ID: ${payload.signupId}. Review in Admin → Applications.</p>
       `);
     default:
       return wrap(`<p style="color: #a1a1aa;">You have a new notification. Log in to the portal for details.</p>`);

@@ -80,7 +80,7 @@ export default function PrivacyPage() {
               <li>Withdraw consent for non-essential communications.</li>
               <li>Request deletion of your account (subject to legal retention requirements).</li>
             </ul>
-            <p className="mt-2">To exercise these rights, contact us at <a href="mailto:privacy@blvckshell.com" className="text-emerald-400 hover:text-emerald-300">privacy@blvckshell.com</a>.</p>
+            <p className="mt-2">To exercise these rights, contact us at <a href="mailto:privacy@blvckshell.com" className="text-brand-gold-light hover:text-brand-gold">privacy@blvckshell.com</a>.</p>
           </section>
 
           <section>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
             <p>For privacy inquiries or complaints:</p>
             <p className="mt-2 text-zinc-400">
               BLVCKSHELL Facilities Services<br />
-              Email: <a href="mailto:privacy@blvckshell.com" className="text-emerald-400">privacy@blvckshell.com</a><br />
+              Email: <a href="mailto:privacy@blvckshell.com" className="text-brand-gold-light">privacy@blvckshell.com</a><br />
               Ontario, Canada
             </p>
           </section>

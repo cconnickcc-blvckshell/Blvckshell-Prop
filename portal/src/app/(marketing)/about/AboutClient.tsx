@@ -104,7 +104,7 @@ export default function AboutClient() {
               },
             ].map((card, i) => (
               <StaggerItem key={i} index={i}>
-                <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-200 hover:border-zinc-700 hover:shadow-lg hover:shadow-emerald-900/5">
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-200 hover:border-zinc-700 hover:shadow-lg hover:shadow-brand-gold/5">
                   <h3 className="font-semibold text-white">{card.title}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-zinc-400">{card.description}</p>
                 </div>
@@ -121,7 +121,7 @@ export default function AboutClient() {
             <h2 className="text-headline font-semibold text-white">Why This Matters</h2>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <blockquote className="mt-10 border-l-4 border-emerald-600 pl-8">
+            <blockquote className="mt-10 border-l-4 border-brand-gold pl-8">
               <p className="text-2xl font-medium leading-relaxed text-zinc-200 sm:text-3xl">
                 Property managers hire cleaners to avoid problems, not to admire resumes.
               </p>
@@ -141,7 +141,7 @@ export default function AboutClient() {
             <div className="mt-8">
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-900/30 transition-all duration-200 hover:bg-emerald-500 hover:shadow-xl hover:scale-[1.02]"
+                className="inline-flex items-center justify-center rounded-lg bg-brand-gold px-8 py-4 text-base font-semibold text-brand-black shadow-lg shadow-brand-gold/20 transition-all duration-200 hover:bg-brand-gold-light hover:shadow-xl hover:scale-[1.02]"
               >
                 Contact Us
               </Link>

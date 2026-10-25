@@ -83,10 +83,10 @@ export default function ClientSignupForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
+      <div className="rounded-xl border border-brand-gold/20 bg-brand-gold/5 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-gold/10">
           <svg
-            className="h-8 w-8 text-emerald-400"
+            className="h-8 w-8 text-brand-gold-light"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -118,7 +118,7 @@ export default function ClientSignupForm() {
             type="text"
             value={form.companyName}
             onChange={(e) => updateField("companyName", e.target.value)}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
             placeholder="Your company or property name"
           />
         </div>
@@ -130,7 +130,7 @@ export default function ClientSignupForm() {
             type="text"
             value={form.contactName}
             onChange={(e) => updateField("contactName", e.target.value)}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
             placeholder="Your full name"
           />
         </div>
@@ -143,7 +143,7 @@ export default function ClientSignupForm() {
               type="email"
               value={form.contactEmail}
               onChange={(e) => updateField("contactEmail", e.target.value)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
               placeholder="you@company.com"
             />
           </div>
@@ -155,7 +155,7 @@ export default function ClientSignupForm() {
               type="tel"
               value={form.contactPhone}
               onChange={(e) => updateField("contactPhone", e.target.value)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
               placeholder="(555) 123-4567"
             />
           </div>
@@ -170,7 +170,7 @@ export default function ClientSignupForm() {
               min="1"
               value={form.buildingCount}
               onChange={(e) => updateField("buildingCount", e.target.value)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
               placeholder="1"
             />
           </div>
@@ -181,7 +181,7 @@ export default function ClientSignupForm() {
             <select
               value={form.buildingType}
               onChange={(e) => updateField("buildingType", e.target.value)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
             >
               {BUILDING_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -199,7 +199,7 @@ export default function ClientSignupForm() {
             type="text"
             value={form.city}
             onChange={(e) => updateField("city", e.target.value)}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
             placeholder="Windsor"
           />
         </div>
@@ -211,7 +211,7 @@ export default function ClientSignupForm() {
             value={form.message}
             onChange={(e) => updateField("message", e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-white placeholder-zinc-500 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
             placeholder="Tell us about your needs..."
           />
         </div>
@@ -226,7 +226,7 @@ export default function ClientSignupForm() {
       <button
         type="submit"
         disabled={!canSubmit || submitting}
-        className="mt-6 w-full rounded-lg bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-6 w-full rounded-lg bg-brand-gold px-6 py-3 text-sm font-medium text-white transition hover:bg-brand-gold disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? "Submitting..." : "Request Access"}
       </button>

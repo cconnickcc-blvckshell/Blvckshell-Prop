@@ -32,7 +32,7 @@ export default function MarketingErrorBoundary({
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+            className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-medium text-brand-black hover:bg-brand-gold-light"
           >
             Try again
           </button>

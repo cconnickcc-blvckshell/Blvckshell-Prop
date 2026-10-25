@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { queueNotification } from "@/server/actions/notification-actions";
+import { getOperationsNotificationEmail } from "@/lib/operations-notifications";
+import { logError } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,36 +25,51 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const signup = await prisma.clientSignupRequest.create({
-      data: {
-        companyName: companyName.trim(),
-        contactName: contactName.trim(),
-        contactEmail: contactEmail.trim().toLowerCase(),
-        contactPhone: contactPhone.trim(),
-        buildingCount: buildingCount ? parseInt(String(buildingCount), 10) || null : null,
-        buildingType: buildingType || null,
-        city: city?.trim() || null,
-        message: message?.trim() || null,
-      },
+    const recipient = getOperationsNotificationEmail();
+
+    const signup = await prisma.$transaction(async (tx) => {
+      const created = await tx.clientSignupRequest.create({
+        data: {
+          companyName: companyName.trim(),
+          contactName: contactName.trim(),
+          contactEmail: contactEmail.trim().toLowerCase(),
+          contactPhone: contactPhone.trim(),
+          buildingCount: buildingCount ? parseInt(String(buildingCount), 10) || null : null,
+          buildingType: buildingType || null,
+          city: city?.trim() || null,
+          message: message?.trim() || null,
+        },
+      });
+
+      if (recipient) {
+        await tx.notificationOutbox.create({
+          data: {
+            channel: "EMAIL",
+            templateKey: "new_client_signup",
+            recipient,
+            payload: {
+              companyName: created.companyName,
+              contactName: created.contactName,
+              contactEmail: created.contactEmail,
+              signupId: created.id,
+            },
+            relatedEntityType: "ClientSignupRequest",
+            relatedEntityId: created.id,
+            status: "PENDING",
+          },
+        });
+      }
+
+      return created;
     });
 
-    await queueNotification({
-      channel: "EMAIL",
-      templateKey: "new_client_signup",
-      recipient: "admin@blvckshell.com",
-      payload: {
-        companyName,
-        contactName,
-        contactEmail,
-        signupId: signup.id,
-      },
-      relatedEntityType: "ClientSignupRequest",
-      relatedEntityId: signup.id,
-    }).catch(() => {});
-
-    return NextResponse.json({ ok: true, signupId: signup.id });
+    return NextResponse.json({
+      ok: true,
+      signupId: signup.id,
+      notificationQueued: Boolean(recipient),
+    });
   } catch (err) {
-    console.error("Client signup error:", err);
+    logError(err, { where: "POST /api/applications/client" });
     return NextResponse.json(
       { ok: false, error: "An unexpected error occurred. Please try again." },
       { status: 500 }
