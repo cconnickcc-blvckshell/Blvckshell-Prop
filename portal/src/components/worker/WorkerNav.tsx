@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { company } from "@/config/marketing-site";
+import PortalBrandMark from "@/components/PortalBrandMark";
 
 const workerTabs = [
   { href: "/jobs", label: "Jobs", icon: "briefcase" },
@@ -52,8 +53,8 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
       {/* Top bar */}
       <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950">
         <div className="flex h-12 items-center justify-between px-4">
-          <Link href="/jobs" className="text-base font-bold tracking-tight text-white">
-            BLVCKSHELL
+          <Link href="/jobs" className="flex min-w-0 items-center" aria-label="BLVCKSHELL worker home">
+            <PortalBrandMark variant="header" className="max-w-[9.5rem] sm:max-w-[11rem]" />
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-xs text-zinc-500">{userName}</span>

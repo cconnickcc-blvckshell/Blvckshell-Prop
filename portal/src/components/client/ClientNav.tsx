@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import PortalBrandMark from "@/components/PortalBrandMark";
 
 interface ClientNavProps {
   userName: string;
@@ -25,9 +26,11 @@ export default function ClientNav({ userName }: ClientNavProps) {
           <div className="flex items-center gap-6">
             <Link
               href="/client"
-              className="text-lg font-semibold text-white hover:text-zinc-200"
+              className="flex items-center gap-2.5 hover:opacity-90"
+              aria-label="BLVCKSHELL Client home"
             >
-              BLVCKSHELL Client
+              <PortalBrandMark variant="crest" />
+              <span className="text-sm font-semibold text-zinc-200">Client</span>
             </Link>
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || (href !== "/client" && pathname.startsWith(href));

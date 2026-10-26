@@ -11,8 +11,8 @@ export default function MarketingHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-[var(--brand-black)]/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <BrandLogo variant="lockup" className="shrink-0" priority />
+      <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 sm:h-[4.5rem] sm:gap-4 sm:px-6">
+        <BrandLogo variant="header" className="min-w-0 shrink-0" priority />
 
         <nav className="hidden items-center gap-5 lg:flex xl:gap-6" aria-label="Primary">
           {primaryNav.map(({ href, label }) => (

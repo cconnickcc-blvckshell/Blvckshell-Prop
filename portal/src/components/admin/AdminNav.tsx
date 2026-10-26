@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import NotificationBell from "@/components/admin/NotificationBell";
+import PortalBrandMark from "@/components/PortalBrandMark";
 
 const navLinks = [
   { href: "/admin", label: "Dashboard" },
@@ -44,9 +45,13 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
             <Link
               href="/admin"
               prefetch={false}
-              className="shrink-0 text-lg font-bold tracking-tight text-white md:text-xl"
+              className="flex shrink-0 items-center gap-2.5"
+              aria-label="BLVCKSHELL Admin home"
             >
-              BLVCKSHELL Admin
+              <PortalBrandMark variant="crest" />
+              <span className="text-sm font-semibold tracking-tight text-zinc-200 md:text-base">
+                Admin
+              </span>
             </Link>
             {/* Desktop nav — wrap so Invoices/Payouts etc. stay visible on smaller desktop */}
             <div className="hidden gap-1 md:flex md:flex-wrap md:items-center">

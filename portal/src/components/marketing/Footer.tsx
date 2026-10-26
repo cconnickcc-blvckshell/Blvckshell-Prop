@@ -9,8 +9,8 @@ export default function MarketingFooter() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <BrandLogo variant="emblem" />
-            <p className="mt-4 text-sm leading-relaxed text-[var(--brand-muted)]">
+            <BrandLogo variant="primary" className="max-w-[16rem]" />
+            <p className="mt-5 text-sm leading-relaxed text-[var(--brand-muted)]">
               {company.commercialLine}
             </p>
             <p className="mt-2 text-sm text-zinc-500">

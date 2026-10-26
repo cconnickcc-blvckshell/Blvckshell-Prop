@@ -4,3 +4,4 @@ node_modules
 
 /generated/prisma
 test-results/
+/_brand_extract/
