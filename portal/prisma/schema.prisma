@@ -900,12 +900,15 @@ model WorkerApplication {
   reviewedAt            DateTime?
   reviewedById          String?
   rejectionReason       String?
+  provisionedUserId     String?
+  activationInviteStatus ActivationInviteStatus @default(NONE)
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
 
   @@index([status])
   @@index([email])
   @@index([createdAt])
+  @@index([provisionedUserId])
 }
 
 // --- Client Signup Requests ---
@@ -922,9 +925,13 @@ model ClientSignupRequest {
   message               String?
   reviewedAt            DateTime?
   reviewedById          String?
+  provisionedUserId           String?
+  provisionedOrganizationId String?
+  activationInviteStatus      ActivationInviteStatus @default(NONE)
   createdAt             DateTime              @default(now())
 
   @@index([status])
+  @@index([provisionedUserId])
   @@index([contactEmail])
 }
 
@@ -1033,16 +1040,26 @@ model QuoteSnapshot {
 
 // --- Notification Outbox (durable, auditable messaging) ---
 model AccountActivationToken {
-  id        String    @id @default(cuid())
-  userId    String
-  tokenHash String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(cuid())
+  userId             String
+  tokenHash          String    @unique
+  expiresAt          DateTime
+  usedAt             DateTime?
+  /// Cleared after activation email is sent (never log this field).
+  deliveryTokenPlain String?
+  createdAt          DateTime  @default(now())
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+enum ActivationInviteStatus {
+  NONE
+  PENDING
+  QUEUED
+  SENT
+  FAILED
 }
 
 model NotificationOutbox {

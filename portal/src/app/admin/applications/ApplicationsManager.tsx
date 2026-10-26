@@ -5,6 +5,8 @@ import {
   updateApplicationStatus,
   approveClientSignup,
   rejectClientSignup,
+  resendWorkerActivationInvitation,
+  resendClientActivationInvitation,
 } from "@/server/actions/application-actions";
 
 interface WorkerApplication {
@@ -33,6 +35,8 @@ interface WorkerApplication {
   rejectionReason: string | null;
   reviewedAt: string | null;
   createdAt: string;
+  activationInviteStatus?: string;
+  provisionedUserId?: string | null;
 }
 
 interface ClientSignup {
@@ -48,7 +52,17 @@ interface ClientSignup {
   message: string | null;
   reviewedAt: string | null;
   createdAt: string;
+  activationInviteStatus?: string;
+  provisionedUserId?: string | null;
 }
+
+const INVITE_COLORS: Record<string, string> = {
+  NONE: "text-zinc-500",
+  PENDING: "text-amber-400",
+  QUEUED: "text-blue-400",
+  SENT: "text-emerald-400",
+  FAILED: "text-red-400",
+};
 
 const STATUS_COLORS: Record<string, string> = {
   SUBMITTED: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -114,6 +128,18 @@ export default function ApplicationsManager({
       await rejectClientSignup(id, reason);
       setRejectModalId(null);
       setRejectionReason("");
+    });
+  }
+
+  function handleResendWorkerActivation(id: string) {
+    startTransition(async () => {
+      await resendWorkerActivationInvitation(id);
+    });
+  }
+
+  function handleResendClientActivation(id: string) {
+    startTransition(async () => {
+      await resendClientActivationInvitation(id);
     });
   }
 
@@ -232,6 +258,16 @@ export default function ApplicationsManager({
                                 </button>
                               </>
                             )}
+                            {app.status === "APPROVED" && app.provisionedUserId && (
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleResendWorkerActivation(app.id)}
+                                className="rounded-md bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700 disabled:opacity-50"
+                              >
+                                Resend activation
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -315,6 +351,18 @@ export default function ApplicationsManager({
                                   </p>
                                   <p className="mt-1 text-sm text-zinc-300">
                                     {app.experienceSummary}
+                                  </p>
+                                </div>
+                              )}
+                              {app.status === "APPROVED" && app.activationInviteStatus && (
+                                <div>
+                                  <p className="text-xs font-medium text-zinc-500">
+                                    Activation email
+                                  </p>
+                                  <p
+                                    className={`mt-1 text-sm font-medium ${INVITE_COLORS[app.activationInviteStatus] ?? "text-zinc-400"}`}
+                                  >
+                                    {app.activationInviteStatus}
                                   </p>
                                 </div>
                               )}
@@ -403,6 +451,16 @@ export default function ApplicationsManager({
                                 Reject
                               </button>
                             </>
+                          )}
+                          {signup.status === "APPROVED" && signup.provisionedUserId && (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleResendClientActivation(signup.id)}
+                              className="rounded-md bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700 disabled:opacity-50"
+                            >
+                              Resend activation
+                            </button>
                           )}
                         </div>
                       </td>

@@ -6,6 +6,11 @@ import {
   isSmsProviderConfigured,
 } from "@/lib/cron-auth";
 import { getEmailHtml, getEmailSubject, getSmsBody } from "@/server/notifications/templates";
+import { resolveEmailPayloadForSend } from "@/server/notifications/resolve-email-payload";
+import {
+  markActivationInviteFailed,
+  markActivationInviteSent,
+} from "@/server/provisioning/application-provisioning";
 
 /**
  * POST /api/notifications/process
@@ -48,20 +53,45 @@ export async function POST(req: NextRequest) {
 
         const sgMail = require("@sendgrid/mail");
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        const payload = notification.payload as Record<string, unknown>;
+        const rawPayload = notification.payload as Record<string, unknown>;
+        const resolved = await resolveEmailPayloadForSend(notification.templateKey, rawPayload);
+        if (!resolved.ok) {
+          await prisma.notificationOutbox.update({
+            where: { id: notification.id },
+            data: { status: "FAILED", error: resolved.error },
+          });
+          if (notification.relatedEntityType && notification.relatedEntityId) {
+            await markActivationInviteFailed(
+              notification.relatedEntityType,
+              notification.relatedEntityId
+            );
+          }
+          failed++;
+          continue;
+        }
+
         const fromEmail = process.env.SENDGRID_FROM_EMAIL ?? "noreply@blvckshell.com";
 
         await sgMail.send({
           to: notification.recipient,
           from: fromEmail,
-          subject: getEmailSubject(notification.templateKey, payload),
-          html: getEmailHtml(notification.templateKey, payload),
+          subject: getEmailSubject(notification.templateKey, resolved.payload),
+          html: getEmailHtml(notification.templateKey, resolved.payload),
         });
 
         await prisma.notificationOutbox.update({
           where: { id: notification.id },
           data: { status: "SENT", sentAt: new Date(), providerMessageId: `sg-${Date.now()}` },
         });
+        if (notification.relatedEntityType && notification.relatedEntityId) {
+          const activationTemplates = new Set(["application_approved", "client_approved"]);
+          if (activationTemplates.has(notification.templateKey)) {
+            await markActivationInviteSent(
+              notification.relatedEntityType,
+              notification.relatedEntityId
+            );
+          }
+        }
         sent++;
       } else if (notification.channel === "SMS") {
         if (!isSmsProviderConfigured()) {
@@ -103,14 +133,24 @@ export async function POST(req: NextRequest) {
         sent++;
       }
     } catch (err) {
-      console.error(`Failed to process notification ${notification.id}:`, err);
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error(`Failed to process notification ${notification.id}:`, message);
       await prisma.notificationOutbox.update({
         where: { id: notification.id },
         data: {
           status: "FAILED",
-          error: err instanceof Error ? err.message : "Unknown error",
+          error: message,
         },
       });
+      if (notification.relatedEntityType && notification.relatedEntityId) {
+        const activationTemplates = new Set(["application_approved", "client_approved"]);
+        if (activationTemplates.has(notification.templateKey)) {
+          await markActivationInviteFailed(
+            notification.relatedEntityType,
+            notification.relatedEntityId
+          );
+        }
+      }
       failed++;
     }
   }

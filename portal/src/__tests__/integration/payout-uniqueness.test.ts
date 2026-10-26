@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import { testDb, createTestUser, createTestClient, createTestSite, createTestWorkforceAccount } from "../setup";
+import {
+  testDb,
+  createTestUser,
+  createTestClient,
+  createTestSite,
+  createTestWorkforceAccount,
+  isDbReachable,
+} from "../setup";
 
 /**
  * Gold Standard T1: PayoutLine one-per-job enforced at DB level.
@@ -13,6 +20,7 @@ describe("PayoutLine uniqueness", () => {
   let workforceId: string;
 
   beforeAll(async () => {
+    if (!isDbReachable()) return;
     await testDb.$executeRawUnsafe(`
       CREATE UNIQUE INDEX IF NOT EXISTS payoutline_one_per_job
       ON "PayoutLine" ("jobId")

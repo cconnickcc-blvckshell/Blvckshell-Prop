@@ -76,6 +76,8 @@ beforeEach(async () => {
     await testDb.quote.deleteMany();
     await testDb.site.deleteMany();
     await testDb.clientOrganization.deleteMany();
+    await testDb.workerApplication.deleteMany();
+    await testDb.clientSignupRequest.deleteMany();
     await testDb.lead.deleteMany();
     await testDb.pricingPolicy.deleteMany();
     try {

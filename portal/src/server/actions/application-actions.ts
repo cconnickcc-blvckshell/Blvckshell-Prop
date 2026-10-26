@@ -5,9 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { queueNotification } from "./notification-actions";
 import {
-  createAccountActivationLink,
-  generateUnusablePasswordHash,
-} from "@/lib/account-activation";
+  provisionWorkerApplication,
+  provisionClientSignup,
+  resendWorkerActivationEmail,
+  resendClientActivationEmail,
+} from "@/server/provisioning/application-provisioning";
 
 export async function listWorkerApplications() {
   await requireAdmin();
@@ -37,121 +39,66 @@ export async function updateApplicationStatus(
   });
   if (!app) return { ok: false, error: "Application not found" };
 
-  await prisma.workerApplication.update({
-    where: { id: applicationId },
-    data: {
-      status,
-      reviewedAt: new Date(),
-      reviewedById: user.id,
-      rejectionReason: options?.rejectionReason,
-      adminNotes: options?.adminNotes,
-    },
-  });
+  if (status === "UNDER_REVIEW") {
+    await prisma.workerApplication.update({
+      where: { id: applicationId },
+      data: {
+        status,
+        reviewedAt: new Date(),
+        reviewedById: user.id,
+        adminNotes: options?.adminNotes,
+      },
+    });
+    revalidatePath("/admin/applications");
+    return { ok: true };
+  }
 
   if (status === "APPROVED") {
-    const passwordHash = generateUnusablePasswordHash();
-
-    const accountType =
-      app.applicationType === "SUBCONTRACTOR" ? "VENDOR" : "INTERNAL";
-    const role =
-      app.applicationType === "SUBCONTRACTOR"
-        ? "VENDOR_WORKER"
-        : "INTERNAL_WORKER";
-
-    let workforceAccountId: string;
-    if (app.applicationType === "SUBCONTRACTOR" && app.companyName) {
-      const existing = await prisma.workforceAccount.findFirst({
-        where: { displayName: app.companyName, type: "VENDOR" },
-      });
-      if (existing) {
-        workforceAccountId = existing.id;
-      } else {
-        const account = await prisma.workforceAccount.create({
-          data: {
-            type: accountType as "VENDOR",
-            displayName: app.companyName,
-            primaryContactName: `${app.firstName} ${app.lastName}`,
-            primaryContactEmail: app.email,
-            primaryContactPhone: app.phone,
-          },
-        });
-        workforceAccountId = account.id;
-      }
-    } else {
-      let internal = await prisma.workforceAccount.findFirst({
-        where: { type: "INTERNAL", displayName: "BLVCKSHELL Internal" },
-      });
-      if (!internal) {
-        internal = await prisma.workforceAccount.create({
-          data: {
-            type: "INTERNAL",
-            displayName: "BLVCKSHELL Internal",
-            primaryContactName: "BLVCKSHELL",
-            primaryContactEmail: "internal@blvckshell.com",
-            primaryContactPhone: "",
-          },
-        });
-      }
-      workforceAccountId = internal.id;
-    }
-
-    const newUser = await prisma.user.create({
-      data: {
-        email: app.email,
-        passwordHash,
-        role,
-        name: `${app.firstName} ${app.lastName}`,
-        phone: app.phone,
-        workforceAccountId,
-      },
+    const result = await provisionWorkerApplication({
+      applicationId,
+      reviewerUserId: user.id,
     });
-
-    await prisma.worker.create({
-      data: {
-        userId: newUser.id,
-        workforceAccountId,
-        availabilityNotes: `Available: ${app.availableDays.join(", ")} | Shift: ${app.availableShift ?? "flexible"}`,
-      },
-    });
-
-    const activationUrl = await createAccountActivationLink(newUser.id);
-
-    await queueNotification({
-      channel: "SMS",
-      templateKey: "application_approved",
-      recipient: app.phone,
-      payload: {
-        name: app.firstName,
-        activationUrl,
-        portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
-      },
-      relatedEntityType: "WorkerApplication",
-      relatedEntityId: applicationId,
-    }).catch(() => {});
-
-    await queueNotification({
-      channel: "EMAIL",
-      templateKey: "application_approved",
-      recipient: app.email,
-      payload: {
-        name: app.firstName,
-        activationUrl,
-        portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
-      },
-      relatedEntityType: "WorkerApplication",
-      relatedEntityId: applicationId,
-    }).catch(() => {});
+    revalidatePath("/admin/applications");
+    if (!result.ok) return result;
+    return {
+      ok: true,
+      provisioned: true,
+      userId: result.userId,
+      activationInviteStatus: result.activationInviteStatus,
+      emailNotificationId: result.emailNotificationId,
+      alreadyProvisioned: result.alreadyProvisioned,
+      warning: result.warning,
+    };
   }
 
   if (status === "REJECTED") {
-    await queueNotification({
-      channel: "EMAIL",
-      templateKey: "application_rejected",
-      recipient: app.email,
-      payload: { name: app.firstName, reason: options?.rejectionReason },
-      relatedEntityType: "WorkerApplication",
-      relatedEntityId: applicationId,
-    }).catch(() => {});
+    await prisma.workerApplication.update({
+      where: { id: applicationId },
+      data: {
+        status: "REJECTED",
+        reviewedAt: new Date(),
+        reviewedById: user.id,
+        rejectionReason: options?.rejectionReason,
+        adminNotes: options?.adminNotes,
+      },
+    });
+    try {
+      await queueNotification({
+        channel: "EMAIL",
+        templateKey: "application_rejected",
+        recipient: app.email,
+        payload: { name: app.firstName, reason: options?.rejectionReason },
+        relatedEntityType: "WorkerApplication",
+        relatedEntityId: applicationId,
+      });
+    } catch (e) {
+      revalidatePath("/admin/applications");
+      return {
+        ok: true,
+        warning: "Application rejected but rejection email failed to queue.",
+        detail: e instanceof Error ? e.message : "queue error",
+      };
+    }
   }
 
   revalidatePath("/admin/applications");
@@ -159,62 +106,36 @@ export async function updateApplicationStatus(
 }
 
 export async function approveClientSignup(signupId: string) {
-  await requireAdmin();
-
-  const signup = await prisma.clientSignupRequest.findUnique({
-    where: { id: signupId },
+  const user = await requireAdmin();
+  const result = await provisionClientSignup({
+    signupId,
+    reviewerUserId: user.id,
   });
-  if (!signup) return { ok: false, error: "Not found" };
-
-  const passwordHash = generateUnusablePasswordHash();
-
-  const org = await prisma.clientOrganization.create({
-    data: {
-      name: signup.companyName,
-      primaryContactName: signup.contactName,
-      primaryContactEmail: signup.contactEmail,
-      primaryContactPhone: signup.contactPhone,
-    },
-  });
-
-  const clientUser = await prisma.user.create({
-    data: {
-      email: signup.contactEmail,
-      passwordHash,
-      role: "CLIENT",
-      name: signup.contactName,
-      phone: signup.contactPhone,
-      clientOrganizationId: org.id,
-    },
-  });
-
-  const activationUrl = await createAccountActivationLink(clientUser.id);
-
-  await prisma.clientSignupRequest.update({
-    where: { id: signupId },
-    data: {
-      status: "APPROVED",
-      reviewedAt: new Date(),
-      reviewedById: (await requireAdmin()).id,
-    },
-  });
-
-  await queueNotification({
-    channel: "EMAIL",
-    templateKey: "client_approved",
-    recipient: signup.contactEmail,
-    payload: {
-      name: signup.contactName,
-      companyName: signup.companyName,
-      activationUrl,
-      portalUrl: process.env.NEXTAUTH_URL,
-    },
-    relatedEntityType: "ClientSignupRequest",
-    relatedEntityId: signupId,
-  }).catch(() => {});
-
   revalidatePath("/admin/applications");
-  return { ok: true };
+  if (!result.ok) return result;
+  return {
+    ok: true,
+    provisioned: true,
+    userId: result.userId,
+    activationInviteStatus: result.activationInviteStatus,
+    emailNotificationId: result.emailNotificationId,
+    alreadyProvisioned: result.alreadyProvisioned,
+    warning: result.warning,
+  };
+}
+
+export async function resendWorkerActivationInvitation(applicationId: string) {
+  await requireAdmin();
+  const result = await resendWorkerActivationEmail(applicationId);
+  revalidatePath("/admin/applications");
+  return result;
+}
+
+export async function resendClientActivationInvitation(signupId: string) {
+  await requireAdmin();
+  const result = await resendClientActivationEmail(signupId);
+  revalidatePath("/admin/applications");
+  return result;
 }
 
 export async function rejectClientSignup(signupId: string, reason?: string) {
@@ -230,4 +151,3 @@ export async function rejectClientSignup(signupId: string, reason?: string) {
   revalidatePath("/admin/applications");
   return { ok: true };
 }
-
