@@ -5,7 +5,7 @@ type PhoneContactProps = {
   linkClassName?: string;
 };
 
-/** Renders verified tel: link when BUSINESS_PHONE_E164 is set; otherwise display-only text. */
+/** Renders dialable tel: link when E.164 is configured (env or marketing-site default). */
 export default function PhoneContact({ className = "", linkClassName = "" }: PhoneContactProps) {
   const display = getBusinessPhoneDisplay();
   const tel = getVerifiedBusinessPhoneE164();
@@ -18,9 +18,5 @@ export default function PhoneContact({ className = "", linkClassName = "" }: Pho
     );
   }
 
-  return (
-    <span className={className} title="Business phone pending owner verification">
-      {display}
-    </span>
-  );
+  return <span className={className}>{display}</span>;
 }

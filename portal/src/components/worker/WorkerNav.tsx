@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { company } from "@/config/marketing-site";
 
 const workerTabs = [
   { href: "/jobs", label: "Jobs", icon: "briefcase" },
@@ -94,7 +95,7 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
 
       {/* Floating contact button */}
       <a
-        href="tel:+14165550001"
+        href={`tel:${company.phone.telE164Verified ?? "+15196136330"}`}
         className="fixed bottom-20 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg hover:bg-emerald-500 transition-colors"
         aria-label="Contact admin"
         title="Contact admin"

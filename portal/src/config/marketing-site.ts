@@ -12,13 +12,10 @@ export const company = {
   headquarters: "Leamington, Ontario",
   primaryRegion: "Windsor–Essex",
   email: "hello@blvckshell.com",
-  /**
-   * Vanity display only. Do not infer ownership from BLVK spelling.
-   * Dialable E.164: set BUSINESS_PHONE_E164 in env after owner verification.
-   */
+  /** Public business line — display and default tel: (+1 519-613-6330). Override with BUSINESS_PHONE_E164 in env if needed. */
   phone: {
-    displayVanity: "(226) 946-BLVK",
-    telE164Verified: null as string | null,
+    displayVanity: "519-613-6330",
+    telE164Verified: "+15196136330",
   },
 } as const;
 
