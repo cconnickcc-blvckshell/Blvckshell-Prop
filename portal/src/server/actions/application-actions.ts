@@ -4,7 +4,10 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { queueNotification } from "./notification-actions";
-import * as bcrypt from "bcryptjs";
+import {
+  createAccountActivationLink,
+  generateUnusablePasswordHash,
+} from "@/lib/account-activation";
 
 export async function listWorkerApplications() {
   await requireAdmin();
@@ -46,8 +49,7 @@ export async function updateApplicationStatus(
   });
 
   if (status === "APPROVED") {
-    const tempPassword = generateTempPassword();
-    const passwordHash = bcrypt.hashSync(tempPassword, 10);
+    const passwordHash = generateUnusablePasswordHash();
 
     const accountType =
       app.applicationType === "SUBCONTRACTOR" ? "VENDOR" : "INTERNAL";
@@ -112,13 +114,15 @@ export async function updateApplicationStatus(
       },
     });
 
+    const activationUrl = await createAccountActivationLink(newUser.id);
+
     await queueNotification({
       channel: "SMS",
       templateKey: "application_approved",
       recipient: app.phone,
       payload: {
         name: app.firstName,
-        tempPassword,
+        activationUrl,
         portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
       },
       relatedEntityType: "WorkerApplication",
@@ -131,7 +135,7 @@ export async function updateApplicationStatus(
       recipient: app.email,
       payload: {
         name: app.firstName,
-        tempPassword,
+        activationUrl,
         portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
       },
       relatedEntityType: "WorkerApplication",
@@ -162,8 +166,7 @@ export async function approveClientSignup(signupId: string) {
   });
   if (!signup) return { ok: false, error: "Not found" };
 
-  const tempPassword = generateTempPassword();
-  const passwordHash = bcrypt.hashSync(tempPassword, 10);
+  const passwordHash = generateUnusablePasswordHash();
 
   const org = await prisma.clientOrganization.create({
     data: {
@@ -174,7 +177,7 @@ export async function approveClientSignup(signupId: string) {
     },
   });
 
-  await prisma.user.create({
+  const clientUser = await prisma.user.create({
     data: {
       email: signup.contactEmail,
       passwordHash,
@@ -184,6 +187,8 @@ export async function approveClientSignup(signupId: string) {
       clientOrganizationId: org.id,
     },
   });
+
+  const activationUrl = await createAccountActivationLink(clientUser.id);
 
   await prisma.clientSignupRequest.update({
     where: { id: signupId },
@@ -201,7 +206,7 @@ export async function approveClientSignup(signupId: string) {
     payload: {
       name: signup.contactName,
       companyName: signup.companyName,
-      tempPassword,
+      activationUrl,
       portalUrl: process.env.NEXTAUTH_URL,
     },
     relatedEntityType: "ClientSignupRequest",
@@ -226,11 +231,3 @@ export async function rejectClientSignup(signupId: string, reason?: string) {
   return { ok: true };
 }
 
-function generateTempPassword(): string {
-  const chars =
-    "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  let pw = "";
-  for (let i = 0; i < 12; i++)
-    pw += chars[Math.floor(Math.random() * chars.length)];
-  return pw;
-}

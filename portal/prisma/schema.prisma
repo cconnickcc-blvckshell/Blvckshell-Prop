@@ -97,6 +97,7 @@ model User {
   makeGoodRuleTemplatesCreated MakeGoodRuleTemplate[] @relation("MakeGoodRuleTemplatesCreated")
   siteSupplyAllocationsCreated SiteSupplyAllocation[]
   sitePerformanceSnapshotsComputed SitePerformanceSnapshot[]
+  accountActivationTokens        AccountActivationToken[]
 
   @@index([email])
   @@index([role])
@@ -1031,6 +1032,19 @@ model QuoteSnapshot {
 }
 
 // --- Notification Outbox (durable, auditable messaging) ---
+model AccountActivationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 model NotificationOutbox {
   id                String                @id @default(cuid())
   channel           NotificationChannel

@@ -17,6 +17,24 @@ describe("RBAC Guards", () => {
   });
 
   describe("requireAdmin", () => {
+    it("should allow founder user", async () => {
+      const founderUser = await createTestUser({
+        email: "founder@test.com",
+        role: "FOUNDER",
+      });
+
+      mockAuth.mockResolvedValue({
+        user: {
+          id: founderUser.id,
+          name: "Founder",
+          role: "FOUNDER",
+        },
+      });
+
+      const user = await requireAdmin();
+      expect(user.id).toBe(founderUser.id);
+    });
+
     it("should allow admin user", async () => {
       const adminUser = await createTestUser({
         email: "admin@test.com",
@@ -149,6 +167,29 @@ describe("RBAC Guards", () => {
         role: "ADMIN",
       }, job.id);
 
+      expect(canAccess).toBe(true);
+    });
+
+    it("should allow founder to access any job", async () => {
+      const founderUser = await createTestUser({
+        email: "founder-job@test.com",
+        role: "FOUNDER",
+      });
+      const client = await createTestClient();
+      const site = await createTestSite(client.id);
+      const job = await testDb.job.create({
+        data: {
+          siteId: site.id,
+          status: "SCHEDULED",
+          scheduledStart: new Date(),
+          scheduledEnd: new Date(),
+          payoutAmountCents: 5000,
+        },
+      });
+      const canAccess = await canAccessJob(
+        { id: founderUser.id, name: "Founder", role: "FOUNDER" },
+        job.id
+      );
       expect(canAccess).toBe(true);
     });
 

@@ -2,6 +2,7 @@ import { JobStatus, WorkOrderStatus } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { SessionUser } from "@/server/guards/rbac";
+import { isOperationsAdmin } from "@/server/permissions";
 
 // ============================================================================
 // Job State Machine
@@ -58,8 +59,7 @@ export function canTransitionJob(
   }
 
   if (to === "APPROVED_PAYABLE" || to === "SCHEDULED" || to === "CANCELLED") {
-    // Only admin can approve/reject/cancel
-    if (user.role !== "ADMIN") {
+    if (!isOperationsAdmin(user.role)) {
       return {
         allowed: false,
         error: "Only admin can approve, reject, or cancel jobs",
@@ -68,8 +68,7 @@ export function canTransitionJob(
   }
 
   if (to === "PAID") {
-    // Only admin can mark paid (via payout batch)
-    if (user.role !== "ADMIN") {
+    if (!isOperationsAdmin(user.role)) {
       return {
         allowed: false,
         error: "Only admin can mark jobs as paid",

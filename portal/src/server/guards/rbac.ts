@@ -1,6 +1,7 @@
 import { UserRole } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isStaffAdmin } from "@/server/permissions";
 
 export interface SessionUser {
   id: string;
@@ -45,7 +46,7 @@ export async function requireAuth(): Promise<SessionUser> {
  */
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireAuth();
-  if (user.role !== "ADMIN" && user.role !== "FOUNDER") {
+  if (!isStaffAdmin(user.role)) {
     throw new Error("Forbidden: Admin access required");
   }
   return user;
@@ -66,6 +67,8 @@ export async function requireFounder(): Promise<SessionUser> {
 export function isFounder(user: SessionUser): boolean {
   return user.role === "FOUNDER";
 }
+
+export { isStaffAdmin, isFounderFinancialAuthority, isOperationsAdmin } from "@/server/permissions";
 
 /**
  * Require client portal role (read-only access to their organization's data).
@@ -113,7 +116,7 @@ export async function requireWorker(): Promise<SessionUser> {
  * - VENDOR_WORKER/INTERNAL_WORKER: can access jobs assigned to them
  */
 export async function canAccessJob(user: SessionUser, jobId: string): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (isStaffAdmin(user.role)) {
     return true;
   }
 
@@ -154,7 +157,7 @@ export async function canAccessJob(user: SessionUser, jobId: string): Promise<bo
  * - CLIENT: invoice.clientId must equal user.clientOrganizationId
  */
 export async function canAccessInvoice(user: SessionUser, invoiceId: string): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (isStaffAdmin(user.role)) {
     return true;
   }
   if (user.role === "CLIENT" && user.clientOrganizationId) {
@@ -176,7 +179,7 @@ export async function canAccessWorkforceAccount(
   user: SessionUser,
   workforceAccountId: string
 ): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (isStaffAdmin(user.role)) {
     return true;
   }
   if (user.role === "VENDOR_OWNER") {

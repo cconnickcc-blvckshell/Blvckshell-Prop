@@ -447,6 +447,7 @@ export default function JobDetailClient({
               return (
                 <div
                   key={item.itemId}
+                  data-testid="checklist-item"
                   className="rounded-lg border border-zinc-800 bg-zinc-800/30 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/50"
                 >
                   <div className="mb-3 flex items-start gap-2">

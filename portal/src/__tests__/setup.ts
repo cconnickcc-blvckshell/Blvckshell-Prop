@@ -43,6 +43,7 @@ beforeEach(async () => {
   try {
     // Delete order: respect FK constraints (children before parents)
     await testDb.auditLog.deleteMany();
+    await testDb.accountActivationToken.deleteMany();
     await testDb.notificationOutbox.deleteMany();
     await testDb.evidence.deleteMany();
     await testDb.checklistRunItem.deleteMany();

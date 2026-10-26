@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { storage } from "@/lib/storage";
-import { canAccessJob } from "@/server/guards/rbac";
+import { canAccessJob, isStaffAdmin } from "@/server/guards/rbac";
 
 export async function GET(
   request: NextRequest,
@@ -32,7 +32,7 @@ export async function GET(
 
     // Check access to job
     const hasAccess = await canAccessJob(user, evidence.jobCompletion.jobId);
-    if (!hasAccess && user.role !== "ADMIN") {
+    if (!hasAccess && !isStaffAdmin(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
