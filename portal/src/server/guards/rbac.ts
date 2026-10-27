@@ -1,4 +1,5 @@
 import { UserRole } from "@prisma/client";
+import { isUserActive } from "@/lib/active-user";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -16,9 +17,16 @@ export interface SessionUser {
  */
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return null;
   }
+
+  // Session JWTs are not revoked on deactivation. Reject isActive=false here
+  // so every role guard (and layouts that call this lookup) fail closed.
+  if (!(await isUserActive(session.user.id))) {
+    return null;
+  }
+
   return {
     id: session.user.id,
     name: session.user.name ?? "",

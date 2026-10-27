@@ -20,9 +20,21 @@ const nextConfig = {
     },
     instrumentationHook: true,
     serverComponentsExternalPackages: ['pdfkit', '@prisma/client', '@prisma/adapter-pg', 'pg'],
+    // Next 14.2 reads this under experimental. Keeps the private HTML in the server trace.
+    outputFileTracingIncludes: {
+      "/admin/docs/business-plan": ["./content/private/business-plan.html"],
+      "/api/admin/docs/business-plan": ["./content/private/business-plan.html"],
+    },
   },
   async headers() {
     return [
+      {
+        source: "/docs/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

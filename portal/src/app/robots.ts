@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/", "/login"],
+      disallow: ["/admin/", "/api/", "/login", "/docs", "/docs/"],
     },
     sitemap: "https://www.blvckshell.com/sitemap.xml",
   };

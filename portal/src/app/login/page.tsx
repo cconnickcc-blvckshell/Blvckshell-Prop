@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/server/guards/rbac";
 import LoginForm from "@/components/forms/LoginForm";
 import Link from "next/link";
 import PortalBrandMark from "@/components/PortalBrandMark";
@@ -11,10 +11,10 @@ export default async function LoginPage({
 }) {
   const params = await searchParams;
   const rateLimited = params.error === "RateLimit";
-  let session = null;
+  let user = null;
 
   try {
-    session = await auth();
+    user = await getCurrentUser();
   } catch (err) {
     // Log server-side only (Vercel captures this). Do not throw — avoid 500.
     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -54,11 +54,11 @@ export default async function LoginPage({
     );
   }
 
-  if (session) {
-    if (session.user.role === "ADMIN" || session.user.role === "FOUNDER") {
+  if (user) {
+    if (user.role === "ADMIN" || user.role === "FOUNDER") {
       redirect("/admin");
     }
-    if (session.user.role === "CLIENT") {
+    if (user.role === "CLIENT") {
       redirect("/client");
     }
     redirect("/jobs");
