@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/server/guards/rbac";
 
 export default async function PortalPage() {
-  const session = await auth();
-  if (!session?.user) {
+  const user = await getCurrentUser();
+  if (!user) {
     redirect("/login");
   }
-  const role = session.user.role;
+  const role = user.role;
   if (role === "ADMIN") {
     redirect("/admin/jobs");
   }

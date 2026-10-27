@@ -20,8 +20,19 @@ const nextConfig = {
     },
     serverComponentsExternalPackages: ['pdfkit'],
   },
+  outputFileTracingIncludes: {
+    "/admin/docs/business-plan": ["./content/private/business-plan.html"],
+    "/api/admin/docs/business-plan": ["./content/private/business-plan.html"],
+  },
   async headers() {
     return [
+      {
+        source: "/docs/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

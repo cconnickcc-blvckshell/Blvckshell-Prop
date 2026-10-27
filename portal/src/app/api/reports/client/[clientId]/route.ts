@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
 
@@ -7,8 +7,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { clientId: string } }
 ) {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "FOUNDER")) {
+  const user = await getCurrentUser();
+  if (!user || (user.role !== "ADMIN" && user.role !== "FOUNDER")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

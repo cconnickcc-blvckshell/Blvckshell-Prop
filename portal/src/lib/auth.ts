@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import type { UserRole } from "@prisma/client";
+import { isUserActive } from "./active-user";
+import { logError } from "./logger";
 import { prisma } from "./prisma";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -67,6 +69,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.workerId = user.workerId;
         token.clientOrganizationId = user.clientOrganizationId;
       }
+
+      // Existing JWTs stay valid for maxAge unless we re-check. Returning null
+      // clears the session (Auth.js treats a null jwt callback result as signed out).
+      const userId = typeof token.id === "string" ? token.id : null;
+      if (userId) {
+        try {
+          const active = await isUserActive(userId);
+          if (!active) return null;
+        } catch (error) {
+          logError(error, { where: "auth.jwt.isActive", userId });
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {

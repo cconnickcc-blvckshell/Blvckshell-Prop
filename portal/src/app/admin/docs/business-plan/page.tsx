@@ -1,8 +1,16 @@
 import { requireAdmin } from "@/server/guards/rbac";
+import { readBusinessPlanHtml } from "@/server/docs/business-plan";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Business Plan",
+  robots: { index: false, follow: false },
+};
 
 export default async function BusinessPlanPage() {
   await requireAdmin();
+  const html = await readBusinessPlanHtml();
 
   return (
     <div className="flex h-[calc(100vh-80px)] w-full flex-col">
@@ -24,7 +32,7 @@ export default async function BusinessPlanPage() {
         </div>
         <div className="flex gap-3">
           <a
-            href="/docs/business-plan.html"
+            href="/api/admin/docs/business-plan"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
@@ -35,7 +43,7 @@ export default async function BusinessPlanPage() {
             Open in New Tab
           </a>
           <a
-            href="/docs/business-plan.html"
+            href="/api/admin/docs/business-plan?download=1"
             download="Blvckshell_Business_Plan.html"
             className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-500"
           >
@@ -46,15 +54,16 @@ export default async function BusinessPlanPage() {
           </a>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-hidden rounded-xl border border-zinc-800 bg-white">
+        {/* Inline document: the global X-Frame-Options DENY header blocks framing a URL. */}
         <iframe
-          src="/docs/business-plan.html"
+          srcDoc={html}
           className="h-full w-full"
           title="Blvckshell Business Plan"
         />
       </div>
-      
+
       <p className="mt-3 text-center text-xs text-zinc-500">
         To save as PDF: Open in new tab → Print (Ctrl/Cmd + P) → Save as PDF
       </p>

@@ -9,7 +9,7 @@ vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
 }));
 
-import { requireAdmin, requireWorker, canAccessJob } from "@/server/guards/rbac";
+import { getCurrentUser, requireAdmin, requireWorker, canAccessJob } from "@/server/guards/rbac";
 
 describe("RBAC Guards", () => {
   beforeEach(() => {
@@ -51,6 +51,28 @@ describe("RBAC Guards", () => {
       });
 
       await expect(requireAdmin()).rejects.toThrow();
+    });
+
+    it("should reject an inactive admin even with a valid session", async () => {
+      const adminUser = await createTestUser({
+        email: "inactive-admin@test.com",
+        role: "ADMIN",
+      });
+      await testDb.user.update({
+        where: { id: adminUser.id },
+        data: { isActive: false },
+      });
+
+      mockAuth.mockResolvedValue({
+        user: {
+          id: adminUser.id,
+          name: "Test User",
+          role: "ADMIN",
+        },
+      });
+
+      await expect(getCurrentUser()).resolves.toBeNull();
+      await expect(requireAdmin()).rejects.toThrow("Unauthorized");
     });
   });
 
