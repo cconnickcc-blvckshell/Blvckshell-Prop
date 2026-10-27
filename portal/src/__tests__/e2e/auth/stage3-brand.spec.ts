@@ -34,7 +34,7 @@ test.describe("stage 3 brand", () => {
     const menu = page.getByRole("button", { name: "Open menu" });
     await expect(menu).toBeVisible();
     await menu.click();
-    await expect(page.getByRole("link", { name: "Services" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Primary mobile" }).getByRole("link", { name: "Services" })).toBeVisible();
     await page.screenshot({ path: path.join(SHOTS, "after-marketing-header-820x1180.png"), fullPage: false });
   });
 
@@ -42,7 +42,7 @@ test.describe("stage 3 brand", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.addInitScript(() => localStorage.removeItem("cookie-consent"));
     await page.goto("/");
-    const hero = page.getByRole("link", { name: "Request a Site Evaluation" });
+    const hero = page.getByRole("link", { name: "Request a Site Evaluation" }).first();
     const accept = page.getByRole("button", { name: "Accept" });
     await expect(hero).toBeVisible();
     await expect(accept).toBeVisible();
