@@ -1,87 +1,85 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { formatCents, formatJobStatus, formatDate } from "@/lib/format";
-import { logError } from "@/lib/logger";
+import { formatCents, describeAuditActivity, formatTime } from "@/lib/format";
+import { TORONTO_TZ, torontoWindows } from "@/lib/toronto-time";
+
+export const metadata = { title: "Dashboard" };
 
 export default async function AdminDashboardPage() {
   await requireAdmin();
 
   const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const { todayStart, todayEnd, monthStart, monthEnd, hour } = torontoWindows(now);
+  const monthWindow = { gte: monthStart, lt: monthEnd };
 
-  let pendingApproval = 0;
-  let scheduledToday = 0;
-  let approvedUnpaid = 0;
-  let totalJobsMonth = 0;
-  let paidJobsMonth = 0;
-  let revenueCents = 0;
-  let paidRevenueCents = 0;
-  let payoutsPending = 0;
-  let overdueInvoices = 0;
-  let activeWorkers = 0;
-  let complianceIssues = 0;
-  type TodayJob = { id: string; scheduledStart: Date; status: string; checkedInAt: Date | null; site: { name: string; address: string }; assignedWorker: { user: { name: string } } | null };
-  let todayJobs: TodayJob[] = [];
-  type AuditEntry = { id: string; entityType: string; fromState: string | null; toState: string | null; createdAt: Date; actorUserId: string };
-  let recentAudit: AuditEntry[] = [];
+  const [
+    pendingApproval,
+    scheduledToday,
+    approvedUnpaid,
+    totalJobsMonth,
+    paidJobsMonth,
+    invoiced,
+    collected,
+    payoutAggregate,
+    overdueInvoices,
+    activeWorkers,
+    complianceIssues,
+    todayJobs,
+    recentAudit,
+  ] = await Promise.all([
+    prisma.job.count({ where: { status: "COMPLETED_PENDING_APPROVAL" } }),
+    prisma.job.count({ where: { status: "SCHEDULED", scheduledStart: { gte: todayStart, lt: todayEnd } } }),
+    prisma.job.count({ where: { status: "APPROVED_PAYABLE" } }),
+    prisma.job.count({ where: { scheduledStart: monthWindow, status: { not: "CANCELLED" } } }),
+    prisma.job.count({ where: { scheduledStart: monthWindow, status: "PAID" } }),
+    prisma.invoice.aggregate({
+      where: { status: { in: ["Sent", "Paid"] }, periodStart: monthWindow },
+      _sum: { totalCents: true },
+    }),
+    prisma.invoice.aggregate({
+      where: { status: "Paid", periodStart: monthWindow },
+      _sum: { totalCents: true },
+    }),
+    prisma.payoutLine.aggregate({ where: { status: "PENDING" }, _sum: { amountCents: true } }),
+    prisma.invoice.count({ where: { status: "Sent", dueAt: { lt: now } } }),
+    prisma.worker.count({ where: { isActive: true } }),
+    prisma.workforceAccount.count({ where: { complianceSuspended: true } }),
+    prisma.job.findMany({
+      where: { status: { in: ["SCHEDULED", "COMPLETED_PENDING_APPROVAL"] }, scheduledStart: { gte: todayStart, lt: todayEnd } },
+      select: { id: true, scheduledStart: true, status: true, checkedInAt: true, site: { select: { name: true, address: true } }, assignedWorker: { select: { user: { select: { name: true } } } } },
+      orderBy: { scheduledStart: "asc" },
+      take: 10,
+    }),
+    prisma.auditLog.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 12,
+      select: {
+        id: true,
+        entityType: true,
+        fromState: true,
+        toState: true,
+        createdAt: true,
+        metadata: true,
+        actorUser: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const revenueCents = invoiced._sum.totalCents ?? 0;
+  const paidRevenueCents = collected._sum.totalCents ?? 0;
+  const payoutsPending = payoutAggregate._sum.amountCents ?? 0;
+
   type UrgentItem = { type: string; label: string; href: string; count?: number };
-  let urgentItems: UrgentItem[] = [];
-
-  try {
-    const results = await Promise.all([
-      prisma.job.count({ where: { status: "COMPLETED_PENDING_APPROVAL" } }),
-      prisma.job.count({ where: { status: "SCHEDULED", scheduledStart: { gte: todayStart, lt: todayEnd } } }),
-      prisma.job.count({ where: { status: "APPROVED_PAYABLE" } }),
-      prisma.job.count({ where: { scheduledStart: { gte: monthStart, lte: monthEnd }, status: { not: "CANCELLED" } } }),
-      prisma.job.count({ where: { scheduledStart: { gte: monthStart, lte: monthEnd }, status: "PAID" } }),
-      prisma.invoice.aggregate({ where: { status: { in: ["Sent", "Paid"] }, periodStart: { gte: monthStart } }, _sum: { totalCents: true } }),
-      prisma.invoice.aggregate({ where: { status: "Paid", periodStart: { gte: monthStart } }, _sum: { totalCents: true } }),
-      prisma.payoutLine.aggregate({ where: { status: "PENDING" }, _sum: { amountCents: true } }),
-      prisma.invoice.count({ where: { status: "Sent", dueAt: { lt: now } } }),
-      prisma.worker.count({ where: { isActive: true } }),
-      prisma.workforceAccount.count({ where: { complianceSuspended: true } }),
-      prisma.job.findMany({
-        where: { status: { in: ["SCHEDULED", "COMPLETED_PENDING_APPROVAL"] }, scheduledStart: { gte: todayStart, lt: todayEnd } },
-        select: { id: true, scheduledStart: true, status: true, checkedInAt: true, site: { select: { name: true, address: true } }, assignedWorker: { select: { user: { select: { name: true } } } } },
-        orderBy: { scheduledStart: "asc" },
-        take: 10,
-      }),
-      prisma.auditLog.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 12,
-        select: { id: true, entityType: true, fromState: true, toState: true, createdAt: true, actorUserId: true },
-      }),
-    ]);
-
-    pendingApproval = results[0];
-    scheduledToday = results[1];
-    approvedUnpaid = results[2];
-    totalJobsMonth = results[3];
-    paidJobsMonth = results[4];
-    revenueCents = results[5]._sum.totalCents ?? 0;
-    paidRevenueCents = results[6]._sum.totalCents ?? 0;
-    payoutsPending = results[7]._sum.amountCents ?? 0;
-    overdueInvoices = results[8];
-    activeWorkers = results[9];
-    complianceIssues = results[10];
-    todayJobs = results[11];
-    recentAudit = results[12];
-
-    if (pendingApproval > 0) urgentItems.push({ type: "approval", label: `${pendingApproval} job${pendingApproval > 1 ? "s" : ""} awaiting approval`, href: "/admin/jobs", count: pendingApproval });
-    if (overdueInvoices > 0) urgentItems.push({ type: "overdue", label: `${overdueInvoices} overdue invoice${overdueInvoices > 1 ? "s" : ""}`, href: "/admin/invoices", count: overdueInvoices });
-    if (complianceIssues > 0) urgentItems.push({ type: "compliance", label: `${complianceIssues} account${complianceIssues > 1 ? "s" : ""} compliance-suspended`, href: "/admin/workforce", count: complianceIssues });
-    if (approvedUnpaid > 0) urgentItems.push({ type: "payout", label: `${approvedUnpaid} approved job${approvedUnpaid > 1 ? "s" : ""} awaiting payout`, href: "/admin/payouts", count: approvedUnpaid });
-  } catch (error) {
-    logError(error, { where: "admin-dashboard" });
-  }
+  const urgentItems: UrgentItem[] = [];
+  if (pendingApproval > 0) urgentItems.push({ type: "approval", label: `${pendingApproval} job${pendingApproval > 1 ? "s" : ""} awaiting approval`, href: "/admin/jobs", count: pendingApproval });
+  if (overdueInvoices > 0) urgentItems.push({ type: "overdue", label: `${overdueInvoices} overdue invoice${overdueInvoices > 1 ? "s" : ""}`, href: "/admin/invoices", count: overdueInvoices });
+  if (complianceIssues > 0) urgentItems.push({ type: "compliance", label: `${complianceIssues} account${complianceIssues > 1 ? "s" : ""} compliance-suspended`, href: "/admin/workforce", count: complianceIssues });
+  if (approvedUnpaid > 0) urgentItems.push({ type: "payout", label: `${approvedUnpaid} approved job${approvedUnpaid > 1 ? "s" : ""} awaiting payout`, href: "/admin/payouts", count: approvedUnpaid });
 
   const completionRate = totalJobsMonth > 0 ? Math.round((paidJobsMonth / totalJobsMonth) * 100) : 0;
   const collectionRate = revenueCents > 0 ? Math.round((paidRevenueCents / revenueCents) * 100) : 0;
-  const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="w-full space-y-6">
@@ -92,7 +90,7 @@ export default async function AdminDashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Operations Dashboard</h1>
         </div>
         <p className="text-sm text-zinc-500">
-          {now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+          {now.toLocaleDateString("en-CA", { timeZone: TORONTO_TZ, weekday: "long", month: "long", day: "numeric", year: "numeric" })}
         </p>
       </div>
 
@@ -148,7 +146,7 @@ export default async function AdminDashboardPage() {
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
           </div>
-          <p className="mt-1 text-xs text-zinc-500">Revenue this month</p>
+          <p className="mt-1 text-xs text-zinc-500">Invoiced this month</p>
         </Link>
 
         <Link href="/admin/workforce" prefetch={false} className="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl transition hover:border-emerald-500/30">
@@ -199,7 +197,7 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/payouts" prefetch={false} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700">
           <p className="text-lg font-bold text-amber-400">{formatCents(payoutsPending)}</p>
           <p className="text-[10px] text-zinc-500">Payouts pending</p>
-          <p className="mt-1 text-xs text-zinc-600">{approvedUnpaid} jobs</p>
+          <p className="mt-1 text-xs text-zinc-600">{approvedUnpaid} {approvedUnpaid === 1 ? "job" : "jobs"}</p>
         </Link>
 
         <Link href="/admin/invoices" prefetch={false} className={`rounded-xl border bg-zinc-900/50 p-4 hover:border-zinc-700 ${overdueInvoices > 0 ? "border-red-500/30" : "border-zinc-800"}`}>
@@ -227,7 +225,7 @@ export default async function AdminDashboardPage() {
           ) : (
             <div className="space-y-2">
               {todayJobs.map((job) => {
-                const time = new Date(job.scheduledStart).toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" });
+                const time = formatTime(job.scheduledStart);
                 const isPending = job.status === "COMPLETED_PENDING_APPROVAL";
                 return (
                   <Link
@@ -272,10 +270,13 @@ export default async function AdminDashboardPage() {
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`shrink-0 h-1.5 w-1.5 rounded-full ${log.toState ? "bg-emerald-400" : "bg-zinc-500"}`} />
                       <span className="text-xs text-zinc-400 truncate">
-                        {log.entityType}
-                        {log.fromState && log.toState && (
-                          <span className="text-zinc-600"> {log.fromState} → <span className="text-zinc-300">{log.toState}</span></span>
-                        )}
+                        {describeAuditActivity({
+                          entityType: log.entityType,
+                          fromState: log.fromState,
+                          toState: log.toState,
+                          metadata: log.metadata,
+                          actorName: log.actorUser.name,
+                        })}
                       </span>
                     </div>
                     <span className="shrink-0 text-[10px] text-zinc-600 ml-2">{timeAgo}</span>
