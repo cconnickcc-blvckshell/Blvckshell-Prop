@@ -6,7 +6,7 @@ import { requireAdmin, requireAuth } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { passwordSchema } from "@/lib/validations";
 import { queueNotification } from "@/server/notifications/outbox";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, clientAddressFromHeaders } from "@/lib/rate-limit";
 import { logError } from "@/lib/logger";
 import {
   ADMIN_RESET_LINK_TTL_MS,
@@ -30,8 +30,7 @@ function portalUrl(): string {
 
 function clientIp(): string {
   const headerList = headers();
-  const forwarded = headerList.get("x-forwarded-for");
-  return forwarded?.split(",")[0]?.trim() || headerList.get("x-real-ip") || "unknown";
+  return clientAddressFromHeaders(headerList.get("x-forwarded-for"), headerList.get("x-real-ip"));
 }
 
 async function invalidateUnusedLinks(userId: string): Promise<void> {

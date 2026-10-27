@@ -2,12 +2,20 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/guards/rbac";
 import ChangePasswordForm from "@/components/forms/ChangePasswordForm";
+import { changePasswordPageState } from "@/lib/safe-redirect";
 
 export const metadata = { title: "Change password" };
 
-export default async function ChangePasswordPage() {
+export default async function ChangePasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const state = changePasswordPageState(await searchParams);
+  if (state.changed) redirect(state.href);
+
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?callbackUrl=/account/password");
 
   const back =
     user.role === "ADMIN" || user.role === "FOUNDER"
@@ -29,7 +37,7 @@ export default async function ChangePasswordPage() {
             This saves a new password for the account you are signed in with. No email is sent.
           </p>
         </div>
-        <ChangePasswordForm />
+        <ChangePasswordForm error={state.error} updated={state.updated} />
       </div>
     </div>
   );

@@ -3,27 +3,27 @@ import { getCurrentUser } from "@/server/guards/rbac";
 import LoginForm from "@/components/forms/LoginForm";
 import Link from "next/link";
 import PortalBrandMark from "@/components/PortalBrandMark";
+import { loginPageState } from "@/lib/safe-redirect";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
-  const rateLimited = params.error === "RateLimit";
+  const state = loginPageState(await searchParams);
+  if (state.changed) redirect(state.href);
+
   let user = null;
 
   try {
     user = await getCurrentUser();
   } catch (err) {
-    // Log server-side only (Vercel captures this). Do not throw — avoid 500.
     const errorMessage = err instanceof Error ? err.message : String(err);
     const errorName = err instanceof Error ? err.name : "UnknownError";
     console.error("[login] Auth/session check failed:", {
       error: errorMessage,
       name: errorName,
       stack: err instanceof Error ? err.stack : undefined,
-      // Diagnostic info (don't log sensitive values)
       hasDatabaseUrl: !!process.env.DATABASE_URL,
       hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
       hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
@@ -78,12 +78,7 @@ export default async function LoginPage({
             </p>
           </div>
         </div>
-        {rateLimited && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
-            Too many login attempts. Please wait a few minutes and try again.
-          </div>
-        )}
-        <LoginForm />
+        <LoginForm callbackUrl={state.callbackUrl} error={state.error} notice={state.notice} />
         <p className="text-center text-xs text-zinc-500">
           <Link href="/" className="hover:text-zinc-400">← Back to home</Link>
         </p>

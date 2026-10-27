@@ -71,10 +71,25 @@ function checkMemoryRateLimit(
 
 export const checkRateLimit = checkRedisRateLimit;
 
-export function getClientIP(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  const realIP = request.headers.get("x-real-ip");
-  if (realIP) return realIP;
+/**
+ * Prefer the platform-supplied x-real-ip. Otherwise use the last
+ * x-forwarded-for hop, which a trusted proxy appends. The first hop is
+ * client-controlled when a caller can set the header.
+ */
+export function clientAddressFromHeaders(forwarded: string | null, realIp: string | null): string {
+  const real = realIp?.trim();
+  if (real) return real;
+  if (forwarded) {
+    const parts = forwarded.split(",").map((part) => part.trim()).filter(Boolean);
+    const last = parts[parts.length - 1];
+    if (last) return last;
+  }
   return "unknown";
+}
+
+export function getClientIP(request: Request): string {
+  return clientAddressFromHeaders(
+    request.headers.get("x-forwarded-for"),
+    request.headers.get("x-real-ip"),
+  );
 }

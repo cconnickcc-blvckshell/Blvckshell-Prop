@@ -1,4 +1,4 @@
-import { requireWorker } from "@/server/guards/rbac";
+import { assignedJobsWhere, requireWorker } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import JobsWeekStrip from "@/components/worker/JobsWeekStrip";
@@ -11,13 +11,8 @@ export default async function JobsPage({
   const user = await requireWorker();
   const params = await searchParams;
 
-  const whereClause =
-    user.role === "VENDOR_OWNER"
-      ? { assignedWorkforceAccountId: user.workforceAccountId!, status: { not: "CANCELLED" as const } }
-      : { assignedWorkerId: user.workerId!, status: { not: "CANCELLED" as const } };
-
   const jobs = await prisma.job.findMany({
-    where: whereClause,
+    where: assignedJobsWhere(user),
     select: {
       id: true,
       scheduledStart: true,

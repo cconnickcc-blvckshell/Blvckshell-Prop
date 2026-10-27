@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/server/guards/rbac";
+import { getCurrentUser, isPortalAdminRole } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
 
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const user = await getCurrentUser();
-    if (!user || user.role !== "ADMIN") {
+    if (!user || !isPortalAdminRole(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import PortalBrandMark from "@/components/PortalBrandMark";
+import SignOutForm from "@/components/auth/SignOutForm";
 
 interface ClientNavProps {
   userName: string;
@@ -49,13 +49,7 @@ export default function ClientNav({ userName }: ClientNavProps) {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-zinc-500">{userName}</span>
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-sm font-medium text-zinc-400 hover:text-zinc-200"
-            >
-              Log out
-            </button>
+            <SignOutForm className="text-sm font-medium text-zinc-400 hover:text-zinc-200" />
           </div>
         </div>
       </div>

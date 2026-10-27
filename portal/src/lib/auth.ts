@@ -5,6 +5,7 @@ import type { UserRole } from "@prisma/client";
 import { isUserActive } from "./active-user";
 import { logError } from "./logger";
 import { prisma } from "./prisma";
+import { safeRedirectTarget } from "./safe-redirect";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
@@ -61,6 +62,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     maxAge: 24 * 60 * 60, // 24 hours (per SECURITY.md)
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return new URL(safeRedirectTarget(url, baseUrl, "/portal"), baseUrl).toString();
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

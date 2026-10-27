@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { company } from "@/config/marketing-site";
+import SignOutForm from "@/components/auth/SignOutForm";
 import PortalBrandMark from "@/components/PortalBrandMark";
 
 const workerTabs = [
@@ -58,13 +58,7 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-xs text-zinc-500">{userName}</span>
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-xs text-zinc-500 hover:text-white"
-            >
-              Log out
-            </button>
+            <SignOutForm className="text-xs text-zinc-500 hover:text-white" />
           </div>
         </div>
       </nav>

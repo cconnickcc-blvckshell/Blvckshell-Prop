@@ -14,7 +14,7 @@ export async function GET(
     }
 
     const hasAccess = await canAccessJob(user, params.id);
-    if (!hasAccess && user.role !== "ADMIN") {
+    if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

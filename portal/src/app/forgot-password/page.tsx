@@ -1,13 +1,22 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import PortalBrandMark from "@/components/PortalBrandMark";
 import ForgotPasswordForm from "@/components/forms/ForgotPasswordForm";
 import { isPublicPasswordResetEnabled } from "@/lib/password-link";
+import { forgotPageState } from "@/lib/safe-redirect";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Forgot password" };
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const state = forgotPageState(await searchParams);
+  if (state.changed) redirect(state.href);
+
   const enabled = isPublicPasswordResetEnabled();
 
   return (
@@ -22,7 +31,7 @@ export default function ForgotPasswordPage() {
               : "Password reset by email is unavailable. Contact an admin."}
           </p>
         </div>
-        {enabled ? <ForgotPasswordForm /> : null}
+        {enabled ? <ForgotPasswordForm status={state.status} /> : null}
         <p className="text-center text-sm text-zinc-500">
           <Link href="/login" className="hover:text-zinc-300">
             ← Back to sign in

@@ -32,7 +32,7 @@ export async function GET(
 
     // Check access to job
     const hasAccess = await canAccessJob(user, evidence.jobCompletion.jobId);
-    if (!hasAccess && user.role !== "ADMIN") {
+    if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

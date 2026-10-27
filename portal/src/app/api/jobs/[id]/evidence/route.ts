@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/server/guards/rbac";
+import { canAccessJob, getCurrentUser } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
@@ -12,6 +12,10 @@ export async function GET(
   }
 
   const { id: jobId } = await context.params;
+  const hasAccess = await canAccessJob(user, jobId);
+  if (!hasAccess) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const completion = await prisma.jobCompletion.findUnique({
     where: { jobId },

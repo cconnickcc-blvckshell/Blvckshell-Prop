@@ -1,25 +1,33 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { safeInternalPath, sanitizeRequestUrl } from "@/lib/safe-redirect";
+import { authorizationDecision, routeAccess } from "@/lib/route-access";
 
 /**
- * Middleware: Rate limiting for credential submission only.
- *
- * CRITICAL: Do NOT rate-limit NextAuth's internal GET routes:
- *   /api/auth/providers — fetched on every login page load
- *   /api/auth/csrf — fetched before every sign-in/sign-out
- *   /api/auth/session — fetched on every page for session check
- *   /api/auth/error — redirect target on auth failures
- *
- * Only rate-limit the actual login attempt (POST to /api/auth/callback).
+ * Credential query stripping, login rate limits, and role gates.
+ * Role checks read the JWT only. Database lookups stay in the Node layouts
+ * so this file does not pull Prisma onto the edge runtime.
  */
 export async function middleware(request: NextRequest) {
+  const cleaned = request.nextUrl.clone();
+  if (sanitizeRequestUrl(cleaned)) {
+    const response = NextResponse.redirect(cleaned, 303);
+    response.headers.set("Cache-Control", "no-store");
+    response.headers.set("Referrer-Policy", "no-referrer");
+    return response;
+  }
+
   const pathname = request.nextUrl.pathname;
   const method = request.method;
 
-  // Only rate-limit actual credential submissions (POST), not NextAuth internal GETs
   const isAuthPost =
-    method === "POST" && pathname.startsWith("/api/auth/callback");
+    method === "POST" &&
+    (pathname.startsWith("/api/auth/callback") ||
+      pathname === "/api/auth/login" ||
+      pathname === "/api/auth/forgot-password" ||
+      pathname === "/api/auth/reset-password");
   const isLeadPost = method === "POST" && pathname === "/api/lead";
   const isApplicationPost =
     method === "POST" &&
@@ -28,16 +36,17 @@ export async function middleware(request: NextRequest) {
 
   if (isAuthPost || isLeadPost || isApplicationPost || isEvidenceUpload) {
     const ip = getClientIP(request);
-    const limit = isAuthPost ? 10 : 30; // 10 login attempts, 30 for others
-    const windowMs = 15 * 60 * 1000; // 15 minutes
+    const limit = isAuthPost ? 10 : 30;
+    const windowMs = 15 * 60 * 1000;
     const result = await checkRateLimit(ip, limit, windowMs);
 
     if (!result.allowed) {
-      // For auth POST, redirect to login with error instead of raw JSON
       if (isAuthPost) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("error", "RateLimit");
-        return NextResponse.redirect(loginUrl);
+        const response = NextResponse.redirect(loginUrl, 303);
+        response.headers.set("Cache-Control", "no-store");
+        return response;
       }
 
       return NextResponse.json(
@@ -47,8 +56,42 @@ export async function middleware(request: NextRequest) {
           headers: {
             "Retry-After": String(Math.ceil((result.resetAt - Date.now()) / 1000)),
           },
-        }
+        },
       );
+    }
+  }
+
+  if (routeAccess(pathname) !== "public") {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: request.nextUrl.protocol === "https:",
+    });
+    const decision = authorizationDecision({
+      pathname,
+      role: typeof token?.role === "string" ? token.role : undefined,
+      clientOrganizationId:
+        typeof token?.clientOrganizationId === "string" ? token.clientOrganizationId : undefined,
+    });
+
+    if (decision === "login") {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set(
+        "callbackUrl",
+        safeInternalPath(`${pathname}${request.nextUrl.search}`, "/portal"),
+      );
+      const response = NextResponse.redirect(loginUrl, 303);
+      response.headers.set("Cache-Control", "no-store");
+      return response;
+    }
+    if (decision === "home") {
+      return NextResponse.redirect(new URL("/", request.url), 303);
+    }
+    if (decision === "unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (decision === "forbidden") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
@@ -57,10 +100,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/api/auth/callback/:path*",
-    "/api/lead",
-    "/api/applications/client",
-    "/api/applications/worker",
-    "/api/evidence/upload",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|webmanifest|woff2?)$).*)",
   ],
 };

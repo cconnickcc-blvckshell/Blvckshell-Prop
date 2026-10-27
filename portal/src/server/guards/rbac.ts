@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import { isUserActive } from "@/lib/active-user";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -52,12 +52,17 @@ export async function requireAuth(): Promise<SessionUser> {
   return user;
 }
 
+/** Admin shell: ADMIN and FOUNDER share read access to the admin portal. */
+export function isPortalAdminRole(role: UserRole): boolean {
+  return role === "ADMIN" || role === "FOUNDER";
+}
+
 /**
  * Require admin or founder role (for /admin routes)
  */
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireAuth();
-  if (user.role !== "ADMIN" && user.role !== "FOUNDER") {
+  if (!isPortalAdminRole(user.role)) {
     throw new Error("Forbidden: Admin access required");
   }
   return user;
@@ -119,13 +124,13 @@ export async function requireWorker(): Promise<SessionUser> {
 
 /**
  * Check if user can access job
- * - ADMIN: can access all jobs
+ * - ADMIN and FOUNDER: can access all jobs (same admin shell)
  * - CLIENT: can access jobs for sites belonging to their clientOrganizationId
  * - VENDOR_OWNER: can access jobs assigned to their WorkforceAccount
  * - VENDOR_WORKER/INTERNAL_WORKER: can access jobs assigned to them
  */
 export async function canAccessJob(user: SessionUser, jobId: string): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (isPortalAdminRole(user.role)) {
     return true;
   }
 
@@ -162,11 +167,11 @@ export async function canAccessJob(user: SessionUser, jobId: string): Promise<bo
 
 /**
  * Check if user can access invoice (for client portal: invoice must belong to their org).
- * - ADMIN: can access all
+ * - ADMIN and FOUNDER: can access all
  * - CLIENT: invoice.clientId must equal user.clientOrganizationId
  */
 export async function canAccessInvoice(user: SessionUser, invoiceId: string): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (isPortalAdminRole(user.role)) {
     return true;
   }
   if (user.role === "CLIENT" && user.clientOrganizationId) {
@@ -181,18 +186,35 @@ export async function canAccessInvoice(user: SessionUser, invoiceId: string): Pr
 
 /**
  * Check if user can access WorkforceAccount
- * - ADMIN: can access all
+ * - ADMIN and FOUNDER: can access all
  * - VENDOR_OWNER: can access only their own
  */
 export async function canAccessWorkforceAccount(
   user: SessionUser,
   workforceAccountId: string
 ): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (isPortalAdminRole(user.role)) {
     return true;
   }
   if (user.role === "VENDOR_OWNER") {
     return user.workforceAccountId === workforceAccountId;
   }
   return false;
+}
+
+/**
+ * Job lists for the worker shell. A missing assignment id matches nothing.
+ * Prisma drops `undefined` filters, which would otherwise return every job.
+ */
+export function assignedJobsWhere(user: SessionUser): Prisma.JobWhereInput {
+  const status = { not: "CANCELLED" as const };
+  if (user.role === "VENDOR_OWNER") {
+    if (!user.workforceAccountId) return { id: { in: [] } };
+    return { assignedWorkforceAccountId: user.workforceAccountId, status };
+  }
+  if (user.role === "VENDOR_WORKER" || user.role === "INTERNAL_WORKER") {
+    if (!user.workerId) return { id: { in: [] } };
+    return { assignedWorkerId: user.workerId, status };
+  }
+  return { id: { in: [] } };
 }
