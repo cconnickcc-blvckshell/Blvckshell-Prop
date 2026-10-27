@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Lato } from "next/font/google";
 import "./globals.css";
 import CookieConsent from "@/components/CookieConsent";
@@ -10,6 +10,13 @@ const lato = Lato({
   variable: "--font-lato",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#090909",
+};
 
 export const metadata: Metadata = {
   title: "BLVCKSHELL — Facilities Services",

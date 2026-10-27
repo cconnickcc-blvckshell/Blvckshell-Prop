@@ -132,7 +132,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel, uploadConfig, 
 
     // 1. Try blazeface first — precise face bounding boxes
     try {
-      setProcessingMsg("Detecting faces...");
+      setProcessingMsg("Preparing camera...");
       const tf = await import("@tensorflow/tfjs-core");
       await import("@tensorflow/tfjs-backend-webgl");
       await tf.ready();
@@ -163,12 +163,13 @@ export default function EvidenceCameraCapture({ onDone, onCancel, uploadConfig, 
     // 2. If blazeface found nothing, try COCO-SSD for people at angles/distance
     if (rects.length === 0) {
       try {
-        setProcessingMsg("Scanning for people...");
+        setProcessingMsg("Preparing camera...");
         const tf = await import("@tensorflow/tfjs-core");
         await tf.ready();
 
         const cocoSsd = await import("@tensorflow-models/coco-ssd");
         const model = await cocoSsd.load({ base: "lite_mobilenet_v2" });
+        setProcessingMsg("Scanning for people...");
         const predictions = await model.detect(img);
         const people = predictions.filter((p) => p.class === "person" && p.score > 0.45);
 
@@ -431,7 +432,7 @@ export default function EvidenceCameraCapture({ onDone, onCancel, uploadConfig, 
               <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/80">
                 <div className="flex flex-col items-center gap-3">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-emerald-500" />
-                  <p className="text-sm text-zinc-300">Starting camera...</p>
+                  <p className="text-sm text-zinc-300">Preparing camera...</p>
                 </div>
               </div>
             )}
