@@ -9,7 +9,7 @@ vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
 }));
 
-import { getCurrentUser, requireAdmin, requireWorker, canAccessJob } from "@/server/guards/rbac";
+import { getCurrentUser, requireAdmin, requireWorker, canAccessJob, canAccessInvoice, assignedJobsWhere } from "@/server/guards/rbac";
 
 describe("RBAC Guards", () => {
   beforeEach(() => {
@@ -175,6 +175,38 @@ describe("RBAC Guards", () => {
       }, job.id);
 
       expect(canAccess).toBe(true);
+    });
+
+    it("should allow founder to access any job", async () => {
+      const client = await createTestClient();
+      const site = await createTestSite(client.id);
+      const job = await testDb.job.create({
+        data: {
+          siteId: site.id,
+          status: "SCHEDULED",
+          scheduledStart: new Date(),
+          scheduledEnd: new Date(),
+          payoutAmountCents: 5000,
+        },
+      });
+
+      const canAccess = await canAccessJob(
+        { id: "founder-user", name: "Founder", role: "FOUNDER" },
+        job.id,
+      );
+      expect(canAccess).toBe(true);
+      await expect(
+        canAccessInvoice({ id: "founder-user", name: "Founder", role: "FOUNDER" }, "missing"),
+      ).resolves.toBe(true);
+    });
+
+    it("matches no jobs when the worker assignment id is missing", () => {
+      expect(assignedJobsWhere({ id: "user", name: "Worker", role: "INTERNAL_WORKER" })).toEqual({
+        id: { in: [] },
+      });
+      expect(assignedJobsWhere({ id: "user", name: "Owner", role: "VENDOR_OWNER" })).toEqual({
+        id: { in: [] },
+      });
     });
 
     it("should allow worker to access assigned job", async () => {

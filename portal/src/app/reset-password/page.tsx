@@ -1,16 +1,18 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import PortalBrandMark from "@/components/PortalBrandMark";
 import SetPasswordForm from "@/components/forms/SetPasswordForm";
+import { resetPageState } from "@/lib/safe-redirect";
 
 export const metadata = { title: "Set password" };
 
 export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
-  const token = params.token?.trim() ?? "";
+  const state = resetPageState(await searchParams);
+  if (state.changed) redirect(state.href);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
@@ -22,8 +24,8 @@ export default async function ResetPasswordPage({
             This link works once. Your password changes only when you submit this form.
           </p>
         </div>
-        {token ? (
-          <SetPasswordForm token={token} />
+        {state.token ? (
+          <SetPasswordForm token={state.token} error={state.error} />
         ) : (
           <p className="rounded-md bg-amber-500/20 px-3 py-2 text-sm text-amber-200">
             This link is missing a token. Ask an admin to send a new one.

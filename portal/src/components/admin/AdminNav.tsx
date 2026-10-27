@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import NotificationBell from "@/components/admin/NotificationBell";
+import SignOutForm from "@/components/auth/SignOutForm";
 import PortalBrandMark from "@/components/PortalBrandMark";
 
 function isActivePath(pathname: string, href: string) {
@@ -132,13 +132,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
             >
               Password
             </Link>
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
-            >
-              Log out
-            </button>
+            <SignOutForm className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors" />
             {/* Mobile menu button */}
             <button
               type="button"
@@ -186,13 +180,10 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 >
                   Password
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                <SignOutForm
+                  formClassName="block"
                   className="w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-zinc-300 hover:bg-zinc-800"
-                >
-                  Log out
-                </button>
+                />
               </div>
             </div>
           </div>

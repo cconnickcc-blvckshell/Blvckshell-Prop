@@ -5,10 +5,12 @@ export default async function EarningsPage() {
   const user = await requireWorker();
 
   const jobs = await prisma.job.findMany({
-    where: {
-      assignedWorkerId: user.workerId,
-      status: { in: ["APPROVED_PAYABLE", "PAID"] },
-    },
+    where: user.workerId
+      ? {
+          assignedWorkerId: user.workerId,
+          status: { in: ["APPROVED_PAYABLE", "PAID"] },
+        }
+      : { id: { in: [] } },
     select: {
       id: true,
       status: true,
