@@ -52,15 +52,13 @@ export default async function QuoteProposalPage({
         </div>
         <div className="mb-4 border-t border-zinc-200 pt-3 text-sm">
           <p>
-            Snapshot v{snapshot.snapshotVersion} • Monthly amount:{" "}
+            Monthly amount:{" "}
             <span className="font-semibold">
               ${(snapshot.riskAdjustedRevenueCents / 100).toFixed(2)}/mo
-            </span>{" "}
-            • Margin {snapshot.grossMarginBps / 100}%.
+            </span>
           </p>
           <p className="mt-1 text-xs text-zinc-600">
-            Based on {snapshot.minutesPerVisitTotal} minutes/visit, {quote.visitsPerWeek} visits/week, including travel and
-            winter adjustments, and current pricing policy.
+            {quote.visitsPerWeek} visits/week.
           </p>
         </div>
         <div className="mt-4 text-xs text-zinc-500 print:text-black">

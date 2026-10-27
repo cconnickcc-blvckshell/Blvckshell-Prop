@@ -749,14 +749,28 @@ export async function overrideRevenueFloor(quoteId: string, reason: string) {
 
 export async function getQuoteForProposal(quoteId: string) {
   await requireAdmin();
-  const quote = await prisma.quote.findUnique({
+  return prisma.quote.findUnique({
     where: { id: quoteId },
-    include: {
-      site: { include: { clientOrganization: true } },
-      snapshots: { orderBy: { snapshotVersion: "desc" }, take: 1 },
-      areaLines: true,
-      addOnLines: true,
+    select: {
+      status: true,
+      visitsPerWeek: true,
+      site: {
+        select: {
+          name: true,
+          address: true,
+          clientOrganization: {
+            select: {
+              name: true,
+              primaryContactEmail: true,
+            },
+          },
+        },
+      },
+      snapshots: {
+        orderBy: { snapshotVersion: "desc" },
+        take: 1,
+        select: { riskAdjustedRevenueCents: true },
+      },
     },
   });
-  return quote;
 }
