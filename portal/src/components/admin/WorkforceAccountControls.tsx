@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateWorkforceSettings } from "@/app/admin/workforce/actions";
+import { updateWorkforceSettings } from "@/server/actions/workforce-actions";
 import { sendUserPasswordReset } from "@/server/actions/password-actions";
 
 type UserRow = { id: string; name: string; email: string; role: string };

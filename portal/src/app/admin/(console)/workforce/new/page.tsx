@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import Link from "next/link";
-import { createWorkforceAccount } from "../actions";
+import { createWorkforceAccount } from "@/server/actions/workforce-actions";
 import WorkforceForm from "./WorkforceForm";
 
 export const metadata = { title: "New account" };

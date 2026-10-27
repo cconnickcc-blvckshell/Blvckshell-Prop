@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { uploadComplianceDocument } from "@/app/admin/workforce/actions";
+import { uploadComplianceDocument } from "@/server/actions/workforce-actions";
 
 export default function ComplianceDocumentForm({ accountId }: { accountId: string }) {
   const router = useRouter();
