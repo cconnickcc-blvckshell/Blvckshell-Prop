@@ -166,7 +166,7 @@ export async function canAccessJob(user: SessionUser, jobId: string): Promise<bo
  * - CLIENT: invoice.clientId must equal user.clientOrganizationId
  */
 export async function canAccessInvoice(user: SessionUser, invoiceId: string): Promise<boolean> {
-  if (user.role === "ADMIN") {
+  if (user.role === "ADMIN" || user.role === "FOUNDER") {
     return true;
   }
   if (user.role === "CLIENT" && user.clientOrganizationId) {

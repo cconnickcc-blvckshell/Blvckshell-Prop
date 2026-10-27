@@ -1,23 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { allocateInvoiceNumber } from "@/server/invoices/invoice-number";
+import { chooseContractTerms, dueAtFromInvoiceDate } from "@/server/invoices/payment-terms";
 
 /**
  * Invoice draft helpers used by admin actions, bulk invoicing, and job automation.
  * Not a "use server" module: these must not be callable from the client.
  * The exported admin actions in invoice-actions.ts call requireAdmin before using them.
  */
-
-async function getNextInvoiceNumber(clientId: string): Promise<string> {
-  const now = new Date();
-  const prefix = `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}-${clientId.slice(-6).toUpperCase()}`;
-  const existing = await prisma.invoice.findMany({
-    where: { clientId, invoiceNumber: { startsWith: prefix } },
-    select: { invoiceNumber: true },
-    orderBy: { invoiceNumber: "desc" },
-    take: 1,
-  });
-  const seq = existing.length === 0 ? 1 : parseInt(existing[0].invoiceNumber.split("-").pop() ?? "0", 10) + 1;
-  return `${prefix}-${seq}`;
-}
 
 /** Recompute subtotal/tax/total from line items and adjustments. Uses frozen taxRateBps from invoice. */
 export async function recomputeInvoiceTotals(invoiceId: string) {
@@ -121,24 +110,37 @@ export async function createDraftInvoiceInternal(
   });
   if (!client) return { success: false, invoiceId: null, error: "Client not found" };
 
-  const invoiceNumber = await getNextInvoiceNumber(clientId);
-  const netTermsDays = 30;
-  const dueAt = new Date(periodEnd);
-  dueAt.setDate(dueAt.getDate() + netTermsDays);
-
-  const invoice = await prisma.invoice.create({
-    data: {
-      clientId,
-      invoiceNumber,
-      periodStart,
-      periodEnd,
-      status: "Draft",
-      dueAt,
-      subtotalCents: 0,
-      taxCents: 0,
-      totalCents: 0,
-      createdById,
+  const contracts = await prisma.contract.findMany({
+    where: {
+      clientOrganizationId: clientId,
+      status: "Active",
+      effectiveStart: { lte: periodEnd },
+      OR: [{ effectiveEnd: null }, { effectiveEnd: { gte: periodStart } }],
     },
+    select: { paymentTerms: true, netTermsDays: true },
+  });
+  const terms = chooseContractTerms(contracts);
+  const now = new Date();
+  const dueAt = dueAtFromInvoiceDate(now, terms.days);
+
+  const invoice = await prisma.$transaction(async (tx) => {
+    const invoiceNumber = await allocateInvoiceNumber(tx, now);
+    return tx.invoice.create({
+      data: {
+        clientId,
+        invoiceNumber,
+        periodStart,
+        periodEnd,
+        status: "Draft",
+        dueAt,
+        paymentTerms: terms.terms,
+        paymentTermsDays: terms.days,
+        subtotalCents: 0,
+        taxCents: 0,
+        totalCents: 0,
+        createdById,
+      },
+    });
   });
 
   await applyContractBaseToDraft(invoice.id);

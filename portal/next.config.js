@@ -19,11 +19,15 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
     instrumentationHook: true,
-    serverComponentsExternalPackages: ['pdfkit', '@prisma/client', '@prisma/adapter-pg', 'pg'],
-    // Next 14.2 reads this under experimental. Keeps the private HTML in the server trace.
+    serverComponentsExternalPackages: ['pdfkit', 'sharp', '@prisma/client', '@prisma/adapter-pg', 'pg'],
+    // Next 14.2 reads this under experimental. Keeps the private HTML and Lato files in the server trace.
     outputFileTracingIncludes: {
       "/admin/docs/business-plan": ["./content/private/business-plan.html"],
       "/api/admin/docs/business-plan": ["./content/private/business-plan.html"],
+      "/api/invoices/[id]/pdf": ["./assets/fonts/**/*"],
+      "/api/reports/client/[clientId]": ["./assets/fonts/**/*"],
+      "/api/quotes/[id]/proposal/pdf": ["./assets/fonts/**/*"],
+      "/api/jobs/[id]/visit-record": ["./assets/fonts/**/*"],
     },
   },
   async headers() {

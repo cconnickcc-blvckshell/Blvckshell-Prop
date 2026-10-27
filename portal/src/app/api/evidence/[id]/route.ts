@@ -56,7 +56,7 @@ export async function GET(
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": evidence.fileType,
-        "Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": "private, no-store",
       },
     });
   } catch (error) {
