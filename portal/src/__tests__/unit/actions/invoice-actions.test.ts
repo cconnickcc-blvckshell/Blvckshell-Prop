@@ -68,7 +68,7 @@ describe("invoice-actions", () => {
       expect(result.invoiceId).toBeTruthy();
 
       const invoice = await testDb.invoice.findUnique({
-        where: { id: result.invoiceId },
+        where: { id: result.invoiceId! },
       });
       expect(invoice?.status).toBe("Draft");
     });
@@ -87,7 +87,7 @@ describe("invoice-actions", () => {
       expect(result.success).toBe(true);
 
       const lineItem = await testDb.invoiceLineItem.findFirst({
-        where: { invoiceId: invoiceResult.invoiceId, jobId: job.id },
+        where: { invoiceId: invoiceResult.invoiceId!, jobId: job.id },
       });
       expect(lineItem).toBeTruthy();
       expect(lineItem?.jobId).toBe(job.id);
@@ -108,14 +108,14 @@ describe("invoice-actions", () => {
       expect(result.success).toBe(true);
 
       const invoice = await testDb.invoice.findUnique({
-        where: { id: invoiceResult.invoiceId },
+        where: { id: invoiceResult.invoiceId! },
       });
       expect(invoice?.status).toBe("Sent");
 
       const auditLog = await testDb.auditLog.findFirst({
         where: {
           entityType: "Invoice",
-          entityId: invoiceResult.invoiceId,
+          entityId: invoiceResult.invoiceId!,
           toState: "Sent",
         },
       });
