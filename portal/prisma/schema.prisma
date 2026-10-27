@@ -844,6 +844,9 @@ model Quote {
   revenueFloorOverrideReason       String?
   riskFactors                       Json?     // enabled factor keys (e.g. ["overflow","noStorage"])
   buildingClass                     BuildingClass?
+  proposalReference                 String?   @unique
+  paymentTerms                      PaymentTerms @default(NET_30)
+  paymentTermsDays                  Int       @default(30)
   createdAt                         DateTime  @default(now())
   updatedAt                         DateTime  @updatedAt
   site                              Site      @relation(fields: [siteId], references: [id])
@@ -851,6 +854,7 @@ model Quote {
   areaLines                         QuoteAreaLine[]
   addOnLines                        QuoteAddOnLine[]
   snapshots                         QuoteSnapshot[]
+  sectionOverrides                  QuoteSectionOverride[]
 
   @@index([siteId])
   @@index([pricingPolicyId])
@@ -1224,6 +1228,28 @@ enum BillingCadence {
 enum PaymentTerms {
   NET_30
   DUE_ON_COMPLETION
+}
+
+/// Shared narrative for client proposals. Bodies are edited in admin, not shipped as legal copy.
+model ProposalSection {
+  key       String   @id
+  title     String
+  body      String
+  sortOrder Int
+  updatedAt DateTime @updatedAt
+}
+
+/// Optional replacement for one shared section on a single quote.
+model QuoteSectionOverride {
+  id         String   @id @default(cuid())
+  quoteId    String
+  sectionKey String
+  body       String
+  updatedAt  DateTime @updatedAt
+  quote      Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@unique([quoteId, sectionKey])
+  @@index([quoteId])
 }
 
 /// Daily counter for new document numbers. Invoice numbers use scope "invoice".

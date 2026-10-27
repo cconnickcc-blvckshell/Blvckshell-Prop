@@ -26,7 +26,7 @@ export async function GET(
       return NextResponse.json({ error: "No snapshot yet" }, { status: 409 });
     }
     const buffer = await renderProposalPdf(loaded.model);
-    const filename = `proposal-${loaded.model.siteName}.pdf`;
+    const filename = `${loaded.model.reference || "proposal"}.pdf`;
     return pdfResponse(buffer, filename);
   } catch (error) {
     logError(error, { where: "api/quotes/proposal/pdf" });

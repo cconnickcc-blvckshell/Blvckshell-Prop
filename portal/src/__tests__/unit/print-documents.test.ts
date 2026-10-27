@@ -1,3 +1,7 @@
+import { execFileSync } from "child_process";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import { describe, expect, it } from "vitest";
 import sharp from "sharp";
 import { toPrintJpeg } from "@/lib/pdf/images";
@@ -10,6 +14,7 @@ import {
   clientIncidentSummary,
 } from "@/lib/pdf/models";
 import { formatInvoiceNumber, invoiceDayKey } from "@/server/invoices/invoice-number";
+import { formatProposalReference, proposalYearKey } from "@/server/documents/proposal-reference";
 import {
   chooseContractTerms,
   dueAtFromInvoiceDate,
@@ -22,6 +27,9 @@ describe("invoice numbers and terms", () => {
     expect(invoiceDayKey(new Date("2026-10-31T03:30:00Z"))).toBe("261030");
     expect(formatInvoiceNumber("261030", 1)).toBe("261030001");
     expect(formatInvoiceNumber("261030", 12)).toBe("261030012");
+    expect(proposalYearKey(new Date("2026-10-30T15:00:00Z"))).toBe("2026");
+    expect(formatProposalReference("2026", 1)).toBe("BS-2026-001");
+    expect(formatProposalReference("2026", 14)).toBe("BS-2026-014");
   });
 
   it("counts the due date from the invoice date", () => {
@@ -59,8 +67,12 @@ describe("client-safe document models", () => {
       siteName: "North Tower",
       siteAddress: "1 Example Road",
       monthlyAmountCents: 150000,
+      reference: "BS-2026-001",
       grossMarginBps: 4321,
       snapshotVersion: 9,
+      billingRateCentsPerHour: 4500,
+      accessInstructions: "Alarm code DOOR-9981",
+      accessCode: "DOOR-9981",
       areas: [
         {
           type: "LOBBY",
@@ -94,6 +106,14 @@ describe("client-safe document models", () => {
     expect(json.toLowerCase()).not.toContain("margin");
     expect(json.toLowerCase()).not.toContain("minute");
     expect(json.toLowerCase()).not.toContain("snapshot");
+    expect(json.toLowerCase()).not.toContain("wsib");
+    expect(json.toLowerCase()).not.toContain("insurance");
+    expect(json).not.toContain("DOOR-9981");
+    expect(json).not.toContain("4500");
+    expect(model?.reference).toBe("BS-2026-001");
+    expect(model?.termsLabel).toBe("Net 30");
+    expect(model?.validityDays).toBe(30);
+    expect(model?.sections.find((section) => section.key === "about")?.body).toContain("edit in Settings");
     expect(model?.areas[0]).toEqual({ area: "Lobby", detail: "500-1500 sqft · Tile" });
     expect(model?.addOns).toEqual([{ name: "Glass detail", priceCents: 2500 }]);
   });
@@ -258,6 +278,7 @@ describe("branded pdf output", () => {
       siteName: "North Tower",
       siteAddress: "1 Example Road",
       monthlyAmountCents: 150000,
+      reference: "BS-2026-001",
       areas: [{ type: "WASHROOMS", measurements: { preset: "M", finish: "standard" } }],
       addOns: [],
       now: new Date("2026-10-27T15:00:00Z"),
@@ -265,7 +286,22 @@ describe("branded pdf output", () => {
     expect(model).not.toBeNull();
     const pdf = await renderProposalPdf(model!, { compress: false });
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
-    expect(pdf.toString("latin1")).toContain("612 792");
+    const raw = pdf.toString("latin1");
+    expect(raw).toContain("612 792");
+    const pages = raw.match(/\/Type \/Page\b/g);
+    expect(pages && pages.length).toBeGreaterThanOrEqual(12);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "proposal-pdf-"));
+    const file = path.join(dir, "proposal.pdf");
+    fs.writeFileSync(file, pdf);
+    const text = execFileSync("pdftotext", ["-layout", file, "-"], { encoding: "utf8" });
+    expect(text).toContain("BS-2026-001");
+    expect(text).toContain("edit in Settings");
+    expect(text).toContain("Net 30");
+    expect(text.toLowerCase()).not.toContain("late fee");
+    expect(text.toLowerCase()).not.toContain("insurance");
+    expect(text.toLowerCase()).not.toContain("wsib");
+    expect(text.toLowerCase()).not.toContain("minute");
+    expect(text.toLowerCase()).not.toContain("margin");
   });
 
   it("converts webp photos to jpeg for embedding", async () => {

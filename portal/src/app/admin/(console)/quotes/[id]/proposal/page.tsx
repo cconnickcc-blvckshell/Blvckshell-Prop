@@ -4,6 +4,7 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { getQuoteForProposal } from "@/server/actions/quote-actions";
 import { formatCad } from "@/lib/pdf/format";
 import QuoteProposalClient from "./QuoteProposalClient";
+import ProposalQuoteOptions from "./ProposalQuoteOptions";
 
 export const metadata = { title: "Proposal" };
 
@@ -37,7 +38,16 @@ export default async function QuoteProposalPage({
           ← Pricing
         </Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">Proposal: {model.siteName}</h1>
-        <p className="text-zinc-400">Client proposal for this site. Download the branded PDF to send it.</p>
+        <p className="text-zinc-400">
+          {model.reference || "Reference pending"} · {model.termsLabel} · valid until {model.validUntilLabel}
+        </p>
+        <p className="mt-1 text-sm text-zinc-500">
+          Shared wording is edited in{" "}
+          <Link href="/admin/settings/proposal" className="text-zinc-300 underline hover:text-white">
+            Proposal text
+          </Link>
+          . Download the branded PDF to send it.
+        </p>
       </div>
       <div className="rounded-xl border border-zinc-800 bg-white p-6 text-black print:border-0 print:p-0">
         <div className="mb-4 flex justify-between gap-6 text-sm">
@@ -85,6 +95,13 @@ export default async function QuoteProposalPage({
         <p className="text-xs text-zinc-500">Price is the monthly amount for the scope listed above.</p>
       </div>
       <QuoteProposalClient quoteId={id} status={loaded.status} hasSnapshot />
+      <ProposalQuoteOptions
+        quoteId={id}
+        terms={loaded.paymentTerms}
+        termsLabel={model.termsLabel}
+        locked={loaded.status === "WON"}
+        sections={loaded.sections}
+      />
     </div>
   );
 }

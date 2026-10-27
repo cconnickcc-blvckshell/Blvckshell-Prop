@@ -20,18 +20,35 @@ import { dueAtFromInvoiceDate } from "@/server/invoices/payment-terms";
 
 const outDir = process.env.PRINT_SAMPLE_DIR || "/opt/cursor/artifacts/print-samples";
 
-async function writeSample(name: string, pdf: Buffer) {
+async function writeSample(name: string, pdf: Buffer, allPages = false) {
   fs.mkdirSync(outDir, { recursive: true });
   const pdfPath = path.join(outDir, `${name}.pdf`);
   fs.writeFileSync(pdfPath, pdf);
   const prefix = path.join(outDir, name);
-  execFileSync("pdftoppm", ["-png", "-f", "1", "-l", "1", "-r", "140", pdfPath, prefix], {
-    stdio: "inherit",
-  });
-  const generated = `${prefix}-1.png`;
-  const pngPath = path.join(outDir, `${name}-page1.png`);
-  if (fs.existsSync(generated)) fs.renameSync(generated, pngPath);
-  console.log(name, pdf.length, "bytes");
+  const args = allPages
+    ? ["-png", "-r", "110", pdfPath, prefix]
+    : ["-png", "-f", "1", "-l", "1", "-r", "140", pdfPath, prefix];
+  execFileSync("pdftoppm", args, { stdio: "inherit" });
+  if (!allPages) {
+    const generated = `${prefix}-1.png`;
+    const pngPath = path.join(outDir, `${name}-page1.png`);
+    if (fs.existsSync(generated)) fs.renameSync(generated, pngPath);
+    console.log(name, pdf.length, "bytes");
+    return;
+  }
+  const generated = fs
+    .readdirSync(outDir)
+    .filter((file) => new RegExp(`^${name}-\\d+\\.png$`).test(file));
+  for (const file of generated) {
+    const match = file.match(/-(\d+)\.png$/);
+    if (!match) continue;
+    const page = match[1].padStart(2, "0");
+    const next = path.join(outDir, `${name}-page-${page}.png`);
+    fs.renameSync(path.join(outDir, file), next);
+  }
+  const stale = path.join(outDir, `${name}-page1.png`);
+  if (fs.existsSync(stale)) fs.unlinkSync(stale);
+  console.log(name, pdf.length, "bytes", "pages", generated.length);
 }
 
 async function main() {
@@ -66,18 +83,27 @@ async function main() {
 
   const proposal = buildProposalModel({
     status: "SENT",
-    visitsPerWeek: 3,
-    expiresAt: new Date("2026-11-26T00:00:00Z"),
+    visitsPerWeek: 5,
+    expiresAt: new Date("2026-11-29T00:00:00Z"),
     clientName: "Harbour Court Properties",
     contactName: "A. Client",
     contactEmail: "accounts@example.com",
+    contactPhone: "519-555-0100",
     siteName: "North Tower",
     siteAddress: "1 Example Road, Windsor",
+    serviceWindow: "Weekdays, daytime",
+    suppliesProvidedBy: "COMPANY",
+    doNotEnterUnits: true,
+    reference: "BS-2026-001",
+    termsLabel: "Net 30",
     monthlyAmountCents: 240000,
     areas: [
       { type: "LOBBY", measurements: { sizeLabel: "500-1500 sqft", finishes: ["tile", "glass"] } },
-      { type: "WASHROOMS", measurements: { preset: "M", finish: "standard", count: 4 } },
+      { type: "HALLWAYS", measurements: { sizeLabel: "Corridors", finishes: ["tile"] } },
+      { type: "ELEVATORS", measurements: { count: 2, finish: "standard" } },
       { type: "STAIRWELLS", measurements: { sizeLabel: "Full height", finishes: ["concrete"] } },
+      { type: "WASHROOMS", measurements: { preset: "M", finish: "standard", count: 4 } },
+      { type: "GARBAGE", measurements: { sizeLabel: "Room", finish: "standard" } },
     ],
     addOns: [{ name: "Entry glass", priceCents: 18000, includedInProposal: true }],
     now: issued,
@@ -162,7 +188,7 @@ async function main() {
     .toBuffer();
 
   await writeSample("invoice", await renderInvoicePdf(invoice));
-  await writeSample("proposal", await renderProposalPdf(proposal));
+  await writeSample("proposal", await renderProposalPdf(proposal), true);
   await writeSample("monthly-report", await renderMonthlyReportPdf(report));
   await writeSample(
     "visit-record",

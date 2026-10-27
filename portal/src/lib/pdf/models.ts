@@ -1,4 +1,9 @@
-import { formatCalendar, formatCad, formatInstant } from "@/lib/pdf/format";
+import { formatCad, formatCalendar, formatInstant } from "@/lib/pdf/format";
+import {
+  proposalSection,
+  resolveProposalSections,
+  type ProposalSectionContent,
+} from "@/lib/pdf/proposal-sections";
 
 const AREA_LABELS: Record<string, string> = {
   LOBBY: "Lobby",
@@ -58,20 +63,37 @@ export function areaScope(type: string, measurements: unknown): { area: string; 
 }
 
 export type ProposalModel = {
+  reference: string;
   clientName: string;
   contactName: string;
   contactEmail: string;
+  contactPhone: string;
   siteName: string;
   siteAddress: string;
   visitsPerWeek: number;
+  serviceWindow: string;
+  suppliesLabel: string;
+  unitsLabel: string;
   monthlyAmountCents: number;
+  addOnTotalCents: number;
+  taxRateBps: number;
+  taxCents: number;
+  totalCents: number;
+  termsLabel: string;
+  validityDays: number;
+  dateLabel: string;
   validUntilLabel: string;
   expired: boolean;
   draft: boolean;
   areas: { area: string; detail: string }[];
   addOns: { name: string; priceCents: number }[];
+  sections: ProposalSectionContent[];
   issued: Date;
 };
+
+export function proposalSectionBody(model: ProposalModel, key: ProposalSectionContent["key"]): ProposalSectionContent {
+  return proposalSection(model.sections, key);
+}
 
 export type ProposalBuildInput = {
   status: string;
@@ -80,9 +102,19 @@ export type ProposalBuildInput = {
   clientName: string;
   contactName: string;
   contactEmail: string;
+  contactPhone?: string | null;
   siteName: string;
   siteAddress: string;
+  serviceWindow?: string | null;
+  suppliesProvidedBy?: string | null;
+  doNotEnterUnits?: boolean | null;
+  /** Present on some records. Never copied onto the client proposal. */
+  accessInstructions?: string | null;
+  accessCode?: string | null;
   monthlyAmountCents: number | null;
+  reference?: string | null;
+  termsLabel?: string | null;
+  taxRateBps?: number | null;
   areas: Array<{ type: string; measurements: unknown; computedMinutes?: number; overrideMinutes?: number | null }>;
   addOns: Array<{
     name: string;
@@ -90,32 +122,62 @@ export type ProposalBuildInput = {
     includedInProposal: boolean;
     estimatedLaborMinutes?: number;
     marginBps?: number;
+    billingRateCentsPerHour?: number;
   }>;
   grossMarginBps?: number;
   snapshotVersion?: number;
+  billingRateCentsPerHour?: number;
+  sections?: { key: string; title: string; body: string }[];
+  sectionOverrides?: { key: string; body: string }[];
   now?: Date;
 };
 
-/** Client proposal fields. Labour minutes, margin, and snapshot version are dropped. */
+function suppliesLabel(value: string | null | undefined): string {
+  if (value === "CLIENT") return "Client-supplied";
+  if (value === "COMPANY") return "Included with service";
+  if (value === "MIXED") return "Shared";
+  return "";
+}
+
+const DEFAULT_PROPOSAL_TAX_BPS = 1300;
+
+/** Client proposal fields. Labour minutes, margin, rates, and snapshot version are dropped. */
 export function buildProposalModel(input: ProposalBuildInput): ProposalModel | null {
   if (input.monthlyAmountCents == null) return null;
   const now = input.now ?? new Date();
   const draft = input.status === "DRAFT" || input.status === "READY_FOR_REVIEW";
+  const addOns = input.addOns
+    .filter((line) => line.includedInProposal)
+    .map((line) => ({ name: line.name, priceCents: line.priceCents }));
+  const addOnTotalCents = addOns.reduce((sum, line) => sum + line.priceCents, 0);
+  const taxRateBps = input.taxRateBps && input.taxRateBps > 0 ? Math.round(input.taxRateBps) : DEFAULT_PROPOSAL_TAX_BPS;
+  const taxCents = Math.round((input.monthlyAmountCents + addOnTotalCents) * (taxRateBps / 10000));
   return {
+    reference: input.reference?.trim() || "",
     clientName: input.clientName,
     contactName: input.contactName,
     contactEmail: input.contactEmail,
+    contactPhone: input.contactPhone?.trim() || "",
     siteName: input.siteName,
     siteAddress: input.siteAddress,
     visitsPerWeek: input.visitsPerWeek,
+    serviceWindow: input.serviceWindow?.trim() || "",
+    suppliesLabel: suppliesLabel(input.suppliesProvidedBy),
+    unitsLabel: input.doNotEnterUnits ? "Not entered" : "",
     monthlyAmountCents: input.monthlyAmountCents,
+    addOnTotalCents,
+    taxRateBps,
+    taxCents,
+    totalCents: input.monthlyAmountCents + addOnTotalCents + taxCents,
+    termsLabel: input.termsLabel?.trim() || "Net 30",
+    validityDays: 30,
+    dateLabel: formatInstant(now),
     validUntilLabel: formatCalendar(input.expiresAt),
     expired: input.expiresAt.getTime() < now.getTime(),
     draft,
     areas: input.areas.map((line) => areaScope(line.type, line.measurements)),
-    addOns: input.addOns
-      .filter((line) => line.includedInProposal)
-      .map((line) => ({ name: line.name, priceCents: line.priceCents })),
+    addOns,
+    sections: resolveProposalSections(input.sections, input.sectionOverrides),
     issued: now,
   };
 }
