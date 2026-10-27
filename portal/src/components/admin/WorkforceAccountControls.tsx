@@ -92,7 +92,7 @@ export default function WorkforceAccountControls({
         <div className="border-t border-zinc-800 pt-4">
           <h3 className="text-sm font-semibold text-white">Password reset</h3>
           <p className="mt-1 text-xs text-zinc-500">
-            Sends a temporary password by email. The password is not shown here.
+            Emails a one-time set-password link. The current password stays the same until they use it.
           </p>
           <ul className="mt-3 space-y-2">
             {users.map((accountUser) => (
@@ -106,7 +106,7 @@ export default function WorkforceAccountControls({
                   disabled={pending}
                   className="rounded-md border border-zinc-600 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-800 disabled:opacity-50"
                 >
-                  Send password reset
+                  Send set-password link
                 </button>
               </li>
             ))}

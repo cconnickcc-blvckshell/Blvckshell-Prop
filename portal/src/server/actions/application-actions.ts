@@ -4,8 +4,8 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { queueNotification } from "./notification-actions";
-import * as bcrypt from "bcryptjs";
-import { generateTempPassword } from "@/lib/temp-password";
+import { unusablePasswordHash } from "@/lib/password-link";
+import { inviteUserWithSetPasswordLink } from "@/server/actions/password-actions";
 
 export async function listWorkerApplications() {
   await requireAdmin();
@@ -54,8 +54,7 @@ export async function updateApplicationStatus(
   });
 
   if (status === "APPROVED") {
-    const tempPassword = generateTempPassword();
-    const passwordHash = bcrypt.hashSync(tempPassword, 10);
+    const passwordHash = unusablePasswordHash();
 
     let workforceAccountId: string;
     let role: "VENDOR_OWNER" | "VENDOR_WORKER" | "INTERNAL_WORKER";
@@ -133,29 +132,12 @@ export async function updateApplicationStatus(
       await copyApplicationCompliance(app, workforceAccountId);
     }
 
-    await queueNotification({
-      channel: "SMS",
+    await inviteUserWithSetPasswordLink({
+      userId: newUser.id,
+      email: app.email,
+      name: `${app.firstName} ${app.lastName}`,
+      phone: app.phone,
       templateKey: "application_approved",
-      recipient: app.phone,
-      payload: {
-        name: app.firstName,
-        portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
-      },
-      relatedEntityType: "WorkerApplication",
-      relatedEntityId: applicationId,
-    }).catch(() => {});
-
-    await queueNotification({
-      channel: "EMAIL",
-      templateKey: "application_approved",
-      recipient: app.email,
-      payload: {
-        name: app.firstName,
-        tempPassword,
-        portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
-      },
-      relatedEntityType: "WorkerApplication",
-      relatedEntityId: applicationId,
     }).catch(() => {});
   }
 
@@ -182,8 +164,7 @@ export async function approveClientSignup(signupId: string) {
   });
   if (!signup) return { ok: false, error: "Not found" };
 
-  const tempPassword = generateTempPassword();
-  const passwordHash = bcrypt.hashSync(tempPassword, 10);
+  const passwordHash = unusablePasswordHash();
 
   const org = await prisma.clientOrganization.create({
     data: {
@@ -194,7 +175,7 @@ export async function approveClientSignup(signupId: string) {
     },
   });
 
-  await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
       email: signup.contactEmail,
       passwordHash,
@@ -214,18 +195,12 @@ export async function approveClientSignup(signupId: string) {
     },
   });
 
-  await queueNotification({
-    channel: "EMAIL",
+  await inviteUserWithSetPasswordLink({
+    userId: newUser.id,
+    email: signup.contactEmail,
+    name: signup.contactName,
     templateKey: "client_approved",
-    recipient: signup.contactEmail,
-    payload: {
-      name: signup.contactName,
-      companyName: signup.companyName,
-      tempPassword,
-      portalUrl: process.env.NEXTAUTH_URL,
-    },
-    relatedEntityType: "ClientSignupRequest",
-    relatedEntityId: signupId,
+    extraPayload: { companyName: signup.companyName },
   }).catch(() => {});
 
   revalidatePath("/admin/applications");

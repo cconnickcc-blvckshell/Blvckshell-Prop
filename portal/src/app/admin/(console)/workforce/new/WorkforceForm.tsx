@@ -38,11 +38,11 @@ export default function WorkforceForm({
       )}
       {state?.success && state.inviteSent === false && state.accountId && (
         <p className="rounded-md bg-amber-500/20 px-3 py-2 text-sm text-amber-200">
-          Account created, but the invite email could not be queued.{" "}
+          Account created. No set-password link was sent, and no password was shown or stored.{" "}
           <Link href={`/admin/workforce/${state.accountId}`} className="underline">
             Open the account
           </Link>{" "}
-          and send a password reset. The password is not shown here.
+          and send a link once email delivery is configured.
         </p>
       )}
       <div>
@@ -97,7 +97,7 @@ export default function WorkforceForm({
       <hr className="border-zinc-800" />
       <p className="text-sm font-medium text-zinc-300">First user {type === "VENDOR" ? "(vendor owner)" : "(internal worker)"}</p>
       <p className="text-sm text-zinc-500">
-        A temporary password is emailed to this person. You will not see or type the password.
+        A one-time set-password link is emailed. You will not see or type a password, and none is stored in the notification log.
         {type === "INTERNAL" ? " Internal accounts are employees paid through payroll." : " Vendor owners are labeled separately from cleaners."}
       </p>
       <div className="grid gap-4 sm:grid-cols-2">

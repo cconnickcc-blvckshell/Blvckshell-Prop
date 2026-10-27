@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { NotificationChannel, Prisma } from "@prisma/client";
+import { assertNoPasswordInPayload } from "@/lib/password-link";
 
 /**
  * Queue a notification for async delivery.
@@ -15,6 +16,7 @@ export async function queueNotification(input: {
   relatedEntityType: string;
   relatedEntityId: string;
 }) {
+  assertNoPasswordInPayload(input.payload);
   return prisma.notificationOutbox.create({
     data: {
       channel: input.channel,

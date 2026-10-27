@@ -47,11 +47,10 @@ function getEmailHtml(templateKey: string, payload: Record<string, unknown>): st
     case "account_invite":
     case "password_reset":
       return wrap(`
-        <p style="color:#34d399;font-size:20px;font-weight:700;margin:0 0 12px 0;">${templateKey === "password_reset" ? "Password reset" : "Welcome to BLVCKSHELL"}</p>
-        <p style="color:#a1a1aa;">${templateKey === "password_reset" ? "A new temporary password was requested for your portal account." : "Your portal account is ready."}</p>
-        <p style="color:#fff;margin:12px 0;">Your temporary password: <strong style="color:#34d399;">${payload.tempPassword}</strong></p>
-        <p style="color:#a1a1aa;">Log in at: <a href="${payload.portalUrl}/login" style="color:#34d399;">${payload.portalUrl}/login</a></p>
-        <p style="color:#71717a;font-size:12px;margin-top:16px;">You can change it after signing in at ${payload.portalUrl}/account/password.</p>
+        <p style="color:#34d399;font-size:20px;font-weight:700;margin:0 0 12px 0;">${templateKey === "password_reset" ? "Set a new password" : "Welcome to BLVCKSHELL"}</p>
+        <p style="color:#a1a1aa;">${templateKey === "password_reset" ? "Use the link below to choose a new password. Your current password stays the same until you do." : "Your portal account is ready. Use the link below to choose a password. It expires and works once."}</p>
+        ${typeof payload.setPasswordUrl === "string" ? `<p style="margin:16px 0;"><a href="${payload.setPasswordUrl}" style="color:#34d399;">Set your password</a></p>` : `<p style="color:#a1a1aa;">Contact an admin to finish setting your password.</p>`}
+        <p style="color:#71717a;font-size:12px;margin-top:16px;">This email does not contain a password.</p>
       `);
     case "application_rejected":
       return wrap(`
@@ -64,8 +63,8 @@ function getEmailHtml(templateKey: string, payload: Record<string, unknown>): st
       return wrap(`
         <p style="color:#34d399;font-size:20px;font-weight:700;margin:0 0 12px 0;">Welcome to BLVCKSHELL</p>
         <p style="color:#a1a1aa;">Your client portal account for <strong style="color:#fff;">${payload.companyName}</strong> is ready.</p>
-        <p style="color:#fff;margin:12px 0;">Your temporary password: <strong style="color:#34d399;">${payload.tempPassword}</strong></p>
-        <p style="color:#a1a1aa;">Log in at: <a href="${payload.portalUrl}/login" style="color:#34d399;">${payload.portalUrl}/login</a></p>
+        ${typeof payload.setPasswordUrl === "string" ? `<p style="margin:16px 0;"><a href="${payload.setPasswordUrl}" style="color:#34d399;">Set your password</a></p>` : `<p style="color:#a1a1aa;">Contact an admin to finish setting your password.</p>`}
+        <p style="color:#71717a;font-size:12px;margin-top:16px;">This email does not contain a password.</p>
       `);
     case "new_lead":
       return wrap(`
@@ -103,7 +102,7 @@ function getSmsBody(templateKey: string, payload: Record<string, unknown>): stri
     case "application_approved":
     case "account_invite":
     case "password_reset":
-      return `BLVCKSHELL: ${payload.name ? `${payload.name}, a` : "A"} temporary password was emailed to you. Log in at ${payload.portalUrl}/login. Reply STOP to opt out.`;
+      return `BLVCKSHELL: ${payload.name ? `${payload.name}, a` : "A"} set-password link was emailed to you. It does not include a password. Reply STOP to opt out.`;
     case "application_rejected": return `BLVCKSHELL: Thank you for applying. We're unable to proceed at this time. You're welcome to reapply in the future.`;
     default: return `BLVCKSHELL: You have a new notification. Check the portal for details.`;
   }

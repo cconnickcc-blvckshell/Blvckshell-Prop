@@ -1,11 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import * as bcrypt from "bcryptjs";
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
-import { generateTempPassword } from "@/lib/temp-password";
-import { inviteUserWithTempPassword } from "@/server/actions/password-actions";
+import { unusablePasswordHash } from "@/lib/password-link";
+import { inviteUserWithSetPasswordLink } from "@/server/actions/password-actions";
 import { logError } from "@/lib/logger";
 
 const COMPLIANCE_TYPES = ["COI", "WSIB", "AGREEMENT", "HST", "OTHER"] as const;
@@ -92,7 +91,7 @@ export async function createWorkforceAccount(formData: FormData) {
     const row = await tx.user.create({
       data: {
         email: userEmail,
-        passwordHash: bcrypt.hashSync(generateTempPassword(), 10),
+        passwordHash: unusablePasswordHash(),
         role,
         workforceAccountId: account.id,
         name: userName,
@@ -152,7 +151,7 @@ export async function createWorkforceAccount(formData: FormData) {
 
   let inviteSent = false;
   try {
-    inviteSent = await inviteUserWithTempPassword({
+    inviteSent = await inviteUserWithSetPasswordLink({
       userId: createdUser.id,
       email: userEmail,
       name: userName,

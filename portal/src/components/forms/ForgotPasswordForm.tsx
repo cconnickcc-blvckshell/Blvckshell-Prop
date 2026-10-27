@@ -40,7 +40,7 @@ export default function ForgotPasswordForm() {
         disabled={pending}
         className="w-full rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-200 disabled:opacity-50"
       >
-        {pending ? "Sending…" : "Email a temporary password"}
+        {pending ? "Sending…" : "Email a set-password link"}
       </button>
     </form>
   );

@@ -25,6 +25,9 @@ export default async function ChangePasswordPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-white">Change password</h1>
           <p className="mt-1 text-sm text-zinc-400">Signed in as {user.name}</p>
+          <p className="mt-2 text-sm text-zinc-400">
+            This saves a new password for the account you are signed in with. No email is sent.
+          </p>
         </div>
         <ChangePasswordForm />
       </div>
