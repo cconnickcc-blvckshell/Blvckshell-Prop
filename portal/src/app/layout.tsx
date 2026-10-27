@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import CookieConsent from "@/components/CookieConsent";
 import { brandAssets } from "@/config/brand-assets";
+
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-lato",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "BLVCKSHELL — Facilities Services",
@@ -23,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={lato.variable}>
+      <body className={lato.className}>
         {children}
         <CookieConsent />
       </body>

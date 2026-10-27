@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/server/guards/rbac";
 import LoginForm from "@/components/forms/LoginForm";
 import Link from "next/link";
 import PortalBrandMark from "@/components/PortalBrandMark";
+import Card from "@/components/ui/Card";
 import { loginPageState } from "@/lib/safe-redirect";
 
 export default async function LoginPage({
@@ -65,8 +66,8 @@ export default async function LoginPage({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
-      <div className="w-full max-w-md space-y-8 rounded-xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-xl">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--brand-black)] px-4">
+      <Card className="w-full max-w-md space-y-8 p-8">
         <div className="flex flex-col items-center gap-4">
           <PortalBrandMark variant="header" className="w-full max-w-[16rem]" />
           <div>
@@ -79,10 +80,10 @@ export default async function LoginPage({
           </div>
         </div>
         <LoginForm callbackUrl={state.callbackUrl} error={state.error} notice={state.notice} />
-        <p className="text-center text-xs text-zinc-500">
-          <Link href="/" className="hover:text-zinc-400">← Back to home</Link>
+        <p className="text-center text-xs text-[var(--brand-silver)]">
+          <Link href="/" className="hover:text-white">← Back to home</Link>
         </p>
-      </div>
+      </Card>
     </div>
   );
 }

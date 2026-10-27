@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Status from "@/components/ui/Status";
 import { requireClient } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 
@@ -53,8 +54,8 @@ export default async function ClientInvoicesPage() {
                       <p className="mt-1 text-sm text-zinc-400">
                         {inv.periodStart.toLocaleDateString()} – {inv.periodEnd.toLocaleDateString()}
                       </p>
-                      <p className="mt-2 text-sm text-zinc-300">
-                        {statusLabel[inv.status] ?? inv.status}
+                      <p className="mt-2">
+                        <Status value={inv.status} label={statusLabel[inv.status] ?? inv.status} />
                       </p>
                     </div>
                     <p className="shrink-0 text-sm font-medium text-white">

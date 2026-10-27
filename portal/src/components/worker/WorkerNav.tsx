@@ -89,7 +89,7 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
                   onClick={() => setMoreOpen(false)}
                   className={`rounded-xl p-3 text-center text-sm font-medium ${
                     isActive(tab.href)
-                      ? "bg-emerald-500/20 text-emerald-400"
+                      ? "bg-zinc-800 text-[var(--brand-gold)]"
                       : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
                   }`}
                 >
@@ -109,7 +109,7 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
               key={tab.href}
               href={tab.href}
               className={`relative flex flex-col items-center gap-0.5 px-3 py-1 ${
-                isActive(tab.href) ? "text-emerald-400" : "text-zinc-500"
+                isActive(tab.href) ? "text-[var(--brand-gold)]" : "text-zinc-500"
               }`}
             >
               <TabIcon name={tab.icon} />
@@ -127,7 +127,7 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
               onClick={() => setMoreOpen(!moreOpen)}
               className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
                 moreOpen || vendorTabs.some((t) => isActive(t.href))
-                  ? "text-emerald-400"
+                  ? "text-[var(--brand-gold)]"
                   : "text-zinc-500"
               }`}
             >

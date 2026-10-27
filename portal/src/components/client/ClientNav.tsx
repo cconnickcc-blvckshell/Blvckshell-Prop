@@ -44,7 +44,7 @@ export default function ClientNav({ userName }: ClientNavProps) {
                     key={href}
                     href={href}
                     className={`inline-flex min-h-11 items-center text-sm font-medium ${
-                      isActive ? "text-emerald-400" : "text-zinc-400 hover:text-zinc-200"
+                      isActive ? "text-[var(--brand-gold)]" : "text-zinc-400 hover:text-zinc-200"
                     }`}
                   >
                     {label}
@@ -71,7 +71,7 @@ export default function ClientNav({ userName }: ClientNavProps) {
                 key={href}
                 href={href}
                 className={`flex min-h-11 flex-col items-center justify-center px-1 text-xs font-medium ${
-                  isActive ? "text-emerald-400" : "text-zinc-400"
+                  isActive ? "text-[var(--brand-gold)]" : "text-zinc-400"
                 }`}
               >
                 {short}

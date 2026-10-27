@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Status from "@/components/ui/Status";
 import { requireClient } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 
@@ -54,9 +55,7 @@ export default async function ClientJobsPage() {
                         {new Date(job.scheduledStart).toLocaleString()}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-200">
-                      {statusLabel[job.status] ?? job.status}
-                    </span>
+                    <Status value={job.status} label={statusLabel[job.status] ?? job.status} />
                   </div>
                 </Link>
               </li>

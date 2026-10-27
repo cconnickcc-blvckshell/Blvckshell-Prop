@@ -78,9 +78,9 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                     href={href}
                     prefetch={false}
                     className={`shrink-0 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                      isActive(href)
-                        ? "bg-zinc-800 text-white"
-                        : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
+                    isActive(href)
+                      ? "bg-zinc-800 text-[var(--brand-gold)]"
+                      : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
                     }`}
                   >
                     {label}
