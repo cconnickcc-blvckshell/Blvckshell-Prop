@@ -631,6 +631,7 @@ model Contract {
   billingCadence         BillingCadence     @default(Monthly)
   monthlyBaseAmountCents Int
   netTermsDays           Int                @default(30)
+  paymentTerms           PaymentTerms       @default(NET_30)
   effectiveStart         DateTime
   effectiveEnd           DateTime?
   status                 ContractStatus     @default(Active)
@@ -657,6 +658,8 @@ model Invoice {
   status                 InvoiceStatus       @default(Draft)
   issuedAt               DateTime?
   dueAt                  DateTime?
+  paymentTerms           PaymentTerms        @default(NET_30)
+  paymentTermsDays       Int                 @default(30)
   notes                  String?
   subtotalCents          Int                 @default(0)
   taxCents               Int                 @default(0)
@@ -1216,6 +1219,20 @@ enum ChecklistRunStatus {
 
 enum BillingCadence {
   Monthly
+}
+
+enum PaymentTerms {
+  NET_30
+  DUE_ON_COMPLETION
+}
+
+/// Daily counter for new document numbers. Invoice numbers use scope "invoice".
+model DocumentDailySequence {
+  scope String
+  day   String
+  next  Int    @default(0)
+
+  @@id([scope, day])
 }
 
 enum ContractStatus {

@@ -60,6 +60,12 @@ export default async function ClientJobDetailPage({
         Scheduled: {new Date(job.scheduledStart).toLocaleString()} • Status:{" "}
         {statusLabel[job.status] ?? job.status}
       </p>
+      <a
+        href={`/api/jobs/${job.id}/visit-record`}
+        className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-xl border border-zinc-600 px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-800"
+      >
+        Download visit record
+      </a>
 
       {/* Evidence (read-only) */}
       {job.completion && job.completion.evidence.length > 0 && (

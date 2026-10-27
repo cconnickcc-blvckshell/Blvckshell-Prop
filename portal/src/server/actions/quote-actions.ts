@@ -11,6 +11,7 @@ import {
   clampMinutes,
   type AreaMeasurements,
 } from "@/server/pricing/area-presets";
+import { loadProposal } from "@/server/documents/proposal-pdf";
 
 const MUTABLE_QUOTE_STATUSES = ["DRAFT", "READY_FOR_REVIEW"] as const;
 const MAX_MINUTES = 999;
@@ -628,6 +629,12 @@ export async function transitionQuoteToSent(quoteId: string) {
   return { ok: true };
 }
 
+/** Load the client-safe proposal used by the admin page. */
+export async function getQuoteForProposal(quoteId: string) {
+  await requireAdmin();
+  return loadProposal(quoteId);
+}
+
 /** Finalize quote into a Contract (creates monthly base price for invoices). */
 export async function finalizeQuoteToContract(quoteId: string) {
   const user = await requireAdmin();
@@ -673,6 +680,7 @@ export async function finalizeQuoteToContract(quoteId: string) {
       billingCadence: "Monthly",
       monthlyBaseAmountCents,
       netTermsDays: 30,
+      paymentTerms: "NET_30",
       effectiveStart: now,
       status: "Active",
     },
@@ -745,32 +753,4 @@ export async function overrideRevenueFloor(quoteId: string, reason: string) {
   });
   revalidatePath(`/admin/quotes/${quoteId}`);
   return { ok: true };
-}
-
-export async function getQuoteForProposal(quoteId: string) {
-  await requireAdmin();
-  return prisma.quote.findUnique({
-    where: { id: quoteId },
-    select: {
-      status: true,
-      visitsPerWeek: true,
-      site: {
-        select: {
-          name: true,
-          address: true,
-          clientOrganization: {
-            select: {
-              name: true,
-              primaryContactEmail: true,
-            },
-          },
-        },
-      },
-      snapshots: {
-        orderBy: { snapshotVersion: "desc" },
-        take: 1,
-        select: { riskAdjustedRevenueCents: true },
-      },
-    },
-  });
 }
