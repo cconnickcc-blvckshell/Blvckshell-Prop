@@ -34,12 +34,38 @@ export default async function ClientInvoicesPage() {
       <p className="mt-1 text-zinc-400">
         View and download invoices for your organization.
       </p>
-      <div className="mt-6 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-        {invoices.length === 0 ? (
-          <div className="p-8 text-center text-sm text-zinc-500">
-            No invoices yet.
-          </div>
-        ) : (
+      {invoices.length === 0 ? (
+        <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center text-sm text-zinc-500">
+          No invoices yet.
+        </div>
+      ) : (
+        <>
+          <ul className="mt-6 space-y-3 lg:hidden">
+            {invoices.map((inv) => (
+              <li key={inv.id}>
+                <Link
+                  href={`/client/invoices/${inv.id}`}
+                  className="block min-h-11 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-white">{inv.invoiceNumber}</p>
+                      <p className="mt-1 text-sm text-zinc-400">
+                        {inv.periodStart.toLocaleDateString()} – {inv.periodEnd.toLocaleDateString()}
+                      </p>
+                      <p className="mt-2 text-sm text-zinc-300">
+                        {statusLabel[inv.status] ?? inv.status}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-sm font-medium text-white">
+                      ${(inv.totalCents / 100).toFixed(2)}
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 hidden overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl lg:block">
           <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
@@ -90,8 +116,9 @@ export default async function ClientInvoicesPage() {
             </tbody>
           </table>
           </div>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
