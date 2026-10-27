@@ -58,7 +58,8 @@ export function drawLogo(doc: PdfDoc, x: number, y: number, width: number): void
   doc.restore();
 }
 
-const WATERMARK_CREAM = ["#E7D3B4", "#F6EBDD", "#F4E6D2", "#E8D0B0", "#FBF6EE", "#E8D0B0", "#F4E6D2"];
+/** Faintest champagne. Darkest facet is #F7EEE2; the main face is #FBF6EF. */
+const WATERMARK_CREAM = ["#F7EEE2", "#FBF6EF", "#F9F3EA", "#F7EEE2", "#FCF9F4", "#F8F0E6", "#F9F3EA"];
 
 /** Crest only, fitted to `width`. Pass `fills` to recolor facets; otherwise the logo colors are used. */
 export function drawCrest(
@@ -102,7 +103,7 @@ export function drawCrest(
       for (let i = 0; i < shape.points.length; i += 2) {
         pairs.push([shape.points[i], shape.points[i + 1]]);
       }
-      if (pairs.length >= 3) doc.polygon(...pairs).fill(fills[index] ?? "#F6EBDD");
+      if (pairs.length >= 3) doc.polygon(...pairs).fill(fills[index] ?? "#FBF6EF");
     });
     doc.restore();
   }

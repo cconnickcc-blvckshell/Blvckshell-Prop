@@ -69,11 +69,9 @@ export function drawTable(
       paintHeader();
     }
     const y = doc.y;
-    if (header === "ink" && index % 2 === 1) {
-      doc.save();
-      doc.rect(PRINT.marginX, y, CONTENT_WIDTH, height).fill(PRINT.row);
-      doc.restore();
-    }
+    doc.save();
+    doc.rect(PRINT.marginX, y, CONTENT_WIDTH, height).fill(header === "ink" && index % 2 === 1 ? PRINT.row : PRINT.white);
+    doc.restore();
     let x = PRINT.marginX;
     cols.forEach((column, cellIndex) => {
       doc.font("Lato").fontSize(8.5).fillColor(PRINT.ink);
