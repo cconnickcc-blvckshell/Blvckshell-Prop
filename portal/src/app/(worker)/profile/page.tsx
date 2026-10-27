@@ -41,7 +41,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen p-4">
-      <div className="mx-auto max-w-lg space-y-4">
+      <div className="mx-auto max-w-3xl space-y-4 lg:max-w-6xl">
         <div>
           <h1 className="text-xl font-bold text-white">Profile</h1>
           <p className="text-sm text-zinc-400">Your account information</p>

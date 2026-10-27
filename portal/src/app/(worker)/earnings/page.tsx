@@ -36,7 +36,7 @@ export default async function EarningsPage() {
 
   return (
     <div className="min-h-screen p-4">
-      <div className="mx-auto max-w-lg">
+      <div className="mx-auto max-w-3xl lg:max-w-6xl">
         <div className="mb-4">
           <h1 className="text-xl font-bold text-white">Earnings</h1>
           <p className="text-sm text-zinc-400">Your payout history</p>

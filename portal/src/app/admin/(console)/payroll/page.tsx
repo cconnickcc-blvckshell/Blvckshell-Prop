@@ -86,7 +86,25 @@ export default async function PayrollPage() {
 
       {/* Time entries table */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-        <div className="overflow-x-auto">
+        <ul className="space-y-3 p-3 lg:hidden" data-record-list>
+          {entries.map((entry) => (
+            <li key={entry.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium text-white">{entry.worker.user.name}</p>
+                <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass[entry.status] ?? ""}`}>
+                  {formatTimeEntryStatus(entry.status)}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-zinc-400">{formatCalendarDate(entry.date)}</p>
+              <p className="mt-2 text-sm text-zinc-300">
+                {Math.floor(entry.regularMinutes / 60)}h {entry.regularMinutes % 60}m regular
+                {entry.overtimeMinutes > 0 ? ` · ${Math.floor(entry.overtimeMinutes / 60)}h ${entry.overtimeMinutes % 60}m OT` : ""}
+                {" · "}${(entry.rateCentsPerHour / 100).toFixed(2)}/hr
+              </p>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto lg:block">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
               <tr>

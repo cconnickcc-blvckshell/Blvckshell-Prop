@@ -25,7 +25,20 @@ export default async function AdminLeadsPage() {
         </div>
       ) : (
         <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-          <div className="overflow-x-auto">
+          <ul className="space-y-3 p-3 lg:hidden" data-record-list>
+            {leads.map((lead) => (
+              <li key={lead.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+                <p className="font-medium text-white">{lead.name}</p>
+                <p className="mt-1 text-sm text-zinc-400">{formatDateTime(lead.createdAt)}</p>
+                <a href={`mailto:${lead.email}`} className="mt-2 inline-flex min-h-11 items-center text-sm text-emerald-400">{lead.email}</a>
+                {lead.phone ? (
+                  <a href={`tel:${lead.phone}`} className="flex min-h-11 items-center text-sm text-emerald-400">{lead.phone}</a>
+                ) : null}
+                {lead.message ? <p className="mt-2 text-sm text-zinc-300">{lead.message}</p> : null}
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto lg:block">
             <table className="min-w-full divide-y divide-zinc-800">
               <thead className="bg-zinc-800/50">
                 <tr>

@@ -92,7 +92,7 @@ export default function JobAdminActions({
               type="button"
               onClick={handleApprove}
               disabled={isPending}
-              className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
             >
               {isPending ? "Processing…" : "Approve"}
             </button>
@@ -108,7 +108,7 @@ export default function JobAdminActions({
                 type="button"
                 onClick={handleRejectClick}
                 disabled={isPending || !rejectReason.trim()}
-                className="rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-50"
+                className="inline-flex min-h-11 items-center rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-50"
               >
                 Reject (resubmit allowed)
               </button>
@@ -121,7 +121,7 @@ export default function JobAdminActions({
             type="button"
             onClick={handleCancelClick}
             disabled={isPending}
-            className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 hover:bg-red-500/20 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 hover:bg-red-500/20 disabled:opacity-50"
           >
             Cancel Job
           </button>

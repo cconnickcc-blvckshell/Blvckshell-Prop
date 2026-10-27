@@ -362,7 +362,7 @@ export default function JobDetailClient({
           }}
         />
       )}
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{job.site.name}</h1>
@@ -426,8 +426,9 @@ export default function JobDetailClient({
           </div>
         )}
 
+        <div className="mb-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6" data-job-cockpit>
         {/* Checklist Section — mobile: progress prominent, one-handed tap targets */}
-        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl sm:p-6">
+        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl sm:p-6 lg:mb-0">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xl font-bold text-white">
@@ -548,7 +549,7 @@ export default function JobDetailClient({
         </div>
 
         {/* Photo Evidence Section */}
-        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl sm:p-6">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 shadow-xl sm:p-6">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-white sm:text-xl">Photo Evidence</h2>
@@ -582,7 +583,8 @@ export default function JobDetailClient({
                   <button
                     type="button"
                     onClick={() => handleRemoveUploadedPhoto(evidence.id)}
-                    className="absolute right-2 top-2 rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity hover:bg-red-500 group-hover:opacity-100"
+                    data-remove-photo
+                    className="absolute right-1 top-1 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md bg-red-600 px-2 text-xs font-medium text-white shadow-lg hover:bg-red-500"
                   >
                     Remove
                   </button>
@@ -609,6 +611,7 @@ export default function JobDetailClient({
             </p>
           )}
         </div>
+        </div>
 
         {/* Blocking submit — clear summary for one-handed flow */}
         {blockingReasons.length > 0 && (
@@ -634,7 +637,7 @@ export default function JobDetailClient({
           style={{ bottom: "calc(4rem + env(safe-area-inset-bottom))" }}
           data-worker-action-bar
         >
-          <div className="mx-auto flex max-w-3xl gap-3">
+          <div className="mx-auto flex max-w-6xl gap-3">
           <button
             type="button"
             onClick={handleSaveDraft}

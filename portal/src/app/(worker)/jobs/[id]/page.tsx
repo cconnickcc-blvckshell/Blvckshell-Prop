@@ -97,7 +97,7 @@ export default async function JobDetailPage({
     const statusColor = job.status === "PAID" ? "text-zinc-300 bg-zinc-600/30 border-zinc-500/40" : "text-emerald-300 bg-emerald-500/20 border-emerald-500/40";
     return (
       <div className="min-h-screen p-4">
-        <div className="mx-auto max-w-lg space-y-4">
+        <div className="mx-auto max-w-3xl space-y-4 lg:max-w-6xl">
           <Link href="/jobs" className="text-sm text-zinc-400 hover:text-zinc-200">← Back to jobs</Link>
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
@@ -216,7 +216,7 @@ export default async function JobDetailPage({
   return (
     <>
       {(job.status === "SCHEDULED" || job.checkedInAt) && (
-        <div className="mx-auto max-w-lg px-4 pt-4">
+        <div className="mx-auto max-w-3xl px-4 pt-4 lg:max-w-6xl">
           <CheckInOutPanel
             jobId={job.id}
             status={job.status}

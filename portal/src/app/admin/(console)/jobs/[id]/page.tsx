@@ -170,7 +170,7 @@ export default async function AdminJobDetailPage({
           <Link
             href={`/admin/jobs/new?siteId=${job.siteId}${job.assignedWorkerId ? `&workerId=${job.assignedWorkerId}` : ""}&payout=${(job.payoutAmountCents / 100).toFixed(2)}`}
             prefetch={false}
-            className="inline-flex items-center rounded-lg border border-zinc-600 px-3 py-1.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+            className="inline-flex min-h-11 items-center rounded-lg border border-zinc-600 px-3 py-1.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
           >
             Duplicate
           </Link>
@@ -180,6 +180,7 @@ export default async function AdminJobDetailPage({
         </div>
       </div>
 
+      <div className="space-y-6 lg:columns-2 lg:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid lg:[&>*]:mb-0">
       {/* Assigned to */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 shadow-xl sm:p-6">
         <h2 className="text-sm font-medium text-zinc-400">Assigned to</h2>
@@ -398,6 +399,7 @@ export default async function AdminJobDetailPage({
           No completion submitted yet.
         </div>
       )}
+      </div>
     </div>
   );
 }
