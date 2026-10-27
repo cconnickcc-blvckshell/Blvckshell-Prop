@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { queueNotification } from "./notification-actions";
 import * as bcrypt from "bcryptjs";
+import { generateTempPassword } from "@/lib/temp-password";
 
 export async function listWorkerApplications() {
   await requireAdmin();
@@ -34,6 +35,13 @@ export async function updateApplicationStatus(
   });
   if (!app) return { ok: false, error: "Application not found" };
 
+  if (status === "APPROVED") {
+    const existingUser = await prisma.user.findUnique({ where: { email: app.email } });
+    if (existingUser) {
+      return { ok: false, error: "A user with this email already exists." };
+    }
+  }
+
   await prisma.workerApplication.update({
     where: { id: applicationId },
     data: {
@@ -49,24 +57,21 @@ export async function updateApplicationStatus(
     const tempPassword = generateTempPassword();
     const passwordHash = bcrypt.hashSync(tempPassword, 10);
 
-    const accountType =
-      app.applicationType === "SUBCONTRACTOR" ? "VENDOR" : "INTERNAL";
-    const role =
-      app.applicationType === "SUBCONTRACTOR"
-        ? "VENDOR_WORKER"
-        : "INTERNAL_WORKER";
-
     let workforceAccountId: string;
+    let role: "VENDOR_OWNER" | "VENDOR_WORKER" | "INTERNAL_WORKER";
     if (app.applicationType === "SUBCONTRACTOR" && app.companyName) {
       const existing = await prisma.workforceAccount.findFirst({
         where: { displayName: app.companyName, type: "VENDOR" },
       });
       if (existing) {
         workforceAccountId = existing.id;
+        role = "VENDOR_WORKER";
       } else {
         const account = await prisma.workforceAccount.create({
           data: {
-            type: accountType as "VENDOR",
+            type: "VENDOR",
+            classification: "CONTRACTOR",
+            allowedPaymentMethod: "EFT",
             displayName: app.companyName,
             primaryContactName: `${app.firstName} ${app.lastName}`,
             primaryContactEmail: app.email,
@@ -74,6 +79,7 @@ export async function updateApplicationStatus(
           },
         });
         workforceAccountId = account.id;
+        role = "VENDOR_OWNER";
       }
     } else {
       let internal = await prisma.workforceAccount.findFirst({
@@ -83,14 +89,25 @@ export async function updateApplicationStatus(
         internal = await prisma.workforceAccount.create({
           data: {
             type: "INTERNAL",
+            classification: "EMPLOYEE",
+            allowedPaymentMethod: "PAYROLL",
             displayName: "BLVCKSHELL Internal",
             primaryContactName: "BLVCKSHELL",
             primaryContactEmail: "internal@blvckshell.com",
             primaryContactPhone: "",
           },
         });
+      } else if (
+        internal.classification !== "EMPLOYEE" ||
+        internal.allowedPaymentMethod !== "PAYROLL"
+      ) {
+        internal = await prisma.workforceAccount.update({
+          where: { id: internal.id },
+          data: { classification: "EMPLOYEE", allowedPaymentMethod: "PAYROLL" },
+        });
       }
       workforceAccountId = internal.id;
+      role = "INTERNAL_WORKER";
     }
 
     const newUser = await prisma.user.create({
@@ -112,13 +129,16 @@ export async function updateApplicationStatus(
       },
     });
 
+    if (app.applicationType === "SUBCONTRACTOR") {
+      await copyApplicationCompliance(app, workforceAccountId);
+    }
+
     await queueNotification({
       channel: "SMS",
       templateKey: "application_approved",
       recipient: app.phone,
       payload: {
         name: app.firstName,
-        tempPassword,
         portalUrl: process.env.NEXTAUTH_URL ?? "https://www.blvckshell.com",
       },
       relatedEntityType: "WorkerApplication",
@@ -226,11 +246,27 @@ export async function rejectClientSignup(signupId: string, reason?: string) {
   return { ok: true };
 }
 
-function generateTempPassword(): string {
-  const chars =
-    "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  let pw = "";
-  for (let i = 0; i < 12; i++)
-    pw += chars[Math.floor(Math.random() * chars.length)];
-  return pw;
+async function copyApplicationCompliance(
+  app: { coiDocPath: string | null; wsibDocPath: string | null },
+  workforceAccountId: string,
+) {
+  const docs: { type: "COI" | "WSIB"; path: string | null }[] = [
+    { type: "COI", path: app.coiDocPath },
+    { type: "WSIB", path: app.wsibDocPath },
+  ];
+  for (const doc of docs) {
+    if (!doc.path) continue;
+    const existing = await prisma.complianceDocument.findFirst({
+      where: { workforceAccountId, type: doc.type, storagePath: doc.path },
+    });
+    if (existing) continue;
+    await prisma.complianceDocument.create({
+      data: {
+        workforceAccountId,
+        type: doc.type,
+        storagePath: doc.path,
+        expiresAt: null,
+      },
+    });
+  }
 }

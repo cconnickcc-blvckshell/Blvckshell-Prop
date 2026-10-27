@@ -4,12 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-type State = { error?: string; success?: boolean; accountId?: string };
+type State = { error?: string; success?: boolean; accountId?: string; inviteSent?: boolean };
 
 export default function WorkforceForm({
   action,
 }: {
-  action: (formData: FormData) => Promise<{ error?: string; success?: boolean; accountId?: string }>;
+  action: (formData: FormData) => Promise<{ error?: string; success?: boolean; accountId?: string; inviteSent?: boolean }>;
 }) {
   const router = useRouter();
   const [type, setType] = useState<"VENDOR" | "INTERNAL">("VENDOR");
@@ -25,7 +25,9 @@ export default function WorkforceForm({
     const result = await action(formData);
     setState(result);
     setIsSubmitting(false);
-    if (result.success && result.accountId) router.push(`/admin/workforce/${result.accountId}`);
+    if (result.success && result.accountId && result.inviteSent !== false) {
+      router.push(`/admin/workforce/${result.accountId}`);
+    }
   }
 
   return (
@@ -33,6 +35,15 @@ export default function WorkforceForm({
       <input type="hidden" name="type" value={type} />
       {state?.error && (
         <p className="rounded-md bg-red-500/20 px-3 py-2 text-sm text-red-300">{state.error}</p>
+      )}
+      {state?.success && state.inviteSent === false && state.accountId && (
+        <p className="rounded-md bg-amber-500/20 px-3 py-2 text-sm text-amber-200">
+          Account created, but the invite email could not be queued.{" "}
+          <Link href={`/admin/workforce/${state.accountId}`} className="underline">
+            Open the account
+          </Link>{" "}
+          and send a password reset. The password is not shown here.
+        </p>
       )}
       <div>
         <label className="block text-sm font-medium text-zinc-300">Account type *</label>
@@ -85,6 +96,10 @@ export default function WorkforceForm({
       )}
       <hr className="border-zinc-800" />
       <p className="text-sm font-medium text-zinc-300">First user {type === "VENDOR" ? "(vendor owner)" : "(internal worker)"}</p>
+      <p className="text-sm text-zinc-500">
+        A temporary password is emailed to this person. You will not see or type the password.
+        {type === "INTERNAL" ? " Internal accounts are employees paid through payroll." : " Vendor owners are labeled separately from cleaners."}
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="userName" className="block text-sm font-medium text-zinc-300">Name *</label>
@@ -95,15 +110,9 @@ export default function WorkforceForm({
           <input id="userEmail" name="userEmail" type="email" required className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="userPassword" className="block text-sm font-medium text-zinc-300">Password * (min 8)</label>
-          <input id="userPassword" name="userPassword" type="password" required minLength={8} className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" />
-        </div>
-        <div>
-          <label htmlFor="userPhone" className="block text-sm font-medium text-zinc-300">Phone</label>
-          <input id="userPhone" name="userPhone" type="tel" className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" />
-        </div>
+      <div>
+        <label htmlFor="userPhone" className="block text-sm font-medium text-zinc-300">Phone</label>
+        <input id="userPhone" name="userPhone" type="tel" className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" />
       </div>
       <div className="flex gap-3">
         <button type="submit" disabled={isSubmitting} className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">

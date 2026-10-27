@@ -9,6 +9,8 @@ function getEmailSubject(templateKey: string, payload: Record<string, unknown>):
     case "job_rejected": return `Job needs resubmission — ${payload.siteName ?? "BLVCKSHELL"}`;
     case "job_reminder": return `Upcoming job reminder — ${payload.siteName ?? "BLVCKSHELL"}`;
     case "application_approved": return `Welcome to BLVCKSHELL`;
+    case "account_invite": return `Your BLVCKSHELL portal login`;
+    case "password_reset": return `BLVCKSHELL password reset`;
     case "application_rejected": return `BLVCKSHELL Application Update`;
     case "client_approved": return `Welcome to BLVCKSHELL — ${payload.companyName ?? "Client Portal"}`;
     case "new_lead": return `New website lead — ${payload.name ?? "BLVCKSHELL"}`;
@@ -42,12 +44,14 @@ function getEmailHtml(templateKey: string, payload: Record<string, unknown>): st
     case "job_reminder":
       return wrap(`<p style="color: #a1a1aa; margin: 0;">You have an upcoming job.</p><p style="color: #fff; font-size: 16px; margin: 12px 0;">${payload.siteName ?? ""} at ${payload.time ?? ""}</p>`);
     case "application_approved":
+    case "account_invite":
+    case "password_reset":
       return wrap(`
-        <p style="color:#34d399;font-size:20px;font-weight:700;margin:0 0 12px 0;">Welcome to BLVCKSHELL</p>
-        <p style="color:#a1a1aa;">Your application has been approved. You can now log in to the BLVCKSHELL Portal.</p>
+        <p style="color:#34d399;font-size:20px;font-weight:700;margin:0 0 12px 0;">${templateKey === "password_reset" ? "Password reset" : "Welcome to BLVCKSHELL"}</p>
+        <p style="color:#a1a1aa;">${templateKey === "password_reset" ? "A new temporary password was requested for your portal account." : "Your portal account is ready."}</p>
         <p style="color:#fff;margin:12px 0;">Your temporary password: <strong style="color:#34d399;">${payload.tempPassword}</strong></p>
         <p style="color:#a1a1aa;">Log in at: <a href="${payload.portalUrl}/login" style="color:#34d399;">${payload.portalUrl}/login</a></p>
-        <p style="color:#71717a;font-size:12px;margin-top:16px;">Please change your password after your first login.</p>
+        <p style="color:#71717a;font-size:12px;margin-top:16px;">You can change it after signing in at ${payload.portalUrl}/account/password.</p>
       `);
     case "application_rejected":
       return wrap(`
@@ -96,7 +100,10 @@ function getSmsBody(templateKey: string, payload: Record<string, unknown>): stri
     case "job_reminder": return `BLVCKSHELL: Reminder — you have a job at ${payload.siteName ?? "your site"} at ${payload.time ?? "scheduled time"}. Check the portal for details.`;
     case "job_approved": return `BLVCKSHELL: Your job at ${payload.siteName ?? "the site"} has been approved.`;
     case "job_rejected": return `BLVCKSHELL: Your job at ${payload.siteName ?? "the site"} needs resubmission. Check the portal for details.`;
-    case "application_approved": return `BLVCKSHELL: Welcome ${payload.name}! Your application is approved. Log in at ${payload.portalUrl}/login with your email and temporary password (check your email). Reply STOP to opt out.`;
+    case "application_approved":
+    case "account_invite":
+    case "password_reset":
+      return `BLVCKSHELL: ${payload.name ? `${payload.name}, a` : "A"} temporary password was emailed to you. Log in at ${payload.portalUrl}/login. Reply STOP to opt out.`;
     case "application_rejected": return `BLVCKSHELL: Thank you for applying. We're unable to proceed at this time. You're welcome to reapply in the future.`;
     default: return `BLVCKSHELL: You have a new notification. Check the portal for details.`;
   }

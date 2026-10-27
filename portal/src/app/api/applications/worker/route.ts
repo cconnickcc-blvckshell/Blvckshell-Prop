@@ -119,6 +119,22 @@ export async function POST(req: NextRequest) {
       return created;
     });
 
+    const [coiDocPath, wsibDocPath, resumePath] = await Promise.all([
+      storeApplicationFile(formData.get("coi"), application.id, "COI"),
+      storeApplicationFile(formData.get("wsib"), application.id, "WSIB"),
+      storeApplicationFile(formData.get("resume"), application.id, "RESUME"),
+    ]);
+    if (coiDocPath || wsibDocPath || resumePath) {
+      await prisma.workerApplication.update({
+        where: { id: application.id },
+        data: {
+          ...(coiDocPath ? { coiDocPath } : {}),
+          ...(wsibDocPath ? { wsibDocPath } : {}),
+          ...(resumePath ? { resumePath } : {}),
+        },
+      });
+    }
+
     return NextResponse.json({
       ok: true,
       applicationId: application.id,
@@ -130,5 +146,45 @@ export async function POST(req: NextRequest) {
       { ok: false, error: "An unexpected error occurred. Please try again." },
       { status: 500 }
     );
+  }
+}
+
+const APPLICATION_FILE_TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+
+async function storeApplicationFile(
+  entry: FormDataEntryValue | null,
+  applicationId: string,
+  kind: string,
+): Promise<string | null> {
+  if (!(entry instanceof File) || entry.size === 0) return null;
+  if (!APPLICATION_FILE_TYPES.has(entry.type) || entry.size > 10 * 1024 * 1024) {
+    logError(new Error(`Rejected ${kind} file`), {
+      where: "application-file",
+      entityId: applicationId,
+    });
+    return null;
+  }
+  try {
+    const { storage, COMPLIANCE_BUCKET } = await import("@/lib/storage");
+    const ext = entry.name.split(".").pop()?.toLowerCase() || "pdf";
+    const storagePath = `${COMPLIANCE_BUCKET}/applications/${applicationId}/${kind}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const { error } = await storage.from(COMPLIANCE_BUCKET).upload(storagePath, Buffer.from(await entry.arrayBuffer()), {
+      contentType: entry.type,
+      upsert: false,
+    });
+    if (error) {
+      logError(new Error(error.message), { where: "application-file-upload", entityId: applicationId });
+      return null;
+    }
+    return storagePath;
+  } catch (err) {
+    logError(err, { where: "application-file-upload", entityId: applicationId });
+    return null;
   }
 }

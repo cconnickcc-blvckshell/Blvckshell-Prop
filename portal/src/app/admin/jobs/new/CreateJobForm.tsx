@@ -84,6 +84,11 @@ export default function CreateJobForm({
         <label htmlFor="payoutDollars" className="block text-sm font-medium text-zinc-300">Payout ($) *</label>
         <input id="payoutDollars" name="payoutDollars" type="number" step="0.01" min="0" required defaultValue={prefillPayout ?? ""} className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" placeholder="85.00" />
       </div>
+      <div>
+        <label htmlFor="complianceOverrideReason" className="block text-sm font-medium text-zinc-300">Compliance override reason</label>
+        <textarea id="complianceOverrideReason" name="complianceOverrideReason" rows={2} className="mt-1 block w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white" placeholder="Required only when the vendor is missing or expired on COI or WSIB" />
+        <p className="mt-1 text-xs text-zinc-500">Vendor assignment is blocked until COI and WSIB are current. A reason here assigns the job and is written to the audit log.</p>
+      </div>
       <div className="flex gap-3">
         <button type="submit" disabled={isSubmitting} className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50">
           {isSubmitting ? "Creating…" : "Create job"}

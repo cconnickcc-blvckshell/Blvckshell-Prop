@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createWorkforceAccount } from "../actions";
 import WorkforceForm from "./WorkforceForm";
 
+export const metadata = { title: "New account" };
+
 export default async function NewWorkforcePage() {
   await requireAdmin();
 

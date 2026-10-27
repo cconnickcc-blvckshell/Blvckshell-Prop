@@ -3,7 +3,8 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { logError } from "@/lib/logger";
+import { logError, logWarn } from "@/lib/logger";
+import { canAssignJob } from "@/server/guards/compliance";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -102,6 +103,20 @@ export async function generateJobsFromSchedules(input: {
         if (existing) {
           skipped++;
         } else {
+          const compliance = await canAssignJob({
+            workerId: schedule.assignedWorkerId ?? undefined,
+            workforceAccountId: schedule.assignedWorkforceAccountId ?? undefined,
+          });
+          if (!compliance.compliant) {
+            skipped++;
+            logWarn("Skipped schedule job: assignee is not compliant", {
+              where: "schedule:generateJobs",
+              entityId: schedule.id,
+              metadata: { issues: compliance.issues.map((issue) => issue.code) },
+            });
+            current.setDate(current.getDate() + 1);
+            continue;
+          }
           try {
             await prisma.job.create({
               data: {

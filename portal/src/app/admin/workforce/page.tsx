@@ -3,26 +3,44 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatClassification } from "@/lib/format";
 
+export const metadata = { title: "Workforce" };
+
+function jobCount(account: { workers: { _count: { assignedJobs: number } }[] }): number {
+  return account.workers.reduce((sum, worker) => sum + worker._count.assignedJobs, 0);
+}
+
+function peopleLabel(account: {
+  users: { id: string; name: string; role: string }[];
+  workers: { isActive: boolean; user: { id: string; name: string } }[];
+}): { workers: number; names: string } {
+  const active = account.workers.filter((worker) => worker.isActive);
+  const workerIds = new Set(account.workers.map((worker) => worker.user.id));
+  const owners = account.users.filter(
+    (accountUser) => accountUser.role === "VENDOR_OWNER" && !workerIds.has(accountUser.id),
+  );
+  const names = [
+    ...active.map((worker) => worker.user.name),
+    ...owners.map((owner) => `${owner.name} (owner)`),
+  ];
+  return { workers: active.length, names: names.join(", ") };
+}
+
 export default async function WorkforcePage() {
   await requireAdmin();
 
   const accounts = await prisma.workforceAccount.findMany({
     where: { isActive: true },
     include: {
-      workers: {
+      users: {
         where: { isActive: true },
-        include: {
-          user: {
-            select: {
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        select: { id: true, name: true, role: true },
       },
-      _count: {
-        select: { workers: true, jobs: true },
+      workers: {
+        select: {
+          isActive: true,
+          user: { select: { id: true, name: true } },
+          _count: { select: { assignedJobs: true } },
+        },
       },
     },
     orderBy: [{ type: "asc" }, { displayName: "asc" }],
@@ -72,7 +90,9 @@ export default async function WorkforcePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800">
-              {accounts.map((account) => (
+              {accounts.map((account) => {
+                const people = peopleLabel(account);
+                return (
                 <tr key={account.id} className="hover:bg-zinc-800/30 transition-colors">
                   <td className="whitespace-nowrap px-6 py-4">
                     <Link
@@ -81,6 +101,7 @@ export default async function WorkforcePage() {
                     >
                       {account.displayName}
                     </Link>
+                    <div className="text-xs text-zinc-500">{people.names || "No people yet"}</div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
                     {account.type}
@@ -99,10 +120,10 @@ export default async function WorkforcePage() {
                     <span className="text-zinc-500">{account.primaryContactEmail}</span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
-                    {account._count.workers}
+                    {people.workers}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
-                    {account._count.jobs}
+                    {jobCount(account)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                     <Link
@@ -113,11 +134,14 @@ export default async function WorkforcePage() {
                     </Link>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           <div className="divide-y divide-zinc-800 md:hidden">
-            {accounts.map((account) => (
+            {accounts.map((account) => {
+              const people = peopleLabel(account);
+              return (
               <div key={account.id} className="flex flex-col gap-2 px-4 py-4">
                 <Link
                   href={`/admin/workforce/${account.id}`}
@@ -126,11 +150,11 @@ export default async function WorkforcePage() {
                   {account.displayName}
                 </Link>
                 <p className="text-sm text-zinc-400">{account.type}</p>
-                <p className="text-sm text-zinc-300">{account.primaryContactName}</p>
+                <p className="text-sm text-zinc-300">{people.names || account.primaryContactName}</p>
                 <p className="text-xs text-zinc-500">{account.primaryContactEmail}</p>
                 <div className="flex gap-4 text-sm text-zinc-400">
-                  <span>{account._count.workers} workers</span>
-                  <span>{account._count.jobs} jobs</span>
+                  <span>{people.workers} {people.workers === 1 ? "worker" : "workers"}</span>
+                  <span>{jobCount(account)} {jobCount(account) === 1 ? "job" : "jobs"}</span>
                 </div>
                 <Link
                   href={`/admin/workforce/${account.id}`}
@@ -139,7 +163,8 @@ export default async function WorkforcePage() {
                   View →
                 </Link>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         {accounts.length === 0 && (
