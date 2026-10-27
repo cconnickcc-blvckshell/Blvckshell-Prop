@@ -294,8 +294,8 @@ describe("branded pdf output", () => {
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
     const raw = pdf.toString("latin1");
     expect(raw).toContain("612 792");
-    expect(raw).toContain("0.984313725490196 0.9647058823529412 0.9372549019607843");
-    expect(raw).not.toContain("0.9647058823529412 0.9215686274509803");
+    expect(raw).not.toContain("0.984313725490196 0.9647058823529412 0.9372549019607843");
+    expect(raw).not.toContain("0.9686274509803922 0.9333333333333333 0.8862745098039215");
     const pages = raw.match(/\/Type \/Page\b/g);
     expect(pages && pages.length).toBeGreaterThanOrEqual(6);
     expect(pages && pages.length).toBeLessThanOrEqual(8);

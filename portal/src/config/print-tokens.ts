@@ -15,7 +15,8 @@ export const PRINT = {
   contentTop: 176,
   contentBottom: 724,
   footerRuleY: 732,
-  watermarkOpacity: 0.055,
+  /** Crest behind letterhead pages. Off until the pale treatment is revisited. */
+  showWatermark: false as boolean,
 } as const;
 
 export const CONTENT_WIDTH = PRINT.page.width - PRINT.marginX * 2;

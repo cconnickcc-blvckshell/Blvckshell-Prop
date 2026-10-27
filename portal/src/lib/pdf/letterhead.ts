@@ -41,18 +41,20 @@ function drawLetterhead(doc: PdfDoc): void {
   doc.page.margins.top = 0;
   doc.page.margins.bottom = 0;
 
-  const crestWidth = PRINT.page.width * 0.62;
-  const crestHeight = crestWidth * (411 / 418);
-  const bleed = 0.33;
-  doc.save();
-  doc.rect(0, 0, PRINT.page.width, PRINT.footerRuleY).clip();
-  drawWatermarkCrest(
-    doc,
-    PRINT.page.width - crestWidth * (1 - bleed),
-    PRINT.page.height - crestHeight * (1 - bleed),
-    crestWidth
-  );
-  doc.restore();
+  if (PRINT.showWatermark) {
+    const crestWidth = PRINT.page.width * 0.62;
+    const crestHeight = crestWidth * (411 / 418);
+    const bleed = 0.33;
+    doc.save();
+    doc.rect(0, 0, PRINT.page.width, PRINT.footerRuleY).clip();
+    drawWatermarkCrest(
+      doc,
+      PRINT.page.width - crestWidth * (1 - bleed),
+      PRINT.page.height - crestHeight * (1 - bleed),
+      crestWidth
+    );
+    doc.restore();
+  }
 
   drawLogo(doc, 42, 28, 322);
 
