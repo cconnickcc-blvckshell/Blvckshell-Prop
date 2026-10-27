@@ -3,6 +3,8 @@ import Link from "next/link";
 import { requireClient } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import PayNowButton from "@/components/client/PayNowButton";
+import { isPaymentTerms, paymentTermsLabel } from "@/server/invoices/payment-terms";
+import { formatCalendarDate } from "@/lib/format";
 
 export default async function ClientInvoiceDetailPage({
   params,
@@ -19,6 +21,9 @@ export default async function ClientInvoiceDetailPage({
       periodStart: true,
       periodEnd: true,
       status: true,
+      dueAt: true,
+      paymentTerms: true,
+      paymentTermsDays: true,
       subtotalCents: true,
       taxCents: true,
       totalCents: true,
@@ -64,10 +69,14 @@ export default async function ClientInvoiceDetailPage({
         Invoice #{invoice.invoiceNumber}
       </h1>
       <p className="mt-1 text-zinc-400">
-        {invoice.client.name} • Period:{" "}
-        {invoice.periodStart.toLocaleDateString()} –{" "}
-        {invoice.periodEnd.toLocaleDateString()} •{" "}
-        {statusLabel[invoice.status] ?? invoice.status}
+        {invoice.client.name} • Period: {formatCalendarDate(invoice.periodStart)} –{" "}
+        {formatCalendarDate(invoice.periodEnd)} • {statusLabel[invoice.status] ?? invoice.status}
+        {" · "}
+        {paymentTermsLabel(
+          isPaymentTerms(invoice.paymentTerms) ? invoice.paymentTerms : "NET_30",
+          invoice.paymentTermsDays
+        )}
+        {invoice.dueAt ? ` · Due ${formatCalendarDate(invoice.dueAt)}` : ""}
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">

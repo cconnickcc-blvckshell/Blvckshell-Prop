@@ -631,6 +631,7 @@ model Contract {
   billingCadence         BillingCadence     @default(Monthly)
   monthlyBaseAmountCents Int
   netTermsDays           Int                @default(30)
+  paymentTerms           PaymentTerms       @default(NET_30)
   effectiveStart         DateTime
   effectiveEnd           DateTime?
   status                 ContractStatus     @default(Active)
@@ -657,6 +658,8 @@ model Invoice {
   status                 InvoiceStatus       @default(Draft)
   issuedAt               DateTime?
   dueAt                  DateTime?
+  paymentTerms           PaymentTerms        @default(NET_30)
+  paymentTermsDays       Int                 @default(30)
   notes                  String?
   subtotalCents          Int                 @default(0)
   taxCents               Int                 @default(0)
@@ -841,6 +844,9 @@ model Quote {
   revenueFloorOverrideReason       String?
   riskFactors                       Json?     // enabled factor keys (e.g. ["overflow","noStorage"])
   buildingClass                     BuildingClass?
+  proposalReference                 String?   @unique
+  paymentTerms                      PaymentTerms @default(NET_30)
+  paymentTermsDays                  Int       @default(30)
   createdAt                         DateTime  @default(now())
   updatedAt                         DateTime  @updatedAt
   site                              Site      @relation(fields: [siteId], references: [id])
@@ -848,6 +854,8 @@ model Quote {
   areaLines                         QuoteAreaLine[]
   addOnLines                        QuoteAddOnLine[]
   snapshots                         QuoteSnapshot[]
+  sectionOverrides                  QuoteSectionOverride[]
+  areaTaskOverrides                 QuoteAreaTaskOverride[]
 
   @@index([siteId])
   @@index([pricingPolicyId])
@@ -1216,6 +1224,68 @@ enum ChecklistRunStatus {
 
 enum BillingCadence {
   Monthly
+}
+
+enum PaymentTerms {
+  NET_30
+  DUE_ON_COMPLETION
+}
+
+/// Shared narrative for client proposals. Bodies are edited in admin, not shipped as legal copy.
+model ProposalSection {
+  key       String   @id
+  title     String
+  body      String
+  sortOrder Int
+  updatedAt DateTime @updatedAt
+}
+
+/// Optional replacement for one shared section on a single quote.
+model QuoteSectionOverride {
+  id         String   @id @default(cuid())
+  quoteId    String
+  sectionKey String
+  body       String
+  updatedAt  DateTime @updatedAt
+  quote      Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@unique([quoteId, sectionKey])
+  @@index([quoteId])
+}
+
+/// Default task rows for a proposal area. Wording is edited in Settings.
+model ProposalAreaTask {
+  id          String        @id @default(cuid())
+  areaType    QuoteAreaType
+  description String
+  frequency   String
+  sortOrder   Int
+  updatedAt   DateTime      @updatedAt
+
+  @@index([areaType])
+}
+
+/// Per-quote replacement for one area's default tasks.
+model QuoteAreaTaskOverride {
+  id          String        @id @default(cuid())
+  quoteId     String
+  areaType    QuoteAreaType
+  description String
+  frequency   String
+  sortOrder   Int
+  updatedAt   DateTime      @updatedAt
+  quote       Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId, areaType])
+}
+
+/// Daily counter for new document numbers. Invoice numbers use scope "invoice".
+model DocumentDailySequence {
+  scope String
+  day   String
+  next  Int    @default(0)
+
+  @@id([scope, day])
 }
 
 enum ContractStatus {

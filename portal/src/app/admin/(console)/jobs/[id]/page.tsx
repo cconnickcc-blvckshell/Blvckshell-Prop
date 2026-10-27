@@ -161,6 +161,12 @@ export default async function AdminJobDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`/api/jobs/${job.id}/visit-record`}
+            className="inline-flex items-center rounded-lg border border-zinc-600 px-3 py-1.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+          >
+            Visit record
+          </a>
           <Link
             href={`/admin/jobs/new?siteId=${job.siteId}${job.assignedWorkerId ? `&workerId=${job.assignedWorkerId}` : ""}&payout=${(job.payoutAmountCents / 100).toFixed(2)}`}
             prefetch={false}
