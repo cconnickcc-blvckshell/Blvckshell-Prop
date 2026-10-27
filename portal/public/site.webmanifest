@@ -2,10 +2,10 @@
   "name": "BLVCKSHELL",
   "short_name": "BLVCKSHELL",
   "description": "BLVCKSHELL facilities services",
-  "start_url": "/",
-  "display": "browser",
-  "background_color": "#09090b",
-  "theme_color": "#09090b",
+  "start_url": "/portal",
+  "display": "standalone",
+  "background_color": "#090909",
+  "theme_color": "#090909",
   "icons": [
     {
       "src": "/icons/pwa-icon-192x192.png",
