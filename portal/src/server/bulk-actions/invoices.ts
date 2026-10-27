@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { SessionUser } from "@/server/guards/rbac";
-import { createDraftInvoiceInternal } from "@/server/actions/invoice-actions";
+import { createDraftInvoiceInternal } from "@/server/invoices/draft-invoice";
 import type { BulkPreviewResult, BulkResult } from "./index";
 import type { Prisma } from "@prisma/client";
 

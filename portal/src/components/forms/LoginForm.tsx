@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { loginSchema, type LoginInput } from "@/lib/validations";
@@ -90,6 +91,11 @@ export default function LoginForm() {
         {errors.password && (
           <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
         )}
+        <p className="mt-2 text-right text-sm">
+          <Link href="/forgot-password" className="text-zinc-300 hover:text-white">
+            Forgot password?
+          </Link>
+        </p>
       </div>
 
       <div>

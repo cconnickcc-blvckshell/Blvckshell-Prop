@@ -7,11 +7,16 @@ import { signOut } from "next-auth/react";
 import NotificationBell from "@/components/admin/NotificationBell";
 import PortalBrandMark from "@/components/PortalBrandMark";
 
+function isActivePath(pathname: string, href: string) {
+  if (href === "/admin") return pathname === "/admin";
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 const navLinks = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/schedules", label: "Schedules" },
-  { href: "/admin/clients", label: "Locations" },
+  { href: "/admin/clients", label: "Clients" },
   { href: "/admin/workforce", label: "Workforce" },
   { href: "/admin/quotes", label: "Quotes" },
   { href: "/admin/invoices", label: "Invoices" },
@@ -28,14 +33,24 @@ const navLinks = [
   { href: "/admin/docs", label: "Docs" },
 ] as const;
 
+const primaryHrefs = new Set([
+  "/admin",
+  "/admin/jobs",
+  "/admin/clients",
+  "/admin/workforce",
+  "/admin/quotes",
+  "/admin/invoices",
+]);
+
 export default function AdminNav({ userName, userRole }: { userName: string; userRole: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const primaryLinks = navLinks.filter((link) => primaryHrefs.has(link.href));
+  const moreLinks = navLinks.filter((link) => !primaryHrefs.has(link.href));
+  const moreActive = moreLinks.some((link) => isActivePath(pathname, link.href));
 
-  const isActive = (href: string) => {
-    if (href === "/admin") return pathname === "/admin";
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+  const isActive = (href: string) => isActivePath(pathname, href);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950 shadow-lg">
@@ -53,9 +68,8 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 Admin
               </span>
             </Link>
-            {/* Desktop nav — wrap so Invoices/Payouts etc. stay visible on smaller desktop */}
-            <div className="hidden gap-1 md:flex md:flex-wrap md:items-center">
-              {navLinks.map(({ href, label }) => (
+            <div className="hidden min-w-0 items-center gap-1 overflow-x-auto md:flex">
+              {primaryLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
@@ -69,6 +83,39 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                   {label}
                 </Link>
               ))}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMoreOpen((open) => !open)}
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    moreActive || moreOpen
+                      ? "bg-zinc-800 text-white"
+                      : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
+                  }`}
+                  aria-expanded={moreOpen}
+                  aria-haspopup="menu"
+                >
+                  More
+                </button>
+                {moreOpen && (
+                  <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-zinc-800 bg-zinc-950 py-1 shadow-xl" role="menu">
+                    {moreLinks.map(({ href, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        prefetch={false}
+                        role="menuitem"
+                        onClick={() => setMoreOpen(false)}
+                        className={`block px-3 py-2 text-sm ${
+                          isActive(href) ? "bg-zinc-800 text-white" : "text-zinc-300 hover:bg-zinc-800/70"
+                        }`}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -78,6 +125,12 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
             <span className="rounded-md bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-300">
               {userRole}
             </span>
+            <Link
+              href="/account/password"
+              className="hidden rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white sm:inline"
+            >
+              Password
+            </Link>
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: "/" })}
@@ -125,6 +178,13 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
               ))}
               <div className="mt-2 border-t border-zinc-800 pt-2">
                 <p className="px-3 py-1 text-xs text-zinc-500">{userName}</p>
+                <Link
+                  href="/account/password"
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-md px-3 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+                >
+                  Password
+                </Link>
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: "/" })}

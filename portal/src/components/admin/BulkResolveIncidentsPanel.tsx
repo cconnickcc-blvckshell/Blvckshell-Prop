@@ -6,7 +6,13 @@ import {
   executeBulkResolveIncidentsAction,
 } from "@/server/actions/bulk-actions";
 
-type IncidentItem = { id: string; resolvedAt: Date | null };
+type IncidentItem = {
+  id: string;
+  resolvedAt: string | null;
+  siteName: string;
+  typeLabel: string;
+  reportedAtLabel: string;
+};
 
 export default function BulkResolveIncidentsPanel({ incidents }: { incidents: IncidentItem[] }) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -85,7 +91,9 @@ export default function BulkResolveIncidentsPanel({ incidents }: { incidents: In
             {unresolved.map((i) => (
               <li key={i.id} className="flex items-center gap-2">
                 <input type="checkbox" checked={selectedIds.has(i.id)} onChange={() => toggleOne(i.id)} className="rounded border-zinc-600" />
-                <span className="text-sm text-zinc-300">{i.id.slice(-8)}</span>
+                <span className="text-sm text-zinc-300">
+                  {i.siteName} · {i.typeLabel} · {i.reportedAtLabel}
+                </span>
               </li>
             ))}
           </ul>

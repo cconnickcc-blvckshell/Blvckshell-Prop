@@ -28,7 +28,7 @@ export async function checkWorkforceCompliance(
       hstNumber: true,
       wsibAccountNumber: true,
       complianceDocuments: {
-        select: { type: true, expiresAt: true },
+        select: { type: true, expiresAt: true, uploadedAt: true },
       },
     },
   });
@@ -51,19 +51,20 @@ export async function checkWorkforceCompliance(
     issues.push({ code: "SUSPENDED", message: "Workforce account is compliance-suspended", severity: "BLOCKING" });
   }
 
-  // Vendor-specific compliance: COI and WSIB required
+  // Vendor-specific compliance: COI and WSIB required.
+  // Any unexpired document of that type counts; a newer upload replaces an expired one.
   if (account.type === "VENDOR") {
-    const coiDoc = account.complianceDocuments.find((d) => d.type === "COI");
-    if (!coiDoc) {
+    const coi = vendorDocumentStatus(account.complianceDocuments, "COI", now);
+    if (!coi.present) {
       issues.push({ code: "MISSING_COI", message: "Certificate of Insurance (COI) not on file", severity: "BLOCKING" });
-    } else if (coiDoc.expiresAt && coiDoc.expiresAt < now) {
+    } else if (coi.expired) {
       issues.push({ code: "EXPIRED_COI", message: "Certificate of Insurance (COI) has expired", severity: "BLOCKING" });
     }
 
-    const wsibDoc = account.complianceDocuments.find((d) => d.type === "WSIB");
-    if (!wsibDoc) {
+    const wsib = vendorDocumentStatus(account.complianceDocuments, "WSIB", now);
+    if (!wsib.present) {
       issues.push({ code: "MISSING_WSIB", message: "WSIB clearance certificate not on file", severity: "BLOCKING" });
-    } else if (wsibDoc.expiresAt && wsibDoc.expiresAt < now) {
+    } else if (wsib.expired) {
       issues.push({ code: "EXPIRED_WSIB", message: "WSIB clearance certificate has expired", severity: "BLOCKING" });
     }
 
@@ -106,4 +107,15 @@ export async function canAssignJob(input: {
   }
 
   return checkWorkforceCompliance(accountId);
+}
+
+function vendorDocumentStatus(
+  docs: { type: string; expiresAt: Date | null }[],
+  type: string,
+  now: Date,
+): { present: boolean; expired: boolean } {
+  const matches = docs.filter((doc) => doc.type === type);
+  if (matches.length === 0) return { present: false, expired: false };
+  const valid = matches.some((doc) => !doc.expiresAt || doc.expiresAt >= now);
+  return { present: true, expired: !valid };
 }

@@ -7,7 +7,7 @@ export default async function PortalPage() {
     redirect("/login");
   }
   const role = user.role;
-  if (role === "ADMIN") {
+  if (role === "ADMIN" || role === "FOUNDER") {
     redirect("/admin/jobs");
   }
   if (
@@ -16,6 +16,9 @@ export default async function PortalPage() {
     role === "VENDOR_OWNER"
   ) {
     redirect("/jobs");
+  }
+  if (role === "CLIENT") {
+    redirect("/client");
   }
   redirect("/");
 }

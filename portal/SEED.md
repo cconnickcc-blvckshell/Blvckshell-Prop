@@ -46,7 +46,11 @@ npm run db:seed
 
 ---
 
-## Login credentials (all use password: `password123`)
+## Login
+
+Seed generates a random password at runtime and prints it once when the script finishes. That password is not written into this file or the repo. Re-running seed rotates the password for the seed users and prints the new value.
+
+Seed refuses to run when `NODE_ENV=production`. It also refuses a `DATABASE_URL` that does not point at localhost, 127.0.0.1, or ::1 unless `ALLOW_SEED=1` is set. Leave `ALLOW_SEED` unset for any database that holds real client data.
 
 | Role | Email | Notes |
 |------|--------|------|

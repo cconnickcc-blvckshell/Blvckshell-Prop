@@ -97,12 +97,28 @@ model User {
   makeGoodRuleTemplatesCreated MakeGoodRuleTemplate[] @relation("MakeGoodRuleTemplatesCreated")
   siteSupplyAllocationsCreated SiteSupplyAllocation[]
   sitePerformanceSnapshotsComputed SitePerformanceSnapshot[]
+  passwordResetTokens       PasswordResetToken[]
 
   @@index([email])
   @@index([role])
   @@index([workforceAccountId])
   @@index([clientOrganizationId])
   @@index([isActive])
+}
+
+/// One-time set-password link. Only the hash is stored. The password changes when the link is used.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  purpose   String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Worker {

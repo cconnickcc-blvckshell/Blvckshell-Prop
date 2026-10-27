@@ -6,17 +6,19 @@
  */
 import * as dotenv from "dotenv";
 import * as path from "path";
+import { randomBytes } from "node:crypto";
 import { PrismaClient, type UserRole } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import * as bcrypt from "bcryptjs";
 import { seedRateCard } from "../src/server/pricing/seed-rate-card";
+import { assertSeedAllowed } from "../src/lib/seed-guard";
 
-// Load .env from portal/ or repo root so DATABASE_URL is set when running from portal
+// Load .env from portal/ or repo root so DATABASE_URL is set when running from portal.
+// Do not override a DATABASE_URL already present in the environment.
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
 
-// Allow self-signed TLS certs for this process so seed can connect to Supabase (or behind corporate proxy).
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+assertSeedAllowed();
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is not set");
@@ -24,7 +26,8 @@ if (!connectionString) throw new Error("DATABASE_URL is not set");
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
-const HASHED_PASSWORD = bcrypt.hashSync("password123", 10);
+const SEED_PASSWORD = randomBytes(18).toString("base64url");
+const HASHED_PASSWORD = bcrypt.hashSync(SEED_PASSWORD, 10);
 
 // CL_01 Lobby itemIds from manifest
 const CL_01_ITEMS = [
@@ -59,7 +62,7 @@ async function main() {
   // 1. Admin user (no workforceAccountId)
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@blvckshell.com" },
-    update: {},
+    update: { passwordHash: HASHED_PASSWORD },
     create: {
       email: "admin@blvckshell.com",
       passwordHash: HASHED_PASSWORD,
@@ -89,7 +92,7 @@ async function main() {
 
   const vendorOwnerUser = await prisma.user.upsert({
     where: { email: "jane@cleanpro.example.com" },
-    update: {},
+    update: { passwordHash: HASHED_PASSWORD },
     create: {
       email: "jane@cleanpro.example.com",
       passwordHash: HASHED_PASSWORD,
@@ -102,7 +105,7 @@ async function main() {
 
   const vendorWorkerUser = await prisma.user.upsert({
     where: { email: "bob@cleanpro.example.com" },
-    update: {},
+    update: { passwordHash: HASHED_PASSWORD },
     create: {
       email: "bob@cleanpro.example.com",
       passwordHash: HASHED_PASSWORD,
@@ -130,6 +133,8 @@ async function main() {
     create: {
       id: "seed-internal-account",
       type: "INTERNAL",
+      classification: "EMPLOYEE",
+      allowedPaymentMethod: "PAYROLL",
       displayName: "BLVCKSHELL Internal",
       primaryContactName: "Internal Ops",
       primaryContactEmail: "internal@blvckshell.com",
@@ -139,7 +144,7 @@ async function main() {
 
   const internalWorkerUser = await prisma.user.upsert({
     where: { email: "mike@blvckshell.com" },
-    update: {},
+    update: { passwordHash: HASHED_PASSWORD },
     create: {
       email: "mike@blvckshell.com",
       passwordHash: HASHED_PASSWORD,
@@ -159,14 +164,15 @@ async function main() {
     },
   });
 
-  // 3b. Default pricing policy for quotes (Toronto)
+  // 3b. Default pricing policy for quotes (Windsor-Essex). YQG is the airport code.
+  // effectiveDate is a calendar date stored at UTC midnight; display it as a date, not a Toronto instant.
   const policyExists = await prisma.pricingPolicy.findFirst({
-    where: { cityCode: "YYZ", effectiveDate: new Date("2025-01-01"), version: 1 },
+    where: { cityCode: "YQG", effectiveDate: new Date("2025-01-01"), version: 1 },
   });
   if (!policyExists) {
     await prisma.pricingPolicy.create({
       data: {
-        cityCode: "YYZ",
+        cityCode: "YQG",
         effectiveDate: new Date("2025-01-01"),
         version: 1,
         anchorBillingRateCentsPerHour: 10000, // $100/hr
@@ -186,7 +192,7 @@ async function main() {
         riskRules: {},
       },
     });
-    console.log("Created default pricing policy: YYZ 2025-01-01 v1");
+    console.log("Created default pricing policy: YQG 2025-01-01 v1");
   }
 
   // 4. Client orgs + sites
@@ -231,7 +237,7 @@ async function main() {
   // Client portal user (read-only: sites, jobs, evidence, invoices for their org)
   const clientPortalUser = await prisma.user.upsert({
     where: { email: "sarah@maplecondos.com" },
-    update: {},
+    update: { passwordHash: HASHED_PASSWORD },
     create: {
       email: "sarah@maplecondos.com",
       passwordHash: HASHED_PASSWORD,
@@ -461,11 +467,13 @@ async function main() {
   await seedRateCard(prisma);
 
   console.log("Seed complete.");
-  console.log("  Admin: admin@blvckshell.com / password123");
-  console.log("  Vendor owner: jane@cleanpro.example.com / password123");
-  console.log("  Vendor worker: bob@cleanpro.example.com / password123");
-  console.log("  Internal worker: mike@blvckshell.com / password123");
-  console.log("  Client portal: sarah@maplecondos.com / password123 → /client");
+  console.log("Seed users (password generated for this run; it is not stored in the repo):");
+  console.log("  Admin: admin@blvckshell.com");
+  console.log("  Vendor owner: jane@cleanpro.example.com");
+  console.log("  Vendor worker: bob@cleanpro.example.com");
+  console.log("  Internal worker: mike@blvckshell.com");
+  console.log("  Client portal: sarah@maplecondos.com → /client");
+  console.log(`  Password: ${SEED_PASSWORD}`);
 }
 
 main()

@@ -18,7 +18,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb',
     },
-    serverComponentsExternalPackages: ['pdfkit'],
+    instrumentationHook: true,
+    serverComponentsExternalPackages: ['pdfkit', '@prisma/client', '@prisma/adapter-pg', 'pg'],
     // Next 14.2 reads this under experimental. Keeps the private HTML in the server trace.
     outputFileTracingIncludes: {
       "/admin/docs/business-plan": ["./content/private/business-plan.html"],
@@ -73,6 +74,16 @@ const nextConfig = {
         source: '/pilots',
         destination: '/introductory-offers',
         permanent: true,
+      },
+      {
+        source: '/worker',
+        destination: '/jobs',
+        permanent: false,
+      },
+      {
+        source: '/vendor',
+        destination: '/vendor/jobs',
+        permanent: false,
       },
     ];
   },

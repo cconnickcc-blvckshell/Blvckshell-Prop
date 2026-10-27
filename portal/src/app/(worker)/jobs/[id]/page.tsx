@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { canAccessJob } from "@/server/guards/rbac";
 import { createOrGetChecklistRun } from "@/server/actions/checklist-run-actions";
 import JobDetailClient from "@/components/JobDetailClient";
+import { toClientProps } from "@/lib/serialize";
 import CheckInOutPanel from "@/components/worker/CheckInOutPanel";
+import { formatDateTime } from "@/lib/format";
 
 export default async function JobDetailPage({
   params,
@@ -112,14 +114,14 @@ export default async function JobDetailPage({
               <div className="flex justify-between">
                 <span className="text-zinc-400">Scheduled</span>
                 <span className="text-zinc-200">
-                  {new Date(job.scheduledStart).toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" })}
+                  {formatDateTime(job.scheduledStart)}
                 </span>
               </div>
               {job.completion?.completedAt && (
                 <div className="flex justify-between">
                   <span className="text-zinc-400">Completed</span>
                   <span className="text-zinc-200">
-                    {new Date(job.completion.completedAt).toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" })}
+                    {formatDateTime(job.completion.completedAt)}
                   </span>
                 </div>
               )}
@@ -224,10 +226,10 @@ export default async function JobDetailPage({
         </div>
       )}
       <JobDetailClient
-        job={job}
-        checklistTemplate={{ ...checklistTemplate, items: checklistItemsForRun }}
+        job={toClientProps(job)}
+        checklistTemplate={toClientProps({ ...checklistTemplate, items: checklistItemsForRun })}
         checklistRunId={runResult.run.id}
-        initialRunItems={runResult.runItems}
+        initialRunItems={toClientProps(runResult.runItems)}
         currentWorkerId={user.workerId}
         requiredPhotoCount={job.site.requiredPhotoCount}
       />

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function getActiveRateCard() {
+  await requireAdmin();
   return prisma.rateCard.findFirst({
     where: { isActive: true },
     include: {

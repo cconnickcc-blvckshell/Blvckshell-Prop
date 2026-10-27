@@ -43,7 +43,11 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 export async function requireAuth(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) {
-    throw new Error("Unauthorized");
+    const error = new Error("Unauthorized") as Error & { digest?: string };
+    // Next preserves a digest that is already set, including in production
+    // where the message itself is redacted before it reaches the browser.
+    error.digest = "UNAUTHORIZED";
+    throw error;
   }
   return user;
 }

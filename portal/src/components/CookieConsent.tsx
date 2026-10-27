@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+
+const APP_PREFIXES = ["/admin", "/client", "/jobs", "/schedule", "/map", "/earnings", "/profile", "/vendor", "/portal", "/account"];
 
 export default function CookieConsent() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
+  const inApp = APP_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
   useEffect(() => {
     const consent = localStorage.getItem("cookie-consent");
@@ -20,7 +25,7 @@ export default function CookieConsent() {
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (!visible || inApp) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-zinc-800 bg-zinc-900/95 backdrop-blur-sm p-4 shadow-2xl">

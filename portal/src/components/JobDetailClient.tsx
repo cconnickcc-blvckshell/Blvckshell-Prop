@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDateTime } from "@/lib/format";
+
 import { useState, useTransition, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { saveDraft, submitCompletion } from "@/server/actions/job-actions";
@@ -11,7 +13,7 @@ interface Evidence {
   id: string;
   storagePath: string;
   fileType: string;
-  uploadedAt: Date;
+  uploadedAt: Date | string;
   itemId?: string | null;
   checklistRunId?: string | null;
 }
@@ -40,7 +42,7 @@ interface Site {
 interface Job {
   id: string;
   status: string;
-  scheduledStart: Date;
+  scheduledStart: Date | string;
   site: Site;
   completion: JobCompletion | null;
 }
@@ -359,7 +361,7 @@ export default function JobDetailClient({
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{job.site.name}</h1>
           <p className="mt-1 text-zinc-400">{job.site.address}</p>
           <p className="mt-2 text-sm text-zinc-500">
-            Scheduled: {new Date(job.scheduledStart).toLocaleString()}
+            Scheduled: {formatDateTime(job.scheduledStart)}
           </p>
         </div>
 

@@ -72,7 +72,10 @@ describe("RBAC Guards", () => {
       });
 
       await expect(getCurrentUser()).resolves.toBeNull();
-      await expect(requireAdmin()).rejects.toThrow("Unauthorized");
+      await expect(requireAdmin()).rejects.toMatchObject({
+        message: "Unauthorized",
+        digest: "UNAUTHORIZED",
+      });
     });
   });
 
