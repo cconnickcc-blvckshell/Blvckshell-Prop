@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NotificationBell from "@/components/admin/NotificationBell";
@@ -46,6 +47,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [moreBox, setMoreBox] = useState<{ top: number; left: number } | null>(null);
   const primaryLinks = navLinks.filter((link) => primaryHrefs.has(link.href));
   const moreLinks = navLinks.filter((link) => !primaryHrefs.has(link.href));
   const moreActive = moreLinks.some((link) => isActivePath(pathname, link.href));
@@ -68,26 +70,34 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 Admin
               </span>
             </Link>
-            <div className="hidden min-w-0 items-center gap-1 overflow-x-auto md:flex">
-              {primaryLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  prefetch={false}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive(href)
-                      ? "bg-zinc-800 text-white"
-                      : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
-                  }`}
-                >
-                  {label}
-                </Link>
-              ))}
-              <div className="relative">
+            <div className="hidden min-w-0 items-center gap-1 md:flex">
+              <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
+                {primaryLinks.map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    prefetch={false}
+                    className={`shrink-0 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive(href)
+                        ? "bg-zinc-800 text-white"
+                        : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+              <div className="relative shrink-0">
                 <button
                   type="button"
-                  onClick={() => setMoreOpen((open) => !open)}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  onClick={(event) => {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const width = 192;
+                    const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
+                    setMoreBox({ top: rect.bottom + 4, left });
+                    setMoreOpen((open) => !open);
+                  }}
+                  className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     moreActive || moreOpen
                       ? "bg-zinc-800 text-white"
                       : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
@@ -97,8 +107,13 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 >
                   More
                 </button>
-                {moreOpen && (
-                  <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-zinc-800 bg-zinc-950 py-1 shadow-xl" role="menu">
+                {moreOpen && moreBox && createPortal(
+                  <div
+                    className="fixed z-[80] w-48 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 py-1 shadow-xl"
+                    style={{ top: moreBox.top, left: moreBox.left, maxHeight: `calc(100vh - ${moreBox.top + 8}px)` }}
+                    role="menu"
+                    data-admin-more
+                  >
                     {moreLinks.map(({ href, label }) => (
                       <Link
                         key={href}
@@ -106,14 +121,15 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                         prefetch={false}
                         role="menuitem"
                         onClick={() => setMoreOpen(false)}
-                        className={`block px-3 py-2 text-sm ${
+                        className={`block min-h-11 px-3 py-2 text-sm leading-7 ${
                           isActive(href) ? "bg-zinc-800 text-white" : "text-zinc-300 hover:bg-zinc-800/70"
                         }`}
                       >
                         {label}
                       </Link>
                     ))}
-                  </div>
+                  </div>,
+                  document.body,
                 )}
               </div>
             </div>
@@ -122,7 +138,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
           <div className="flex items-center gap-3">
             <NotificationBell />
             <span className="hidden truncate text-sm text-zinc-400 sm:inline">{userName}</span>
-            <span className="rounded-md bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-300">
+            <span className="hidden rounded-md bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-300 md:inline">
               {userRole}
             </span>
             <Link
@@ -131,12 +147,14 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
             >
               Password
             </Link>
-            <SignOutForm className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors" />
-            {/* Mobile menu button */}
+            <SignOutForm
+              formClassName="hidden md:inline"
+              className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+            />
             <button
               type="button"
               onClick={() => setMobileOpen((o) => !o)}
-              className="inline-flex items-center justify-center rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white md:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-800 hover:text-white md:hidden"
               aria-expanded={mobileOpen}
               aria-label="Toggle menu"
             >
@@ -151,9 +169,12 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
           </div>
         </div>
 
-        {/* Mobile nav panel */}
         {mobileOpen && (
-          <div className="border-t border-zinc-800 py-3 md:hidden">
+          <div
+            className="fixed inset-x-0 bottom-0 top-14 z-50 overflow-y-auto border-t border-zinc-800 bg-zinc-950 px-3 py-3 md:hidden"
+            data-admin-menu
+            style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+          >
             <div className="flex flex-col gap-0.5">
               {navLinks.map(({ href, label }) => (
                 <Link
@@ -161,7 +182,7 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                   href={href}
                   prefetch={false}
                   onClick={() => setMobileOpen(false)}
-                  className={`rounded-md px-3 py-2.5 text-sm font-medium ${
+                  className={`flex min-h-11 items-center rounded-md px-3 text-sm font-medium ${
                     isActive(href)
                       ? "bg-zinc-800 text-white"
                       : "text-zinc-300 hover:bg-zinc-800/50"
@@ -171,17 +192,17 @@ export default function AdminNav({ userName, userRole }: { userName: string; use
                 </Link>
               ))}
               <div className="mt-2 border-t border-zinc-800 pt-2">
-                <p className="px-3 py-1 text-xs text-zinc-500">{userName}</p>
+                <p className="px-3 py-1 text-xs text-zinc-500">{userName} · {userRole}</p>
                 <Link
                   href="/account/password"
                   onClick={() => setMobileOpen(false)}
-                  className="block rounded-md px-3 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+                  className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
                 >
                   Password
                 </Link>
                 <SignOutForm
                   formClassName="block"
-                  className="w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+                  className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-sm font-medium text-zinc-300 hover:bg-zinc-800"
                 />
               </div>
             </div>

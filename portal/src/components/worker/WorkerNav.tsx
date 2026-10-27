@@ -56,9 +56,18 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
           <Link href="/jobs" className="flex min-w-0 items-center" aria-label="BLVCKSHELL worker home">
             <PortalBrandMark variant="header" className="max-w-[9.5rem] sm:max-w-[11rem]" />
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-zinc-500">{userName}</span>
-            <SignOutForm className="text-xs text-zinc-500 hover:text-white" />
+          <div className="flex items-center gap-2">
+            <a
+              href={`tel:${company.phone.telE164Verified ?? "+15196136330"}`}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              aria-label="Contact admin"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+            </a>
+            <span className="hidden text-xs text-zinc-500 sm:inline">{userName}</span>
+            <SignOutForm className="inline-flex min-h-11 items-center px-2 text-xs text-zinc-400 hover:text-white" />
           </div>
         </div>
       </nav>
@@ -66,7 +75,11 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
       {/* Vendor owner "More" panel */}
       {moreOpen && isVendorOwner && (
         <div className="fixed inset-0 z-40" onClick={() => setMoreOpen(false)}>
-          <div className="absolute bottom-20 left-0 right-0 border-t border-zinc-800 bg-zinc-900 p-4" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="absolute left-0 right-0 border-t border-zinc-800 bg-zinc-900 p-4"
+            style={{ bottom: "calc(4rem + env(safe-area-inset-bottom))" }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">Vendor Management</p>
             <div className="grid grid-cols-3 gap-3">
               {vendorTabs.map((tab) => (
@@ -88,21 +101,9 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
         </div>
       )}
 
-      {/* Floating contact button */}
-      <a
-        href={`tel:${company.phone.telE164Verified ?? "+15196136330"}`}
-        className="fixed bottom-20 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg hover:bg-emerald-500 transition-colors"
-        aria-label="Contact admin"
-        title="Contact admin"
-      >
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-        </svg>
-      </a>
-
-      {/* Bottom tab bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2 pb-[env(safe-area-inset-bottom)]">
+      {/* Bottom tab bar. Safe area is added under the 4rem row so icons keep their size. */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
           {workerTabs.map((tab) => (
             <Link
               key={tab.href}

@@ -81,6 +81,7 @@ export default function JobDetailClient({
   const [success, setSuccess] = useState<string | null>(null);
   const [lastFailedAction, setLastFailedAction] = useState<"submit" | "upload" | null>(null);
   const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const actionLock = useRef(false);
 
   // Parse checklist items
   const checklistItems = Array.isArray(checklistTemplate.items)
@@ -233,50 +234,53 @@ export default function JobDetailClient({
   };
 
   const handleSaveDraft = async () => {
+    if (actionLock.current || uploading) return;
+    actionLock.current = true;
     setError(null);
     setSuccess(null);
     setLastFailedAction(null);
 
-    if (checklistRunId) {
-      // Flush all current item state to the run (autosave each)
-      startTransition(async () => {
-        let ok = true;
-        for (const [itemId, data] of Object.entries(checklistResults)) {
-          const r = await saveChecklistRunItem(checklistRunId, itemId, data.result, { note: data.note });
-          if (!r.success) {
-            setError(r.error ?? "Failed to save");
-            ok = false;
-            break;
+    startTransition(async () => {
+      try {
+        if (checklistRunId) {
+          let ok = true;
+          for (const [itemId, data] of Object.entries(checklistResults)) {
+            const r = await saveChecklistRunItem(checklistRunId, itemId, data.result, { note: data.note });
+            if (!r.success) {
+              setError(r.error ?? "Failed to save");
+              ok = false;
+              break;
+            }
+          }
+          if (ok) {
+            setSuccess("Progress saved");
+            router.refresh();
+          }
+        } else {
+          const result = await saveDraft({
+            jobId: job.id,
+            checklistResults,
+            notes: "",
+          });
+          if (result.success) {
+            setSuccess("Draft saved successfully");
+            router.refresh();
+          } else {
+            setError(result.error || "Failed to save draft");
           }
         }
-        if (ok) {
-          setSuccess("Progress saved");
-          router.refresh();
-        }
-      });
-    } else {
-      startTransition(async () => {
-        const result = await saveDraft({
-          jobId: job.id,
-          checklistResults,
-          notes: "",
-        });
-        if (result.success) {
-          setSuccess("Draft saved successfully");
-          router.refresh();
-        } else {
-          setError(result.error || "Failed to save draft");
-        }
-      });
-    }
+      } finally {
+        actionLock.current = false;
+      }
+    });
   };
 
   const handleSubmit = async () => {
+    if (actionLock.current || uploading) return;
     setError(null);
     setSuccess(null);
     setLastFailedAction(null);
 
-    // Validate checklist
     const requiredItems = checklistItems.filter((item: any) => item.required);
     const missingItems = requiredItems.filter(
       (item: any) => !checklistResults[item.itemId]
@@ -287,7 +291,6 @@ export default function JobDetailClient({
       return;
     }
 
-    // Validate photos
     if (!hasMinimumPhotos) {
       setError(
         `Minimum ${requiredPhotoCount} photos required. You have ${totalPhotoCount}.`
@@ -300,40 +303,44 @@ export default function JobDetailClient({
       return;
     }
 
-    // Submit: use checklist run when available, else legacy submitCompletion
+    actionLock.current = true;
     startTransition(async () => {
-      if (checklistRunId) {
-        const result = await submitChecklistRun(checklistRunId);
-        if (result.success) {
-          setLastFailedAction(null);
-          setSuccess("Completion submitted successfully");
-          router.push("/jobs");
-          router.refresh();
+      try {
+        if (checklistRunId) {
+          const result = await submitChecklistRun(checklistRunId);
+          if (result.success) {
+            setLastFailedAction(null);
+            setSuccess("Completion submitted successfully");
+            router.push("/jobs");
+            router.refresh();
+          } else {
+            setError(result.error || "Failed to submit completion");
+            setLastFailedAction("submit");
+          }
         } else {
-          setError(result.error || "Failed to submit completion");
-          setLastFailedAction("submit");
+          const result = await submitCompletion({
+            jobId: job.id,
+            checklistResults,
+            notes: "",
+          });
+          if (result.success) {
+            setLastFailedAction(null);
+            setSuccess("Completion submitted successfully");
+            router.push("/jobs");
+            router.refresh();
+          } else {
+            setError(result.error || "Failed to submit completion");
+            setLastFailedAction("submit");
+          }
         }
-      } else {
-        const result = await submitCompletion({
-          jobId: job.id,
-          checklistResults,
-          notes: "",
-        });
-        if (result.success) {
-          setLastFailedAction(null);
-          setSuccess("Completion submitted successfully");
-          router.push("/jobs");
-          router.refresh();
-        } else {
-          setError(result.error || "Failed to submit completion");
-          setLastFailedAction("submit");
-        }
+      } finally {
+        actionLock.current = false;
       }
     });
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-4 text-zinc-100 sm:p-6">
+    <div className="min-h-screen bg-zinc-950 p-4 pb-28 text-zinc-100 sm:p-6 sm:pb-28">
       {cameraOpen && existingCompletion?.id && (
         <EvidenceCameraCapture
           onDone={handleCameraDone}
@@ -399,7 +406,7 @@ export default function JobDetailClient({
               <button
                 type="button"
                 onClick={() => { setError(null); setLastFailedAction(null); handleSubmit(); }}
-                disabled={isPending || !canSubmit}
+                disabled={isPending || uploading || !canSubmit}
                 className="mt-3 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50"
               >
                 Retry submit
@@ -621,8 +628,13 @@ export default function JobDetailClient({
           </div>
         )}
 
-        {/* Action Buttons — large tap targets, safe-area padding for mobile */}
-        <div className="sticky bottom-0 flex gap-3 bg-zinc-950 pb-8 pt-4 sm:pt-6">
+        {/* Sits above the worker tab bar, including the home-indicator inset. */}
+        <div
+          className="fixed inset-x-0 z-40 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur-sm"
+          style={{ bottom: "calc(4rem + env(safe-area-inset-bottom))" }}
+          data-worker-action-bar
+        >
+          <div className="mx-auto flex max-w-3xl gap-3">
           <button
             type="button"
             onClick={handleSaveDraft}
@@ -646,6 +658,7 @@ export default function JobDetailClient({
               ? `${blockingReasons.length} to fix`
               : "Submit"}
           </button>
+          </div>
         </div>
       </div>
     </div>

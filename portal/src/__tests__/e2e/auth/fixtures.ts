@@ -11,6 +11,9 @@ loadEnv({ path: path.resolve(__dirname, "../../../../../.env") });
 export const FIXTURE_PASSWORD = "Stage0-Test-1a";
 export const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3000";
 export const PRIVATE_JOB_ID = "stage0-private-job";
+export const STAGE1_CLIENT_JOB_ID = "stage1-client-job";
+export const STAGE1_WORKER_JOB_ID = "stage1-worker-job";
+export const STAGE1_INVOICE_NUMBER = "STAGE1-1001";
 
 export const VIEWPORTS = [
   { name: "360x740", width: 360, height: 740 },
@@ -137,6 +140,101 @@ export async function seedStage0Users(): Promise<void> {
       });
     }
   }
+}
+
+export async function seedStage1Surfaces(): Promise<void> {
+  await seedStage0Users();
+  const prisma = database();
+  const internal = await prisma.user.findUnique({
+    where: { email: roleEmail("INTERNAL_WORKER") },
+    include: { worker: true },
+  });
+  const admin = await prisma.user.findUnique({ where: { email: roleEmail("ADMIN") } });
+  if (!internal?.worker || !admin) {
+    throw new Error("Stage 1 seed could not find the internal worker or admin");
+  }
+
+  await prisma.site.upsert({
+    where: { id: "stage1-client-site" },
+    update: {
+      clientOrganizationId: "stage0-client-org",
+      name: "Stage 1 Site",
+      address: "10 Client Ave",
+    },
+    create: {
+      id: "stage1-client-site",
+      clientOrganizationId: "stage0-client-org",
+      name: "Stage 1 Site",
+      address: "10 Client Ave",
+      requiredPhotoCount: 1,
+      suppliesProvidedBy: "COMPANY",
+    },
+  });
+
+  await prisma.checklistTemplate.upsert({
+    where: { siteId_version: { siteId: "stage1-client-site", version: 1 } },
+    update: { isActive: true },
+    create: {
+      id: "stage1-checklist",
+      siteId: "stage1-client-site",
+      version: 1,
+      isActive: true,
+      items: [{ itemId: "floors", label: "Floors", required: true }],
+    },
+  });
+
+  const scheduledStart = new Date("2026-02-02T15:00:00.000Z");
+  const scheduledEnd = new Date("2026-02-02T16:00:00.000Z");
+  await prisma.job.upsert({
+    where: { id: STAGE1_CLIENT_JOB_ID },
+    update: { siteId: "stage1-client-site" },
+    create: {
+      id: STAGE1_CLIENT_JOB_ID,
+      siteId: "stage1-client-site",
+      status: "SCHEDULED",
+      scheduledStart,
+      scheduledEnd,
+      payoutAmountCents: 1500,
+    },
+  });
+  await prisma.job.upsert({
+    where: { id: STAGE1_WORKER_JOB_ID },
+    update: {
+      siteId: "stage1-client-site",
+      assignedWorkerId: internal.worker.id,
+      assignedWorkforceAccountId: "stage0-internal-account",
+    },
+    create: {
+      id: STAGE1_WORKER_JOB_ID,
+      siteId: "stage1-client-site",
+      status: "SCHEDULED",
+      scheduledStart,
+      scheduledEnd,
+      payoutAmountCents: 1500,
+      assignedWorkerId: internal.worker.id,
+      assignedWorkforceAccountId: "stage0-internal-account",
+    },
+  });
+  await prisma.invoice.upsert({
+    where: { invoiceNumber: STAGE1_INVOICE_NUMBER },
+    update: {
+      clientId: "stage0-client-org",
+      status: "Sent",
+      totalCents: 2500,
+    },
+    create: {
+      id: "stage1-invoice",
+      clientId: "stage0-client-org",
+      invoiceNumber: STAGE1_INVOICE_NUMBER,
+      periodStart: new Date("2026-01-01T00:00:00.000Z"),
+      periodEnd: new Date("2026-01-31T00:00:00.000Z"),
+      status: "Sent",
+      subtotalCents: 2500,
+      taxCents: 0,
+      totalCents: 2500,
+      createdById: admin.id,
+    },
+  });
 }
 
 export async function closeStage0Database(): Promise<void> {

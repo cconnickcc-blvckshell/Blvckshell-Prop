@@ -38,7 +38,7 @@ export default async function WorkerLayout({
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <WorkerNav userName={user.name ?? "User"} role={user.role} jobsBadge={pendingCount} />
-      <main className="pb-20">{children}</main>
+      <main className="pb-[calc(5rem+env(safe-area-inset-bottom))]">{children}</main>
     </div>
   );
 }
