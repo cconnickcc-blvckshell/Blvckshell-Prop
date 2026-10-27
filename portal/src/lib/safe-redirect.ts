@@ -272,6 +272,31 @@ export function resetPageState(params: QueryBag): {
   };
 }
 
+/**
+ * Browser-facing origin. Next's request.url uses the bind address (0.0.0.0)
+ * in dev, which must not be compared with Origin or copied into Location.
+ */
+export function publicOriginFrom(request: { url: string; headers: { get(name: string): string | null } }): string {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const host = forwardedHost || request.headers.get("host")?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  let fallback: URL | null = null;
+  try {
+    fallback = new URL(request.url);
+  } catch {
+    fallback = null;
+  }
+  const proto = forwardedProto || (fallback ? fallback.protocol.replace(":", "") : "http");
+  if (host && !host.startsWith("0.0.0.0")) {
+    return `${proto}://${host}`;
+  }
+  if (fallback) {
+    if (fallback.hostname === "0.0.0.0") fallback.hostname = "localhost";
+    return fallback.origin;
+  }
+  return "http://localhost:3000";
+}
+
 export function changePasswordPageState(params: QueryBag): {
   href: string;
   changed: boolean;

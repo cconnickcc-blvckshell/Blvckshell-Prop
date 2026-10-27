@@ -4,6 +4,7 @@ import {
   forgotPageState,
   loginPageState,
   parseInternalPath,
+  publicOriginFrom,
   resetPageState,
   safeInternalPath,
   safeRedirectTarget,
@@ -87,6 +88,19 @@ describe("auth page query cleanup", () => {
     expect(state.changed).toBe(true);
     expect(state.error).toBeNull();
     expect(state.href).toBe("/login");
+  });
+
+  it("uses the Host header instead of the bind address", () => {
+    const headers = new Headers({ host: "localhost:3000" });
+    expect(
+      publicOriginFrom({ url: "http://0.0.0.0:3000/api/auth/login", headers }),
+    ).toBe("http://localhost:3000");
+    expect(
+      publicOriginFrom({
+        url: "http://0.0.0.0:3000/login",
+        headers: new Headers({ host: "0.0.0.0:3000" }),
+      }),
+    ).toBe("http://localhost:3000");
   });
 
   it("keeps forgot and reset status codes without the submitted secret", () => {

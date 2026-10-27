@@ -160,11 +160,11 @@ export async function loginRequest(role: Stage0Role, ip: string): Promise<APIReq
     maxRedirects: 0,
   });
   if (response.status() !== 303) {
-    throw new Error(`Login for ${role} returned ${response.status()} ${response.headers().location ?? ""}`);
+    throw new Error(`Login for ${role} returned ${response.status()}`);
   }
   const location = response.headers().location ?? "";
-  if (location.toLowerCase().includes("password") || location.includes(FIXTURE_PASSWORD)) {
-    throw new Error(`Login redirect for ${role} echoed a credential`);
+  if (location.toLowerCase().includes("password") || location.includes(FIXTURE_PASSWORD) || /[?&]error=/.test(location)) {
+    throw new Error(`Login for ${role} did not establish a session`);
   }
   return context;
 }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
-import { safeInternalPath, sanitizeRequestUrl } from "@/lib/safe-redirect";
+import { publicOriginFrom, safeInternalPath, sanitizeRequestUrl } from "@/lib/safe-redirect";
 import { authorizationDecision, routeAccess } from "@/lib/route-access";
 
 /**
@@ -13,7 +13,10 @@ import { authorizationDecision, routeAccess } from "@/lib/route-access";
 export async function middleware(request: NextRequest) {
   const cleaned = request.nextUrl.clone();
   if (sanitizeRequestUrl(cleaned)) {
-    const response = NextResponse.redirect(cleaned, 303);
+    const response = NextResponse.redirect(
+      new URL(`${cleaned.pathname}${cleaned.search}`, publicOriginFrom(request)),
+      303,
+    );
     response.headers.set("Cache-Control", "no-store");
     response.headers.set("Referrer-Policy", "no-referrer");
     return response;
@@ -42,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
     if (!result.allowed) {
       if (isAuthPost) {
-        const loginUrl = new URL("/login", request.url);
+        const loginUrl = new URL("/login", publicOriginFrom(request));
         loginUrl.searchParams.set("error", "RateLimit");
         const response = NextResponse.redirect(loginUrl, 303);
         response.headers.set("Cache-Control", "no-store");
@@ -65,7 +68,7 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: request.nextUrl.protocol === "https:",
+      secureCookie: publicOriginFrom(request).startsWith("https:"),
     });
     const decision = authorizationDecision({
       pathname,
@@ -75,7 +78,7 @@ export async function middleware(request: NextRequest) {
     });
 
     if (decision === "login") {
-      const loginUrl = new URL("/login", request.url);
+      const loginUrl = new URL("/login", publicOriginFrom(request));
       loginUrl.searchParams.set(
         "callbackUrl",
         safeInternalPath(`${pathname}${request.nextUrl.search}`, "/portal"),
@@ -85,7 +88,7 @@ export async function middleware(request: NextRequest) {
       return response;
     }
     if (decision === "home") {
-      return NextResponse.redirect(new URL("/", request.url), 303);
+      return NextResponse.redirect(new URL("/", publicOriginFrom(request)), 303);
     }
     if (decision === "unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

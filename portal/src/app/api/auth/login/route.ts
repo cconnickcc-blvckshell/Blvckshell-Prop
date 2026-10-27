@@ -1,6 +1,6 @@
 import { signIn } from "@/lib/auth";
 import { field, isNextRedirect, loginResultPath, logAuthFailure, rejectCrossSite, seeOther } from "@/lib/auth-post";
-import { safeInternalPath } from "@/lib/safe-redirect";
+import { publicOriginFrom, safeInternalPath } from "@/lib/safe-redirect";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       redirectTo: callbackUrl,
       redirect: false,
     });
-    const target = loginResultPath(destination, new URL(request.url).origin, callbackUrl);
+    const target = loginResultPath(destination, publicOriginFrom(request), callbackUrl);
     return seeOther(request, target);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
