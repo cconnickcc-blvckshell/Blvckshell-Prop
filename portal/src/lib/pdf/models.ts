@@ -5,16 +5,7 @@ import {
   type ProposalSectionContent,
 } from "@/lib/pdf/proposal-sections";
 
-const AREA_LABELS: Record<string, string> = {
-  LOBBY: "Lobby",
-  HALLWAYS: "Hallways",
-  STAIRWELLS: "Stairwells",
-  ELEVATORS: "Elevators",
-  GARBAGE: "Garbage room",
-  WASHROOMS: "Washrooms",
-  GLASS: "Glass",
-  OTHER: "Other area",
-};
+import { QUOTE_AREA_LABELS, resolveAreaTasks, type AreaTaskRow, type AreaTaskSource } from "@/lib/pdf/proposal-tasks";
 
 const INCIDENT_LABELS: Record<string, string> = {
   SAFETY: "Safety",
@@ -37,7 +28,7 @@ export function areaScope(type: string, measurements: unknown): { area: string; 
     measurements && typeof measurements === "object"
       ? (measurements as Record<string, unknown>)
       : {};
-  const area = AREA_LABELS[type] ?? titleCase(type);
+  const area = QUOTE_AREA_LABELS[type] ?? titleCase(type);
   const size =
     typeof record.sizeLabel === "string" && record.sizeLabel.trim()
       ? record.sizeLabel.trim()
@@ -85,7 +76,7 @@ export type ProposalModel = {
   validUntilLabel: string;
   expired: boolean;
   draft: boolean;
-  areas: { area: string; detail: string }[];
+  areas: { areaType: string; area: string; detail: string; tasks: AreaTaskRow[] }[];
   addOns: { name: string; priceCents: number }[];
   sections: ProposalSectionContent[];
   issued: Date;
@@ -129,6 +120,9 @@ export type ProposalBuildInput = {
   billingRateCentsPerHour?: number;
   sections?: { key: string; title: string; body: string }[];
   sectionOverrides?: { key: string; body: string }[];
+  areaTasks?: AreaTaskSource[];
+  areaTaskOverrides?: AreaTaskSource[];
+  checklistTasks?: AreaTaskSource[];
   now?: Date;
 };
 
@@ -175,7 +169,18 @@ export function buildProposalModel(input: ProposalBuildInput): ProposalModel | n
     validUntilLabel: formatCalendar(input.expiresAt),
     expired: input.expiresAt.getTime() < now.getTime(),
     draft,
-    areas: input.areas.map((line) => areaScope(line.type, line.measurements)),
+    areas: input.areas.map((line) => ({
+      areaType: line.type,
+      ...areaScope(line.type, line.measurements),
+      tasks: resolveAreaTasks({
+        areaType: line.type,
+        measurements: line.measurements,
+        visitsPerWeek: input.visitsPerWeek,
+        defaults: input.areaTasks,
+        overrides: input.areaTaskOverrides,
+        checklist: input.checklistTasks,
+      }),
+    })),
     addOns,
     sections: resolveProposalSections(input.sections, input.sectionOverrides),
     issued: now,

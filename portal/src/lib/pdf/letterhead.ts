@@ -3,7 +3,7 @@ import { companyPrint, companyPrintView } from "@/config/company-print";
 import { CONTENT_WIDTH, PRINT } from "@/config/print-tokens";
 import { formatIssueMonth } from "@/lib/pdf/format";
 import { registerBrandFonts } from "@/lib/pdf/fonts";
-import { drawCrest, drawLogo } from "@/lib/pdf/logo-draw";
+import { drawLogo, drawWatermarkCrest } from "@/lib/pdf/logo-draw";
 import type { PdfDoc } from "@/lib/pdf/types";
 
 export type BrandMeta = {
@@ -41,10 +41,15 @@ function drawLetterhead(doc: PdfDoc): void {
   doc.page.margins.top = 0;
   doc.page.margins.bottom = 0;
 
-  doc.save();
-  doc.opacity(PRINT.watermarkOpacity);
-  drawCrest(doc, 400, 548, 168);
-  doc.restore();
+  const crestWidth = PRINT.page.width * 0.62;
+  const crestHeight = crestWidth * (411 / 418);
+  const bleed = 0.33;
+  drawWatermarkCrest(
+    doc,
+    PRINT.page.width - crestWidth * (1 - bleed),
+    PRINT.page.height - crestHeight * (1 - bleed),
+    crestWidth
+  );
 
   drawLogo(doc, 42, 28, 322);
 

@@ -2,8 +2,9 @@ import { CONTENT_WIDTH, PRINT } from "@/config/print-tokens";
 import { ensureSpace } from "@/lib/pdf/letterhead";
 import type { PdfDoc } from "@/lib/pdf/types";
 
-export function sectionHeading(doc: PdfDoc, label: string): void {
-  ensureSpace(doc, 22);
+export function sectionHeading(doc: PdfDoc, label: string, options?: { rule?: boolean }): void {
+  const rule = options?.rule === true;
+  ensureSpace(doc, rule ? 30 : 22);
   const y = doc.y;
   doc.font("Lato-Bold").fontSize(8.5).fillColor(PRINT.gold);
   doc.text(label.toUpperCase(), PRINT.marginX, y, {
@@ -12,6 +13,18 @@ export function sectionHeading(doc: PdfDoc, label: string): void {
     lineBreak: false,
     characterSpacing: 0.6,
   });
+  if (rule) {
+    const ruleY = y + 14;
+    doc.save();
+    doc.moveTo(PRINT.marginX, ruleY)
+      .lineTo(PRINT.marginX + CONTENT_WIDTH, ruleY)
+      .lineWidth(0.9)
+      .strokeColor(PRINT.gold)
+      .stroke();
+    doc.restore();
+    doc.y = ruleY + 8;
+    return;
+  }
   doc.y = y + 16;
 }
 

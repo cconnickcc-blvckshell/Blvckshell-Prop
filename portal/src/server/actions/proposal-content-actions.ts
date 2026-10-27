@@ -7,6 +7,7 @@ import {
   PROPOSAL_SECTION_CATALOG,
   type ProposalSectionKey,
 } from "@/lib/pdf/proposal-sections";
+import { isQuoteAreaType, PROPOSAL_AREA_TASK_CATALOG, QUOTE_AREA_TYPES } from "@/lib/pdf/proposal-tasks";
 import { requireAdmin } from "@/server/guards/rbac";
 import {
   isPaymentTerms,
@@ -128,4 +129,109 @@ export async function updateQuotePaymentTerms(quoteId: string, terms: PaymentTer
   });
   revalidatePath(`/admin/quotes/${quoteId}/proposal`);
   return { success: true as const, error: null, label: paymentTermsLabel(terms, days) };
+}
+
+export type ProposalTaskDraft = {
+  areaType: string;
+  description: string;
+  frequency: string;
+};
+
+export async function listProposalAreaTasks(): Promise<ProposalTaskDraft[]> {
+  await requireAdmin();
+  const rows = await prisma.proposalAreaTask.findMany({ orderBy: [{ areaType: "asc" }, { sortOrder: "asc" }] });
+  if (rows.length === 0) {
+    return PROPOSAL_AREA_TASK_CATALOG.map((row) => ({
+      areaType: row.areaType,
+      description: row.description,
+      frequency: row.frequency,
+    }));
+  }
+  return rows.map((row) => ({
+    areaType: row.areaType,
+    description: row.description,
+    frequency: row.frequency,
+  }));
+}
+
+function cleanTasks(rows: ProposalTaskDraft[]): ProposalTaskDraft[] {
+  return rows
+    .filter((row) => isQuoteAreaType(row.areaType) && row.description.trim())
+    .map((row) => ({
+      areaType: row.areaType,
+      description: row.description.trim().slice(0, 240),
+      frequency: (row.frequency.trim() || "Each visit").slice(0, 80),
+    }));
+}
+
+export async function saveProposalAreaTasks(rows: ProposalTaskDraft[]) {
+  await requireAdmin();
+  const cleaned = cleanTasks(rows);
+  const fallback = PROPOSAL_AREA_TASK_CATALOG.map((row) => ({
+    areaType: row.areaType,
+    description: row.description,
+    frequency: row.frequency,
+  }));
+  const next = cleaned.length > 0 ? cleaned : fallback;
+  await prisma.$transaction(async (tx) => {
+    await tx.proposalAreaTask.deleteMany();
+    await tx.proposalAreaTask.createMany({
+      data: next.map((row, index) => ({
+        areaType: row.areaType as (typeof QUOTE_AREA_TYPES)[number],
+        description: row.description,
+        frequency: row.frequency,
+        sortOrder: (index + 1) * 10,
+      })),
+    });
+  });
+  revalidatePath("/admin/settings/proposal");
+  return { success: true as const, error: null };
+}
+
+function sameTasks(left: ProposalTaskDraft[], right: ProposalTaskDraft[]): boolean {
+  if (left.length !== right.length) return false;
+  return left.every((row, index) => row.description === right[index]?.description && row.frequency === right[index]?.frequency);
+}
+
+export async function saveQuoteAreaTasks(
+  quoteId: string,
+  groups: { areaType: string; tasks: { description: string; frequency: string }[] }[]
+) {
+  await requireAdmin();
+  const quote = await prisma.quote.findUnique({ where: { id: quoteId }, select: { id: true, status: true } });
+  if (!quote) return { success: false as const, error: "Quote not found" };
+  if (quote.status === "WON") return { success: false as const, error: "This quote is already finalized" };
+
+  const defaults = await prisma.proposalAreaTask.findMany({ orderBy: [{ areaType: "asc" }, { sortOrder: "asc" }] });
+  const defaultRows: ProposalTaskDraft[] =
+    defaults.length > 0
+      ? defaults.map((row) => ({ areaType: row.areaType, description: row.description, frequency: row.frequency }))
+      : PROPOSAL_AREA_TASK_CATALOG.map((row) => ({
+          areaType: row.areaType,
+          description: row.description,
+          frequency: row.frequency,
+        }));
+
+  await prisma.$transaction(async (tx) => {
+    for (const group of groups) {
+      const areaType = group.areaType;
+      if (!isQuoteAreaType(areaType)) continue;
+      const next = cleanTasks(group.tasks.map((task) => ({ ...task, areaType })));
+      const base = defaultRows.filter((row) => row.areaType === areaType);
+      await tx.quoteAreaTaskOverride.deleteMany({ where: { quoteId, areaType } });
+      if (sameTasks(next, base)) continue;
+      if (next.length === 0) continue;
+      await tx.quoteAreaTaskOverride.createMany({
+        data: next.map((row, index) => ({
+          quoteId,
+          areaType,
+          description: row.description,
+          frequency: row.frequency,
+          sortOrder: (index + 1) * 10,
+        })),
+      });
+    }
+  });
+  revalidatePath(`/admin/quotes/${quoteId}/proposal`);
+  return { success: true as const, error: null };
 }

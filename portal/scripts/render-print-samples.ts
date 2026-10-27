@@ -29,6 +29,11 @@ async function writeSample(name: string, pdf: Buffer, allPages = false) {
     ? ["-png", "-r", "110", pdfPath, prefix]
     : ["-png", "-f", "1", "-l", "1", "-r", "140", pdfPath, prefix];
   execFileSync("pdftoppm", args, { stdio: "inherit" });
+  if (allPages) {
+    for (const file of fs.readdirSync(outDir)) {
+      if (new RegExp(`^${name}-page-\\d+\\.png$`).test(file)) fs.unlinkSync(path.join(outDir, file));
+    }
+  }
   if (!allPages) {
     const generated = `${prefix}-1.png`;
     const pngPath = path.join(outDir, `${name}-page1.png`);

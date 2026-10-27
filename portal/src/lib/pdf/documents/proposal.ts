@@ -1,5 +1,6 @@
+import fs from "fs";
 import { bodyText, kvGrid, sectionHeading, totalsBlock } from "@/lib/pdf/blocks";
-import { companyPrintView } from "@/config/company-print";
+import { companyPrintView, type CompanyPrintView } from "@/config/company-print";
 import { CONTENT_WIDTH, PRINT } from "@/config/print-tokens";
 import { formatCad, hstLabel } from "@/lib/pdf/format";
 import { createBrandedDoc, ensureSpace, finalizeBrandedDoc } from "@/lib/pdf/letterhead";
@@ -10,19 +11,17 @@ import type { PdfDoc } from "@/lib/pdf/types";
 
 function narrative(doc: PdfDoc, model: ProposalModel, key: ProposalSectionKey): void {
   const section = proposalSectionBody(model, key);
-  sectionHeading(doc, section.title);
-  const paragraphs = section.body.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+  sectionHeading(doc, section.title, { rule: true });
+  const paragraphs = section.body
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean);
   for (const paragraph of paragraphs.length > 0 ? paragraphs : ["—"]) {
     bodyText(doc, paragraph);
   }
 }
 
-function nextPage(doc: PdfDoc): void {
-  doc.addPage();
-}
-
-function drawCover(doc: PdfDoc, model: ProposalModel): void {
-  const company = companyPrintView();
+function drawCover(doc: PdfDoc, model: ProposalModel, company: CompanyPrintView): void {
   doc.font("Lato-Bold").fontSize(8).fillColor(PRINT.goldDeep);
   doc.text("PREPARED FOR", PRINT.marginX, doc.y, {
     width: CONTENT_WIDTH,
@@ -30,17 +29,17 @@ function drawCover(doc: PdfDoc, model: ProposalModel): void {
     lineBreak: false,
     characterSpacing: 0.6,
   });
-  doc.y += 18;
+  doc.y += 16;
   doc.font("Lato-Black").fontSize(20).fillColor(PRINT.ink);
   const nameHeight = doc.heightOfString(model.clientName, { width: CONTENT_WIDTH });
   doc.text(model.clientName, PRINT.marginX, doc.y, { width: CONTENT_WIDTH });
-  doc.y += nameHeight + 6;
+  doc.y += nameHeight + 4;
   doc.font("Lato").fontSize(12).fillColor(PRINT.body);
   doc.text(model.siteName, PRINT.marginX, doc.y, { width: CONTENT_WIDTH });
-  doc.moveDown(0.3);
+  doc.moveDown(0.25);
   doc.font("Lato").fontSize(10).fillColor(PRINT.body);
   doc.text(model.siteAddress || "—", { width: CONTENT_WIDTH });
-  doc.moveDown(1.4);
+  doc.moveDown(1);
 
   kvGrid(doc, [
     { label: "Proposal reference", value: model.reference || "—" },
@@ -49,76 +48,115 @@ function drawCover(doc: PdfDoc, model: ProposalModel): void {
     { label: "Valid until", value: model.validUntilLabel },
   ]);
 
-  kvGrid(doc, [
-    { label: "Client", value: model.clientName },
-    { label: "Prepared by", value: company.legalName },
-    { label: "Contact", value: model.contactName || "—" },
-    { label: "Phone", value: company.phone },
-    { label: "Email", value: model.contactEmail || "—" },
-    { label: "Web", value: company.web },
-  ]);
+  doc.font("Lato-Bold").fontSize(8).fillColor(PRINT.goldDeep);
+  doc.text("PREPARED BY", PRINT.marginX, doc.y, {
+    width: CONTENT_WIDTH,
+    height: 12,
+    lineBreak: false,
+    characterSpacing: 0.6,
+  });
+  doc.y += 14;
+  const lines = [
+    company.signerName,
+    company.signerTitle,
+    company.legalName,
+    company.phone,
+    company.websiteLabel,
+  ];
+  for (const line of lines) {
+    doc.font("Lato").fontSize(10).fillColor(PRINT.ink);
+    doc.text(line, PRINT.marginX, doc.y, { width: CONTENT_WIDTH, height: 14, lineBreak: false });
+    doc.y += 14;
+  }
+  doc.y += 8;
 
   if (model.expired) {
     bodyText(doc, "This proposal is past its valid-until date.");
   }
 }
 
-function drawProperty(doc: PdfDoc, model: ProposalModel): void {
-  sectionHeading(doc, "Property");
-  const pairs = [
-    { label: "Client", value: model.clientName },
-    { label: "Site", value: model.siteName },
-    { label: "Address", value: model.siteAddress || "—" },
-    { label: "Contact", value: model.contactName || "—" },
-    { label: "Email", value: model.contactEmail || "—" },
-    { label: "Phone", value: model.contactPhone || "—" },
-    { label: "Visits", value: `${model.visitsPerWeek} per week` },
-  ];
-  if (model.serviceWindow) pairs.push({ label: "Service window", value: model.serviceWindow });
-  if (model.suppliesLabel) pairs.push({ label: "Supplies", value: model.suppliesLabel });
-  if (model.unitsLabel) pairs.push({ label: "Occupied units", value: model.unitsLabel });
-  kvGrid(doc, pairs);
+function drawSignature(doc: PdfDoc, company: CompanyPrintView): void {
+  ensureSpace(doc, 78);
+  const x = PRINT.marginX;
+  let y = doc.y + 6;
+  if (company.signatureImagePath && fs.existsSync(company.signatureImagePath)) {
+    try {
+      doc.image(company.signatureImagePath, x, y, { fit: [180, 36] });
+      y += 40;
+    } catch {
+      y += 18;
+    }
+  } else {
+    y += 18;
+  }
+  doc.save();
+  doc.moveTo(x, y).lineTo(x + 200, y).lineWidth(0.7).strokeColor(PRINT.ink).stroke();
+  doc.restore();
+  doc.font("Lato").fontSize(10).fillColor(PRINT.ink);
+  doc.text(company.signerName, x, y + 6, { width: 240, height: 13, lineBreak: false });
+  doc.font("Lato").fontSize(9).fillColor(PRINT.body);
+  doc.text(company.signerTitle, x, y + 20, { width: 240, height: 12, lineBreak: false });
+  doc.y = y + 38;
 }
 
-function drawSchedule(doc: PdfDoc, model: ProposalModel): void {
-  sectionHeading(doc, "Service schedule");
-  bodyText(doc, "Frequency for this site.");
-  const rows: string[][] = [
-    ["Recurring common-area cleaning", `${model.visitsPerWeek}× per week`],
-  ];
-  for (const line of model.addOns) {
-    rows.push([line.name, "Included in this proposal"]);
+function drawLetter(doc: PdfDoc, model: ProposalModel, company: CompanyPrintView): void {
+  const section = proposalSectionBody(model, "cover_letter");
+  sectionHeading(doc, section.title, { rule: true });
+  bodyText(doc, `Dear ${model.contactName || "Client"},`);
+  const paragraphs = section.body
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  for (const paragraph of paragraphs.length > 0 ? paragraphs : ["—"]) {
+    bodyText(doc, paragraph);
   }
-  rows.push(["Unit turnovers", "Quoted separately, as required"]);
-  rows.push(["Post-construction final cleaning", "Quoted separately, as required"]);
-  drawTable(
-    doc,
-    [
-      { header: "SERVICE", width: 340 },
-      { header: "FREQUENCY", width: 188 },
-    ],
-    rows
-  );
+  bodyText(doc, "Sincerely,");
+  drawSignature(doc, company);
+}
+
+function areaBar(doc: PdfDoc, title: string, detail: string): void {
+  ensureSpace(doc, 64);
+  const y = doc.y;
+  doc.save();
+  doc.rect(PRINT.marginX, y, CONTENT_WIDTH, 18).fill(PRINT.ink);
+  doc.restore();
+  doc.font("Lato-Bold").fontSize(8).fillColor(PRINT.white);
+  doc.text(title.toUpperCase(), PRINT.marginX + 6, y + 5, {
+    width: CONTENT_WIDTH - 12,
+    height: 11,
+    lineBreak: false,
+    characterSpacing: 0.4,
+  });
+  doc.y = y + 22;
+  if (detail) {
+    doc.font("Lato").fontSize(8).fillColor(PRINT.body);
+    doc.text(detail, PRINT.marginX, doc.y, { width: CONTENT_WIDTH, height: 12, lineBreak: false });
+    doc.y += 14;
+  }
 }
 
 function drawScope(doc: PdfDoc, model: ProposalModel): void {
-  sectionHeading(doc, "Scope of work");
-  bodyText(doc, "These areas are included in each scheduled visit.");
-  drawTable(
-    doc,
-    [
-      { header: "AREA", width: 160 },
-      { header: "SCOPE", width: 368 },
-    ],
-    model.areas.length > 0
-      ? model.areas.map((area) => [area.area, area.detail])
-      : [["Scope", "As agreed for this site"]]
-  );
+  sectionHeading(doc, "Scope of work", { rule: true });
+  const areas = model.areas.length > 0 ? model.areas : [];
+  if (areas.length === 0) {
+    bodyText(doc, "Scope follows the areas on this quote.");
+    return;
+  }
+  for (const area of areas) {
+    areaBar(doc, area.area, area.detail);
+    drawTable(
+      doc,
+      [
+        { header: "TASK DESCRIPTION", width: 390 },
+        { header: "FREQUENCY", width: 138 },
+      ],
+      area.tasks.length > 0 ? area.tasks.map((task) => [task.description, task.frequency]) : [["—", "—"]]
+    );
+  }
 }
 
 function drawPricing(doc: PdfDoc, model: ProposalModel): void {
-  sectionHeading(doc, "Pricing");
-  bodyText(doc, "HST is shown separately. Amounts are in CAD.");
+  narrative(doc, model, "pricing");
   if (model.addOns.length > 0) {
     drawTable(
       doc,
@@ -185,47 +223,26 @@ export async function renderProposalPdf(
     options
   );
 
-  drawCover(doc, model);
-
-  nextPage(doc);
-  narrative(doc, model, "introduction");
-
-  nextPage(doc);
-  narrative(doc, model, "about");
-
-  nextPage(doc);
-  drawProperty(doc, model);
-
-  nextPage(doc);
-  drawSchedule(doc, model);
-
-  nextPage(doc);
+  drawCover(doc, model, company);
+  doc.addPage();
+  drawLetter(doc, model, company);
+  doc.addPage();
+  narrative(doc, model, "our_team");
   drawScope(doc, model);
-
-  nextPage(doc);
-  narrative(doc, model, "included");
-  narrative(doc, model, "excluded");
-
-  nextPage(doc);
-  narrative(doc, model, "quality");
-
-  nextPage(doc);
   drawPricing(doc, model);
-
-  nextPage(doc);
-  narrative(doc, model, "turnover");
-  narrative(doc, model, "post_construction");
-
-  nextPage(doc);
-  narrative(doc, model, "assumptions");
-  narrative(doc, model, "change_control");
-
-  nextPage(doc);
-  narrative(doc, model, "terms");
+  narrative(doc, model, "included");
+  narrative(doc, model, "special_services");
+  bodyText(doc, "Priced on request.");
+  narrative(doc, model, "quality");
+  narrative(doc, model, "safety");
+  narrative(doc, model, "equipment");
+  narrative(doc, model, "invoicing");
   kvGrid(doc, [
     { label: "Payment terms", value: model.termsLabel },
     { label: "Due date", value: "Counted from the invoice date" },
   ]);
+  narrative(doc, model, "term");
+  doc.addPage();
   narrative(doc, model, "acceptance");
   acceptanceColumns(doc, company.legalName, model.clientName);
 

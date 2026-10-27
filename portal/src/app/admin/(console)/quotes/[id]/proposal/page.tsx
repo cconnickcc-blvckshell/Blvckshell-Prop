@@ -101,6 +101,7 @@ export default async function QuoteProposalPage({
         termsLabel={model.termsLabel}
         locked={loaded.status === "WON"}
         sections={loaded.sections}
+        taskGroups={loaded.taskGroups}
       />
     </div>
   );

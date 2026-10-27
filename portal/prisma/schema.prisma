@@ -855,6 +855,7 @@ model Quote {
   addOnLines                        QuoteAddOnLine[]
   snapshots                         QuoteSnapshot[]
   sectionOverrides                  QuoteSectionOverride[]
+  areaTaskOverrides                 QuoteAreaTaskOverride[]
 
   @@index([siteId])
   @@index([pricingPolicyId])
@@ -1250,6 +1251,32 @@ model QuoteSectionOverride {
 
   @@unique([quoteId, sectionKey])
   @@index([quoteId])
+}
+
+/// Default task rows for a proposal area. Wording is edited in Settings.
+model ProposalAreaTask {
+  id          String        @id @default(cuid())
+  areaType    QuoteAreaType
+  description String
+  frequency   String
+  sortOrder   Int
+  updatedAt   DateTime      @updatedAt
+
+  @@index([areaType])
+}
+
+/// Per-quote replacement for one area's default tasks.
+model QuoteAreaTaskOverride {
+  id          String        @id @default(cuid())
+  quoteId     String
+  areaType    QuoteAreaType
+  description String
+  frequency   String
+  sortOrder   Int
+  updatedAt   DateTime      @updatedAt
+  quote       Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId, areaType])
 }
 
 /// Daily counter for new document numbers. Invoice numbers use scope "invoice".

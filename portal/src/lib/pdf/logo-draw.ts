@@ -58,8 +58,16 @@ export function drawLogo(doc: PdfDoc, x: number, y: number, width: number): void
   doc.restore();
 }
 
-/** Crest only, fitted to `width`, for the faint page watermark. */
-export function drawCrest(doc: PdfDoc, x: number, y: number, width: number): void {
+const WATERMARK_CREAM = ["#E7D3B4", "#F6EBDD", "#F4E6D2", "#E8D0B0", "#FBF6EE", "#E8D0B0", "#F4E6D2"];
+
+/** Crest only, fitted to `width`. Pass `fills` to recolor facets; otherwise the logo colors are used. */
+export function drawCrest(
+  doc: PdfDoc,
+  x: number,
+  y: number,
+  width: number,
+  fills?: string[]
+): void {
   const crest = LOGO_GROUPS.find((group) => group.id === "crest");
   if (!crest) return;
   let minX = Infinity;
@@ -83,6 +91,25 @@ export function drawCrest(doc: PdfDoc, x: number, y: number, width: number): voi
   doc.translate(x, y);
   doc.scale(scale, scale);
   doc.translate(-minX, -minY);
-  drawGroup(doc, crest);
+  if (!fills) {
+    drawGroup(doc, crest);
+  } else {
+    doc.save();
+    applyOps(doc, crest.transform);
+    crest.shapes.forEach((shape, index) => {
+      if (shape.kind !== "polygon") return;
+      const pairs: number[][] = [];
+      for (let i = 0; i < shape.points.length; i += 2) {
+        pairs.push([shape.points[i], shape.points[i + 1]]);
+      }
+      if (pairs.length >= 3) doc.polygon(...pairs).fill(fills[index] ?? "#F6EBDD");
+    });
+    doc.restore();
+  }
   doc.restore();
+}
+
+/** Large bottom-right watermark. Filled cream facets, no stroke and no grey. */
+export function drawWatermarkCrest(doc: PdfDoc, x: number, y: number, width: number): void {
+  drawCrest(doc, x, y, width, WATERMARK_CREAM);
 }

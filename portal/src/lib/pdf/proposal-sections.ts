@@ -3,17 +3,17 @@
  * The owner replaces them in Settings. Do not paste proposal, legal, or pricing prose into this file.
  */
 export const PROPOSAL_SECTION_CATALOG = [
-  { key: "introduction", title: "Introduction", body: "[Introduction text — edit in Settings]", sortOrder: 10 },
-  { key: "about", title: "About us", body: "[About us text — edit in Settings]", sortOrder: 20 },
-  { key: "quality", title: "Quality assurance", body: "[Quality assurance text — edit in Settings]", sortOrder: 30 },
-  { key: "included", title: "Included", body: "[Included text — edit in Settings]", sortOrder: 40 },
-  { key: "excluded", title: "Excluded", body: "[Excluded text — edit in Settings]", sortOrder: 50 },
-  { key: "turnover", title: "Unit turnovers", body: "[Unit turnover text — edit in Settings]", sortOrder: 60 },
-  { key: "post_construction", title: "Post-construction", body: "[Post-construction text — edit in Settings]", sortOrder: 70 },
-  { key: "assumptions", title: "Assumptions", body: "[Assumptions text — edit in Settings]", sortOrder: 80 },
-  { key: "change_control", title: "Change control", body: "[Change control text — edit in Settings]", sortOrder: 90 },
-  { key: "terms", title: "Terms", body: "[Terms text — edit in Settings]", sortOrder: 100 },
-  { key: "acceptance", title: "Acceptance", body: "[Acceptance text — edit in Settings]", sortOrder: 110 },
+  { key: "cover_letter", title: "Cover letter", body: "[Cover letter — edit in Settings]", sortOrder: 10 },
+  { key: "our_team", title: "Our team", body: "[Our team text — edit in Settings]", sortOrder: 20 },
+  { key: "pricing", title: "Pricing", body: "[Pricing note — edit in Settings]", sortOrder: 30 },
+  { key: "included", title: "Included at no additional cost", body: "[Included text — edit in Settings]", sortOrder: 40 },
+  { key: "special_services", title: "Special services", body: "[Special services text — edit in Settings]", sortOrder: 50 },
+  { key: "quality", title: "Quality assurance", body: "[Quality assurance text — edit in Settings]", sortOrder: 60 },
+  { key: "safety", title: "Safety", body: "[Safety text — edit in Settings]", sortOrder: 70 },
+  { key: "equipment", title: "Equipment and supplies", body: "[Equipment and supplies text — edit in Settings]", sortOrder: 80 },
+  { key: "invoicing", title: "Invoicing and payment terms", body: "[Invoicing text — edit in Settings]", sortOrder: 90 },
+  { key: "term", title: "Term and termination", body: "[Term and termination text — edit in Settings]", sortOrder: 100 },
+  { key: "acceptance", title: "Agreement", body: "[Acceptance text — edit in Settings]", sortOrder: 110 },
 ] as const;
 
 export type ProposalSectionKey = (typeof PROPOSAL_SECTION_CATALOG)[number]["key"];
@@ -50,9 +50,11 @@ export function resolveProposalSections(
 }
 
 export function proposalSection(sections: ProposalSectionContent[], key: ProposalSectionKey): ProposalSectionContent {
-  return sections.find((section) => section.key === key) ?? {
-    key,
-    title: key,
-    body: "",
-  };
+  return (
+    sections.find((section) => section.key === key) ?? {
+      key,
+      title: key,
+      body: "",
+    }
+  );
 }

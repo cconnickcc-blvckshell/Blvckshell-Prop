@@ -113,8 +113,11 @@ describe("client-safe document models", () => {
     expect(model?.reference).toBe("BS-2026-001");
     expect(model?.termsLabel).toBe("Net 30");
     expect(model?.validityDays).toBe(30);
-    expect(model?.sections.find((section) => section.key === "about")?.body).toContain("edit in Settings");
-    expect(model?.areas[0]).toEqual({ area: "Lobby", detail: "500-1500 sqft · Tile" });
+    expect(model?.sections.find((section) => section.key === "our_team")?.body).toContain("edit in Settings");
+    expect(model?.areas[0]).toMatchObject({ area: "Lobby", detail: "500-1500 sqft · Tile" });
+    expect(model?.areas[0].tasks[0]?.frequency).toBe("3 days per week");
+    expect(model?.areas[0].tasks[1]?.frequency).toBe("Weekly");
+    expect(JSON.stringify(model?.areas[0].tasks)).not.toContain("417");
     expect(model?.addOns).toEqual([{ name: "Glass detail", priceCents: 2500 }]);
   });
 
@@ -270,8 +273,8 @@ describe("branded pdf output", () => {
   it("renders a proposal pdf", async () => {
     const model = buildProposalModel({
       status: "SENT",
-      visitsPerWeek: 2,
-      expiresAt: new Date("2026-12-01T00:00:00Z"),
+      visitsPerWeek: 5,
+      expiresAt: new Date("2026-11-29T00:00:00Z"),
       clientName: "Harbour Court",
       contactName: "A. Client",
       contactEmail: "client@example.com",
@@ -279,27 +282,38 @@ describe("branded pdf output", () => {
       siteAddress: "1 Example Road",
       monthlyAmountCents: 150000,
       reference: "BS-2026-001",
-      areas: [{ type: "WASHROOMS", measurements: { preset: "M", finish: "standard" } }],
-      addOns: [],
-      now: new Date("2026-10-27T15:00:00Z"),
+      areas: ["LOBBY", "HALLWAYS", "ELEVATORS", "STAIRWELLS", "WASHROOMS", "GARBAGE"].map((type) => ({
+        type,
+        measurements: { sizeLabel: "Standard", finish: "standard" },
+      })),
+      addOns: [{ name: "Entry glass", priceCents: 18000, includedInProposal: true }],
+      now: new Date("2026-10-30T15:00:00Z"),
     });
     expect(model).not.toBeNull();
     const pdf = await renderProposalPdf(model!, { compress: false });
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
     const raw = pdf.toString("latin1");
     expect(raw).toContain("612 792");
+    expect(raw).toContain("0.9647058823529412 0.9215686274509803");
     const pages = raw.match(/\/Type \/Page\b/g);
-    expect(pages && pages.length).toBeGreaterThanOrEqual(12);
+    expect(pages && pages.length).toBeGreaterThanOrEqual(6);
+    expect(pages && pages.length).toBeLessThanOrEqual(8);
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "proposal-pdf-"));
     const file = path.join(dir, "proposal.pdf");
     fs.writeFileSync(file, pdf);
     const text = execFileSync("pdftotext", ["-layout", file, "-"], { encoding: "utf8" });
     expect(text).toContain("BS-2026-001");
+    expect(text).toContain("Dear A. Client");
+    expect(text).toContain("Chris Connick");
+    expect(text).toContain("5 days per week");
     expect(text).toContain("edit in Settings");
     expect(text).toContain("Net 30");
+    expect(text).toContain("Priced on request");
     expect(text.toLowerCase()).not.toContain("late fee");
     expect(text.toLowerCase()).not.toContain("insurance");
     expect(text.toLowerCase()).not.toContain("wsib");
+    expect(text.toLowerCase()).not.toContain("renewal");
+    expect(text.toLowerCase()).not.toContain("escalat");
     expect(text.toLowerCase()).not.toContain("minute");
     expect(text.toLowerCase()).not.toContain("margin");
   });

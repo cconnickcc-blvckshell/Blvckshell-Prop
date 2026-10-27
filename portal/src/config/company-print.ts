@@ -16,6 +16,11 @@ export const companyPrint = {
   phone: "519-613-6330",
   serviceArea: "Windsor-Essex County & Chatham",
   web: "blvckshell.com",
+  websiteLabel: "www.blvckshell.com",
+  signerName: "Chris Connick",
+  signerTitle: "Founder",
+  /** Optional file path for a signature image. Empty draws a blank line. */
+  signatureImagePath: "",
   tagline: "Facilities Execution & Accountability",
   line: "People | Property | Performance | A Higher Standard",
 } as const;
@@ -25,6 +30,10 @@ export type CompanyPrintView = {
   phone: string;
   serviceArea: string;
   web: string;
+  websiteLabel: string;
+  signerName: string;
+  signerTitle: string;
+  signatureImagePath: string;
   tagline: string;
   line: string;
   hstNumber: string;
@@ -46,6 +55,10 @@ export function companyPrintView(): CompanyPrintView {
     phone: companyPrint.phone,
     serviceArea: companyPrint.serviceArea,
     web: companyPrint.web,
+    websiteLabel: companyPrint.websiteLabel,
+    signerName: companyPrint.signerName,
+    signerTitle: companyPrint.signerTitle,
+    signatureImagePath: companyPrint.signatureImagePath,
     tagline: companyPrint.tagline,
     line: companyPrint.line,
     hstNumber: companyHstNumber(),
