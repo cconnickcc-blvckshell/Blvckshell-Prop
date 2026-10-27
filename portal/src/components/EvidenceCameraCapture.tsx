@@ -391,8 +391,18 @@ export default function EvidenceCameraCapture({ onDone, onCancel, uploadConfig, 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/95 p-4">
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center max-w-sm">
-          <p className="text-red-400 mb-4">{error}</p>
-          <button onClick={onCancel} className="rounded-lg bg-zinc-700 px-4 py-2 text-sm font-medium text-white">Close</button>
+          <p className="mb-2 text-red-400">{error}</p>
+          <p className="mb-4 text-sm text-zinc-300">
+            Allow the camera in the browser, then try again. Photos are taken in the app. A photo library is not used.
+          </p>
+          <div className="flex flex-col gap-2">
+            <button type="button" onClick={retake} className="min-h-11 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+              Try the camera again
+            </button>
+            <button type="button" onClick={onCancel} className="min-h-11 rounded-lg bg-zinc-700 px-4 py-2 text-sm font-medium text-white">
+              Close
+            </button>
+          </div>
         </div>
       </div>
     );

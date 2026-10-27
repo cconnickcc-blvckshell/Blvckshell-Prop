@@ -36,7 +36,19 @@ export default async function AdminAuditPage({
       </div>
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-        <div className="overflow-x-auto">
+        <ul className="space-y-3 p-3 lg:hidden" data-record-list>
+          {logs.map((log) => (
+            <li key={log.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+              <p className="text-sm text-zinc-400">{formatDateTime(log.createdAt)}</p>
+              <p className="mt-1 font-medium text-white">{log.entityType}</p>
+              <p className="text-sm text-zinc-300">{log.actorUser.name}</p>
+              <p className="mt-1 text-sm text-zinc-400">
+                {log.fromState ? `${log.fromState} → ${log.toState ?? "—"}` : (log.toState ?? "—")}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto lg:block">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
               <tr>

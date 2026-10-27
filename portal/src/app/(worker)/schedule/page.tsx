@@ -37,7 +37,7 @@ export default async function SchedulePage() {
 
   return (
     <div className="min-h-screen p-4">
-      <div className="mx-auto max-w-lg">
+      <div className="mx-auto max-w-3xl lg:max-w-6xl">
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h1 className="text-xl font-bold text-white">Schedule</h1>
@@ -45,7 +45,7 @@ export default async function SchedulePage() {
           </div>
           <a
             href="/api/worker/ical"
-            className="text-xs text-emerald-400 hover:text-emerald-300"
+            className="inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-emerald-400 hover:text-emerald-300"
           >
             Add to calendar (iCal)
           </a>

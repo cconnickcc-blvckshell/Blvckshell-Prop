@@ -32,7 +32,7 @@ export default function JobsWeekStrip({
     <div className="mb-4 flex items-center gap-1 overflow-x-auto pb-2">
       <button
         onClick={() => router.push("/jobs")}
-        className={`shrink-0 rounded-xl px-3 py-2 text-xs font-medium ${
+        className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl px-3 py-2 text-xs font-medium ${
           !selectedDate || selectedDate === "" ? "bg-emerald-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
         }`}
       >
@@ -42,7 +42,7 @@ export default function JobsWeekStrip({
         <button
           key={day.date}
           onClick={() => router.push(`/jobs?date=${day.date}`)}
-          className={`relative flex shrink-0 flex-col items-center rounded-xl px-3 py-2 text-xs transition-colors ${
+          className={`relative flex min-h-11 min-w-11 shrink-0 flex-col items-center justify-center rounded-xl px-3 py-2 text-xs transition-colors ${
             selectedDate === day.date
               ? "bg-emerald-600 text-white"
               : day.isToday

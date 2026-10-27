@@ -46,7 +46,22 @@ export default async function IncidentsPage() {
       </div>
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-        <div className="overflow-x-auto">
+        <ul className="space-y-3 p-3 lg:hidden" data-record-list>
+          {incidents.map((inc) => (
+            <li key={inc.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium text-white">{inc.site.name}</p>
+                <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${typeColor[inc.type] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"}`}>
+                  {inc.type.replace(/_/g, " ")}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-zinc-400">{formatDateTime(inc.reportedAt)} · {inc.worker.user.name}</p>
+              <p className="mt-2 text-sm text-zinc-300">{inc.description}</p>
+              <p className="mt-2 text-xs text-zinc-500">{inc.resolvedAt ? `Resolved ${formatDateTime(inc.resolvedAt)}` : "Open"}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto lg:block">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
               <tr>

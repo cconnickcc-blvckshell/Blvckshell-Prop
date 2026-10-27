@@ -103,7 +103,7 @@ export default function WorkerNav({ userName, role, jobsBadge = 0 }: { userName:
 
       {/* Bottom tab bar. Safe area is added under the 4rem row so icons keep their size. */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2 md:max-w-3xl">
           {workerTabs.map((tab) => (
             <Link
               key={tab.href}

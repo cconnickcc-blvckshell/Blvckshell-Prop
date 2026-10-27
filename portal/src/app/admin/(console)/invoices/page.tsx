@@ -107,7 +107,30 @@ export default async function AdminInvoicesPage({
       />
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-        <div className="overflow-x-auto">
+        <ul className="space-y-3 p-3 lg:hidden" data-record-list>
+          {invoices.map((inv) => (
+            <li key={inv.id}>
+              <Link href={`/admin/invoices/${inv.id}`} prefetch={false} className="block min-h-11 rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-white">{inv.invoiceNumber}</p>
+                    <p className="mt-1 text-sm text-zinc-400">{inv.client.name}</p>
+                    <p className="mt-1 text-sm text-zinc-300">
+                      {formatCalendarDate(inv.periodStart)} – {formatCalendarDate(inv.periodEnd)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-white">${(inv.totalCents / 100).toFixed(2)}</p>
+                    <span className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass[inv.status] ?? "bg-zinc-600/30 text-zinc-300"}`}>
+                      {inv.status}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto lg:block">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
               <tr>

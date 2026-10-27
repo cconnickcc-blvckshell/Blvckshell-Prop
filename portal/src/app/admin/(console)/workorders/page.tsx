@@ -38,7 +38,23 @@ export default async function WorkOrdersPage() {
       </div>
 
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-xl">
-        <div className="overflow-x-auto">
+        <ul className="space-y-3 p-3 lg:hidden" data-record-list>
+          {workOrders.map((wo) => (
+            <li key={wo.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium text-white">{wo.site.name}</p>
+                <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusColor[wo.status] ?? "bg-zinc-600/30 text-zinc-300 border-zinc-500/40"}`}>
+                  {formatWorkOrderStatus(wo.status)}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-zinc-300">{wo.description}</p>
+              <p className="mt-2 text-sm text-zinc-400">
+                {wo.assignedWorkforceAccount?.displayName ?? "Unassigned"} · ${(wo.priceCents / 100).toFixed(2)}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto lg:block">
           <table className="min-w-full divide-y divide-zinc-800">
             <thead className="bg-zinc-800/50">
               <tr>
