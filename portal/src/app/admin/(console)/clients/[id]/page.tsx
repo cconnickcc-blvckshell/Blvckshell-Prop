@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import AddSiteForm from "./AddSiteForm";
 import ChecklistManager from "./ChecklistManager";
+import { TORONTO_TZ, zonedParts } from "@/lib/toronto-time";
 
 export const metadata = { title: "Client" };
 
@@ -39,6 +40,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   });
 
   if (!client) notFound();
+  const today = zonedParts(new Date(), TORONTO_TZ);
+  const reportMonth = `${today.year}-${String(today.month).padStart(2, "0")}`;
 
   return (
     <div className="w-full space-y-8">
@@ -48,14 +51,29 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </Link>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold tracking-tight text-white">{client.name}</h1>
-          <a
-            href={`/api/reports/client/${client.id}`}
+          <form
+            action={`/api/reports/client/${client.id}`}
+            method="get"
             target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center rounded-lg border border-zinc-600 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800 shrink-0"
+            className="flex flex-wrap items-center gap-2"
           >
-            ↓ Download Report
-          </a>
+            <label htmlFor="report-month" className="text-sm text-zinc-400">
+              Month
+            </label>
+            <input
+              id="report-month"
+              type="month"
+              name="month"
+              defaultValue={reportMonth}
+              className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
+            />
+            <button
+              type="submit"
+              className="inline-flex items-center rounded-lg border border-zinc-600 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800 shrink-0"
+            >
+              Download report
+            </button>
+          </form>
         </div>
         <p className="mt-1 text-zinc-400">
           {client.primaryContactName} • {client.primaryContactEmail} • {client.primaryContactPhone}

@@ -20,6 +20,7 @@ const navLinks = [
   { href: "/admin/clients", label: "Clients" },
   { href: "/admin/workforce", label: "Workforce" },
   { href: "/admin/quotes", label: "Quotes" },
+  { href: "/admin/settings/proposal", label: "Proposal text" },
   { href: "/admin/invoices", label: "Invoices" },
   { href: "/admin/finance", label: "Finance" },
   { href: "/admin/analytics", label: "Analytics" },

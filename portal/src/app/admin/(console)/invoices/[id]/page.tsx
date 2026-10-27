@@ -9,6 +9,8 @@ import AddContractBaseButton from "./AddContractBaseButton";
 import PaymentPanel from "@/components/admin/PaymentPanel";
 import { listPaymentsForInvoice } from "@/server/actions/payment-actions";
 import { formatCalendarDate, formatDateTime } from "@/lib/format";
+import { isPaymentTerms, paymentTermsLabel } from "@/server/invoices/payment-terms";
+import InvoiceTermsForm from "./InvoiceTermsForm";
 
 export const metadata = { title: "Invoice" };
 
@@ -54,6 +56,8 @@ export default async function InvoiceDetailPage({
   };
 
   const jobIdsOnInvoice = new Set(invoice.lineItems.filter((l) => l.jobId).map((l) => l.jobId!));
+  const terms = isPaymentTerms(invoice.paymentTerms) ? invoice.paymentTerms : "NET_30";
+  const termsLabel = paymentTermsLabel(terms, invoice.paymentTermsDays);
 
   return (
     <div className="w-full space-y-6">
@@ -69,9 +73,14 @@ export default async function InvoiceDetailPage({
             <p className="text-zinc-400">{invoice.client.name}</p>
             <p className="mt-1 text-sm text-zinc-500">
               Period: {formatCalendarDate(invoice.periodStart)} – {formatCalendarDate(invoice.periodEnd)}
+              {" · "}
+              {termsLabel}
               {invoice.dueAt && (
-                <> • Due: {formatCalendarDate(invoice.dueAt)}</>
+                <> · Due: {formatCalendarDate(invoice.dueAt)}</>
               )}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">
+              The due date is counted from the date the invoice is sent.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-3">
@@ -94,6 +103,10 @@ export default async function InvoiceDetailPage({
           </div>
         </div>
       </div>
+
+      {invoice.status === "Draft" && (
+        <InvoiceTermsForm invoiceId={invoice.id} terms={terms} label={termsLabel} />
+      )}
 
       {/* Line items */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">

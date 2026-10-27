@@ -12,6 +12,7 @@ import {
   createDraftInvoiceInternal,
   recomputeInvoiceTotals,
 } from "@/server/invoices/draft-invoice";
+import { dueAtFromInvoiceDate, isPaymentTerms, type PaymentTermsCode } from "@/server/invoices/payment-terms";
 
 /** Uninvoiced approved jobs for a client (and optional site) in a period */
 export async function getUninvoicedApprovedJobs(
@@ -74,6 +75,8 @@ export async function getInvoiceWithDetails(invoiceId: string) {
       status: true,
       issuedAt: true,
       dueAt: true,
+      paymentTerms: true,
+      paymentTermsDays: true,
       notes: true,
       subtotalCents: true,
       taxCents: true,
@@ -240,7 +243,7 @@ export async function updateInvoiceStatus(
   const user = await requireAdmin();
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    select: { id: true, status: true, clientId: true },
+    select: { id: true, status: true, clientId: true, paymentTermsDays: true },
   });
   if (!invoice) return { success: false, error: "Invoice not found" };
   if (newStatus === "Sent" && invoice.status !== "Draft") {
@@ -263,9 +266,11 @@ export async function updateInvoiceStatus(
     }
   }
 
-  const updateData: { status: "Sent" | "Paid"; issuedAt?: Date } = { status: newStatus };
+  const updateData: { status: "Sent" | "Paid"; issuedAt?: Date; dueAt?: Date } = { status: newStatus };
   if (newStatus === "Sent") {
-    updateData.issuedAt = new Date();
+    const issuedAt = new Date();
+    updateData.issuedAt = issuedAt;
+    updateData.dueAt = dueAtFromInvoiceDate(issuedAt, invoice.paymentTermsDays);
   }
 
   await prisma.$transaction(async (tx) => {
@@ -313,5 +318,34 @@ export async function updateInvoiceStatus(
   revalidatePath(`/admin/invoices/${invoiceId}`);
   revalidatePath("/admin/invoices");
   revalidatePath("/admin/clients");
+  return { success: true, error: null };
+}
+
+/** Set payment terms on a draft. Due date is provisional until the invoice is sent. */
+export async function updateInvoicePaymentTerms(invoiceId: string, terms: PaymentTermsCode) {
+  await requireAdmin();
+  if (!isPaymentTerms(terms)) return { success: false, error: "Unknown payment terms" };
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId, status: "Draft" },
+    select: { id: true, paymentTerms: true, paymentTermsDays: true },
+  });
+  if (!invoice) return { success: false, error: "Invoice not found or not draft" };
+
+  let days = 30;
+  if (terms === "DUE_ON_COMPLETION") {
+    days = 0;
+  } else if (invoice.paymentTerms === "NET_30" && invoice.paymentTermsDays > 0) {
+    days = invoice.paymentTermsDays;
+  }
+
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: {
+      paymentTerms: terms,
+      paymentTermsDays: days,
+      dueAt: dueAtFromInvoiceDate(new Date(), days),
+    },
+  });
+  revalidatePath(`/admin/invoices/${invoiceId}`);
   return { success: true, error: null };
 }
