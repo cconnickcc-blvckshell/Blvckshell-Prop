@@ -1,13 +1,14 @@
-"use server";
-
 import { prisma } from "@/lib/prisma";
 import type { NotificationChannel, Prisma } from "@prisma/client";
 import { assertNoPasswordInPayload } from "@/lib/password-link";
 
 /**
- * Queue a notification for async delivery.
- * All business events write intent here; a background worker processes delivery.
+ * Server-only notification outbox helpers.
+ * This module is not a "use server" file, so these functions are not client-callable actions.
+ * Callers are other server actions, route handlers, and the Stripe webhook, which already
+ * authenticated the request before writing or reading the outbox.
  */
+
 export async function queueNotification(input: {
   channel: NotificationChannel;
   templateKey: string;
@@ -30,9 +31,6 @@ export async function queueNotification(input: {
   });
 }
 
-/**
- * Mark a notification as sent (called by the background delivery worker).
- */
 export async function markNotificationSent(
   notificationId: string,
   providerMessageId: string
@@ -47,9 +45,6 @@ export async function markNotificationSent(
   });
 }
 
-/**
- * Mark a notification as failed (called by the background delivery worker).
- */
 export async function markNotificationFailed(
   notificationId: string,
   error: string
@@ -63,9 +58,6 @@ export async function markNotificationFailed(
   });
 }
 
-/**
- * Get pending notifications for processing (background worker polls this).
- */
 export async function getPendingNotifications(limit: number = 50) {
   return prisma.notificationOutbox.findMany({
     where: { status: "PENDING" },
@@ -74,9 +66,6 @@ export async function getPendingNotifications(limit: number = 50) {
   });
 }
 
-/**
- * Get failed notifications for retry.
- */
 export async function getFailedNotifications(limit: number = 50) {
   return prisma.notificationOutbox.findMany({
     where: { status: "FAILED" },
@@ -85,9 +74,6 @@ export async function getFailedNotifications(limit: number = 50) {
   });
 }
 
-/**
- * Reset a failed notification to PENDING for retry.
- */
 export async function retryNotification(notificationId: string) {
   return prisma.notificationOutbox.update({
     where: { id: notificationId },

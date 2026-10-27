@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronRequest } from "@/lib/cron-auth";
 import { prisma } from "@/lib/prisma";
 
 function getEmailSubject(templateKey: string, payload: Record<string, unknown>): string {
@@ -112,15 +113,15 @@ function getSmsBody(templateKey: string, payload: Record<string, unknown>): stri
  * POST /api/notifications/process
  * Processes pending notifications from the outbox.
  * Called by a cron job (Vercel Cron or external scheduler).
+ * Fails closed with 503 when CRON_SECRET is unset, and 401 when the bearer token does not match.
  *
  * Dispatches EMAIL via SendGrid and SMS via Twilio when env vars are set.
  * Gracefully degrades to dev-mode (mark as sent) when providers are not configured.
  */
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = verifyCronRequest(req);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const pending = await prisma.notificationOutbox.findMany({

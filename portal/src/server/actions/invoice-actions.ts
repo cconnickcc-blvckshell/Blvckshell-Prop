@@ -5,7 +5,13 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import type { BillingAdjustmentType } from "@prisma/client";
 import type { AdjustmentCategory } from "@prisma/client";
-import { queueNotification } from "./notification-actions";
+import { queueNotification } from "@/server/notifications/outbox";
+import {
+  addJobToInvoiceInternal,
+  applyContractBaseToDraft,
+  createDraftInvoiceInternal,
+  recomputeInvoiceTotals,
+} from "@/server/invoices/draft-invoice";
 
 /** Uninvoiced approved jobs for a client (and optional site) in a period */
 export async function getUninvoicedApprovedJobs(
@@ -37,57 +43,6 @@ export async function getUninvoicedApprovedJobs(
     orderBy: { scheduledStart: "asc" },
   });
   return jobs;
-}
-
-/** Next invoice number for client: INV-YYYYMM-{shortId}-{seq} */
-async function getNextInvoiceNumber(clientId: string): Promise<string> {
-  const now = new Date();
-  const prefix = `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}-${clientId.slice(-6).toUpperCase()}`;
-  const existing = await prisma.invoice.findMany({
-    where: { clientId, invoiceNumber: { startsWith: prefix } },
-    select: { invoiceNumber: true },
-    orderBy: { invoiceNumber: "desc" },
-    take: 1,
-  });
-  const seq = existing.length === 0 ? 1 : parseInt(existing[0].invoiceNumber.split("-").pop() ?? "0", 10) + 1;
-  return `${prefix}-${seq}`;
-}
-
-/** Internal: create draft invoice (no audit, no revalidate). For bulk or single use. */
-export async function createDraftInvoiceInternal(
-  clientId: string,
-  periodStart: Date,
-  periodEnd: Date,
-  createdById: string
-): Promise<{ success: boolean; invoiceId: string | null; error: string | null }> {
-  const client = await prisma.clientOrganization.findUnique({
-    where: { id: clientId },
-    select: { id: true },
-  });
-  if (!client) return { success: false, invoiceId: null, error: "Client not found" };
-
-  const invoiceNumber = await getNextInvoiceNumber(clientId);
-  const netTermsDays = 30;
-  const dueAt = new Date(periodEnd);
-  dueAt.setDate(dueAt.getDate() + netTermsDays);
-
-  const invoice = await prisma.invoice.create({
-    data: {
-      clientId,
-      invoiceNumber,
-      periodStart,
-      periodEnd,
-      status: "Draft",
-      dueAt,
-      subtotalCents: 0,
-      taxCents: 0,
-      totalCents: 0,
-      createdById,
-    },
-  });
-
-  await addContractBaseToInvoice(invoice.id);
-  return { success: true, invoiceId: invoice.id, error: null };
 }
 
 /** Create a draft invoice for client + period. Auto-adds monthly base from active contracts per D1. */
@@ -166,69 +121,6 @@ export async function getInvoiceWithDetails(invoiceId: string) {
   return invoice;
 }
 
-/** Internal: add job to draft invoice and write audit (no RBAC/revalidate). For automation. */
-export async function addJobToInvoiceInternal(
-  actorUserId: string,
-  invoiceId: string,
-  jobId: string,
-  metadata?: Record<string, unknown>
-) {
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId, status: "Draft" },
-    select: { id: true, clientId: true },
-  });
-  if (!invoice) return { success: false, error: "Invoice not found or not draft" };
-
-  const job = await prisma.job.findUnique({
-    where: { id: jobId, invoiceId: null },
-    select: {
-      id: true,
-      siteId: true,
-      scheduledStart: true,
-      payoutAmountCents: true,
-      billableAmountCents: true,
-      site: { select: { clientOrganizationId: true, name: true } },
-    },
-  });
-  if (!job) return { success: false, error: "Job not found or already invoiced" };
-  if (job.site.clientOrganizationId !== invoice.clientId) {
-    return { success: false, error: "Job does not belong to this invoice client" };
-  }
-
-  const amountCents = job.billableAmountCents ?? job.payoutAmountCents;
-  const description = `${job.site.name} — ${new Date(job.scheduledStart).toLocaleDateString()}`;
-
-  await prisma.$transaction(async (tx) => {
-    await tx.invoiceLineItem.create({
-      data: {
-        invoiceId,
-        jobId: job.id,
-        siteId: job.siteId,
-        description,
-        qty: 1,
-        unitPriceCents: amountCents,
-        amountCents,
-      },
-    });
-    await tx.job.update({
-      where: { id: jobId },
-      data: { invoiceId },
-    });
-    await tx.auditLog.create({
-      data: {
-        actorUserId,
-        entityType: "Invoice",
-        entityId: invoiceId,
-        fromState: null,
-        toState: null,
-        metadata: { action: "JobAddedByAutomation", jobId, ...metadata },
-      },
-    });
-  });
-  await recomputeInvoiceTotals(invoiceId);
-  return { success: true, error: null };
-}
-
 /** Add a job as a line item to the invoice (Draft only). Uses billableAmountCents or payoutAmountCents. */
 export async function addJobToInvoice(invoiceId: string, jobId: string) {
   const user = await requireAdmin();
@@ -303,93 +195,12 @@ export async function addBillingAdjustment(
 /** Add monthly base line items from active contracts for this invoice's client and period (Draft only). Skips contracts already on the invoice. */
 export async function addContractBaseToInvoice(invoiceId: string) {
   await requireAdmin();
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId, status: "Draft" },
-    select: { id: true, clientId: true, periodStart: true, periodEnd: true },
-  });
-  if (!invoice) return { success: false, error: "Invoice not found or not draft" };
-
-  const periodStart = invoice.periodStart;
-  const periodEnd = invoice.periodEnd;
-
-  const activeContracts = await prisma.contract.findMany({
-    where: {
-      clientOrganizationId: invoice.clientId,
-      status: "Active",
-      effectiveStart: { lte: periodEnd },
-      OR: [
-        { effectiveEnd: null },
-        { effectiveEnd: { gte: periodStart } },
-      ],
-    },
-    include: { site: { select: { name: true } } },
-  });
-
-  const existingContractIds = new Set(
-    (
-      await prisma.invoiceLineItem.findMany({
-        where: { invoiceId, contractId: { not: null } },
-        select: { contractId: true },
-      })
-    )
-      .map((l) => l.contractId)
-      .filter((id): id is string => id != null)
-  );
-
-  let added = 0;
-  for (const contract of activeContracts) {
-    if (existingContractIds.has(contract.id)) continue;
-    await prisma.invoiceLineItem.create({
-      data: {
-        invoiceId,
-        contractId: contract.id,
-        siteId: contract.siteId,
-        description: `Monthly base — ${contract.site.name}`,
-        qty: 1,
-        unitPriceCents: contract.monthlyBaseAmountCents,
-        amountCents: contract.monthlyBaseAmountCents,
-      },
-    });
-    existingContractIds.add(contract.id);
-    added++;
+  const result = await applyContractBaseToDraft(invoiceId);
+  if (result.success) {
+    revalidatePath(`/admin/invoices/${invoiceId}`);
+    revalidatePath("/admin/invoices");
   }
-
-  if (added > 0) await recomputeInvoiceTotals(invoiceId);
-  revalidatePath(`/admin/invoices/${invoiceId}`);
-  revalidatePath("/admin/invoices");
-  return { success: true, error: null, added };
-}
-
-/** Recompute subtotal/tax/total from line items and adjustments. Uses frozen taxRateBps from invoice. */
-async function recomputeInvoiceTotals(invoiceId: string) {
-  const [invoice, lines, adjustments] = await Promise.all([
-    prisma.invoice.findUnique({
-      where: { id: invoiceId },
-      select: { taxRateBps: true },
-    }),
-    prisma.invoiceLineItem.aggregate({
-      where: { invoiceId },
-      _sum: { amountCents: true },
-    }),
-    prisma.billingAdjustment.findMany({
-      where: { invoiceId, status: { in: ["Approved", "Applied"] } },
-      select: { type: true, amountCents: true },
-    }),
-  ]);
-  const linesTotal = lines._sum.amountCents ?? 0;
-  let adjustmentsTotal = 0;
-  for (const a of adjustments) {
-    if (a.type === "Charge") adjustmentsTotal += a.amountCents;
-    else adjustmentsTotal -= a.amountCents; // Discount, Credit
-  }
-  const subtotalCents = linesTotal + adjustmentsTotal;
-  const taxRateBps = invoice?.taxRateBps ?? 1300;
-  const taxCents = Math.round(subtotalCents * (taxRateBps / 10000));
-  const totalCents = subtotalCents + taxCents;
-  await prisma.invoice.update({
-    where: { id: invoiceId },
-    data: { subtotalCents, taxCents, totalCents },
-  });
+  return result;
 }
 
 /** List invoices for admin (optional client filter). Uses explicit select so it works before Category A migration. */

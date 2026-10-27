@@ -3,7 +3,7 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { queueNotification } from "./notification-actions";
+import { queueNotification } from "@/server/notifications/outbox";
 import { unusablePasswordHash } from "@/lib/password-link";
 import { inviteUserWithSetPasswordLink } from "@/server/actions/password-actions";
 
