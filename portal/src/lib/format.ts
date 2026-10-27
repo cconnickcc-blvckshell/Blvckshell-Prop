@@ -3,6 +3,8 @@
  * All user-facing text should use these instead of raw enum/code values.
  */
 
+import { TORONTO_TZ } from "@/lib/toronto-time";
+
 const JOB_STATUS_LABELS: Record<string, string> = {
   SCHEDULED: "Scheduled",
   COMPLETED_PENDING_APPROVAL: "Pending Approval",
@@ -104,6 +106,7 @@ const PAYMENT_RAIL_LABELS: Record<string, string> = {
   SPARC: "SparcPay",
   EFT: "EFT",
   CHEQUE: "Cheque",
+  PAYROLL: "Payroll",
 };
 
 export function formatJobStatus(status: string): string {
@@ -166,14 +169,45 @@ export function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+function asDate(date: Date | string): Date {
+  return typeof date === "string" ? new Date(date) : date;
+}
+
+/** Calendar dates stored as UTC midnight (policy effective dates, period starts). */
+function isUtcMidnight(date: Date): boolean {
+  return (
+    date.getUTCHours() === 0 &&
+    date.getUTCMinutes() === 0 &&
+    date.getUTCSeconds() === 0 &&
+    date.getUTCMilliseconds() === 0
+  );
+}
+
 export function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" });
+  const d = asDate(date);
+  return d.toLocaleDateString("en-CA", {
+    timeZone: isUtcMidnight(d) ? "UTC" : TORONTO_TZ,
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Date-only value. Does not shift UTC midnight into the previous Toronto day. */
+export function formatCalendarDate(date: Date | string): string {
+  const d = asDate(date);
+  return d.toLocaleDateString("en-CA", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function formatDateTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("en-CA", {
+  const d = asDate(date);
+  return d.toLocaleString("en-CA", {
+    timeZone: TORONTO_TZ,
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -183,6 +217,48 @@ export function formatDateTime(date: Date | string): string {
 }
 
 export function formatTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" });
+  const d = asDate(date);
+  return d.toLocaleTimeString("en-CA", {
+    timeZone: TORONTO_TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function metaString(meta: Record<string, unknown>, key: string): string | null {
+  const value = meta[key];
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+/** Activity-feed sentence: who did what, plus a name when the audit metadata has one. */
+export function describeAuditActivity(log: {
+  entityType: string;
+  fromState: string | null;
+  toState: string | null;
+  metadata: unknown;
+  actorName: string | null;
+}): string {
+  const meta =
+    log.metadata && typeof log.metadata === "object" && !Array.isArray(log.metadata)
+      ? (log.metadata as Record<string, unknown>)
+      : {};
+  const actor = log.actorName?.trim() || "Someone";
+  const name =
+    metaString(meta, "displayName") ||
+    metaString(meta, "name") ||
+    metaString(meta, "email") ||
+    metaString(meta, "siteName");
+  const entity = log.entityType.replace(/([a-z])([A-Z])/g, "$1 $2");
+  const subject = name ? `${entity} · ${name}` : entity;
+  if (log.fromState && log.toState) {
+    return `${actor} · ${subject} · ${log.fromState} → ${log.toState}`;
+  }
+  const action = metaString(meta, "action");
+  const verb =
+    action === "create" || log.toState === "CREATED"
+      ? "created"
+      : log.toState
+        ? log.toState.toLowerCase().replace(/_/g, " ")
+        : "updated";
+  return `${actor} ${verb} ${subject}`;
 }

@@ -18,7 +18,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb',
     },
-    serverComponentsExternalPackages: ['pdfkit'],
+    instrumentationHook: true,
+    serverComponentsExternalPackages: ['pdfkit', '@prisma/client', '@prisma/adapter-pg', 'pg'],
   },
   async headers() {
     return [
@@ -61,6 +62,16 @@ const nextConfig = {
         source: '/pilots',
         destination: '/introductory-offers',
         permanent: true,
+      },
+      {
+        source: '/worker',
+        destination: '/jobs',
+        permanent: false,
+      },
+      {
+        source: '/vendor',
+        destination: '/vendor/jobs',
+        permanent: false,
       },
     ];
   },

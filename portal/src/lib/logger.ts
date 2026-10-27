@@ -17,11 +17,16 @@ export function logError(error: unknown, context: ErrorContext): void {
   const timestamp = new Date().toISOString();
   const message = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
+  const digest =
+    error instanceof Error && "digest" in error
+      ? (error as Error & { digest?: string }).digest
+      : undefined;
 
   const entry = {
     level: "ERROR",
     timestamp,
     message,
+    ...(digest ? { digest } : {}),
     ...context,
     ...(stack ? { stack: stack.split("\n").slice(0, 5).join("\n") } : {}),
   };

@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { requireWorker } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import ProfileEditor from "@/components/worker/ProfileEditor";
-import { formatRole, formatClassification } from "@/lib/format";
+import { formatCalendarDate, formatRole, formatClassification } from "@/lib/format";
 
 export default async function ProfilePage() {
   const user = await requireWorker();
@@ -52,6 +53,11 @@ export default async function ProfilePage() {
           name={userData.name}
           phone={userData.phone ?? ""}
         />
+        <p className="text-sm">
+          <Link href="/account/password" className="text-zinc-300 underline hover:text-white">
+            Change password
+          </Link>
+        </p>
 
         {/* Account info (read-only) */}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 shadow-xl">
@@ -102,8 +108,8 @@ export default async function ProfilePage() {
                   <span className={coiDoc.expiresAt && coiDoc.expiresAt < now ? "text-red-400" : "text-emerald-400"}>
                     {coiDoc.expiresAt
                       ? coiDoc.expiresAt < now
-                        ? `Expired ${new Date(coiDoc.expiresAt).toLocaleDateString()}`
-                        : `Valid until ${new Date(coiDoc.expiresAt).toLocaleDateString()}`
+                        ? `Expired ${formatCalendarDate(coiDoc.expiresAt)}`
+                        : `Valid until ${formatCalendarDate(coiDoc.expiresAt)}`
                       : "On file"}
                   </span>
                 ) : (
@@ -116,8 +122,8 @@ export default async function ProfilePage() {
                   <span className={wsibDoc.expiresAt && wsibDoc.expiresAt < now ? "text-red-400" : "text-emerald-400"}>
                     {wsibDoc.expiresAt
                       ? wsibDoc.expiresAt < now
-                        ? `Expired ${new Date(wsibDoc.expiresAt).toLocaleDateString()}`
-                        : `Valid until ${new Date(wsibDoc.expiresAt).toLocaleDateString()}`
+                        ? `Expired ${formatCalendarDate(wsibDoc.expiresAt)}`
+                        : `Valid until ${formatCalendarDate(wsibDoc.expiresAt)}`
                       : "On file"}
                   </span>
                 ) : (

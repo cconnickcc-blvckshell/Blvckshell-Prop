@@ -130,6 +130,8 @@ async function main() {
     create: {
       id: "seed-internal-account",
       type: "INTERNAL",
+      classification: "EMPLOYEE",
+      allowedPaymentMethod: "PAYROLL",
       displayName: "BLVCKSHELL Internal",
       primaryContactName: "Internal Ops",
       primaryContactEmail: "internal@blvckshell.com",
@@ -159,14 +161,15 @@ async function main() {
     },
   });
 
-  // 3b. Default pricing policy for quotes (Toronto)
+  // 3b. Default pricing policy for quotes (Windsor-Essex). YQG is the airport code.
+  // effectiveDate is a calendar date stored at UTC midnight; display it as a date, not a Toronto instant.
   const policyExists = await prisma.pricingPolicy.findFirst({
-    where: { cityCode: "YYZ", effectiveDate: new Date("2025-01-01"), version: 1 },
+    where: { cityCode: "YQG", effectiveDate: new Date("2025-01-01"), version: 1 },
   });
   if (!policyExists) {
     await prisma.pricingPolicy.create({
       data: {
-        cityCode: "YYZ",
+        cityCode: "YQG",
         effectiveDate: new Date("2025-01-01"),
         version: 1,
         anchorBillingRateCentsPerHour: 10000, // $100/hr
@@ -186,7 +189,7 @@ async function main() {
         riskRules: {},
       },
     });
-    console.log("Created default pricing policy: YYZ 2025-01-01 v1");
+    console.log("Created default pricing policy: YQG 2025-01-01 v1");
   }
 
   // 4. Client orgs + sites

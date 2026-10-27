@@ -73,7 +73,7 @@ export async function createCompleteTestScenario() {
       scheduledStart: new Date(),
       scheduledEnd: new Date(Date.now() + 3600000),
       pricingModel: "Fixed",
-      priceCents: 5000,
+      payoutAmountCents: 5000,
     },
   });
 
