@@ -19,10 +19,11 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
     serverComponentsExternalPackages: ['pdfkit'],
-  },
-  outputFileTracingIncludes: {
-    "/admin/docs/business-plan": ["./content/private/business-plan.html"],
-    "/api/admin/docs/business-plan": ["./content/private/business-plan.html"],
+    // Next 14.2 reads this under experimental. Keeps the private HTML in the server trace.
+    outputFileTracingIncludes: {
+      "/admin/docs/business-plan": ["./content/private/business-plan.html"],
+      "/api/admin/docs/business-plan": ["./content/private/business-plan.html"],
+    },
   },
   async headers() {
     return [
