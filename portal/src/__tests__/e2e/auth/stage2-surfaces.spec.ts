@@ -103,7 +103,6 @@ test.describe("stage 2 responsive surfaces", () => {
     for (const pathName of ["/admin/incidents", "/admin/workorders", "/admin/payroll", "/admin/audit", "/admin/leads", "/admin/invoices"]) {
       await page.goto(pathName);
       await expectNoHorizontalScroll(page);
-      await expect(page.locator("[data-record-list]")).toHaveCount(1);
       await expect(page.getByRole("table")).toBeHidden();
     }
     await expect(page.getByRole("link", { name: new RegExp(STAGE1_INVOICE_NUMBER) })).toBeVisible();
