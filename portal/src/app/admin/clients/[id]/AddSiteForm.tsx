@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type State = { error?: string; success?: boolean };
 
 export default function AddSiteForm({ clientId }: { clientId: string }) {
+  const router = useRouter();
   const [state, setState] = useState<State | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     formData.set("clientOrganizationId", clientId);
     setIsSubmitting(true);
     setState(undefined);
@@ -18,6 +21,10 @@ export default function AddSiteForm({ clientId }: { clientId: string }) {
     const result = await createSite(formData);
     setState(result);
     setIsSubmitting(false);
+    if (result.success) {
+      form.reset();
+      router.refresh();
+    }
   }
 
   return (
@@ -26,7 +33,7 @@ export default function AddSiteForm({ clientId }: { clientId: string }) {
         <p className="rounded-md bg-red-500/20 px-3 py-2 text-sm text-red-300">{state.error}</p>
       )}
       {state?.success && (
-        <p className="rounded-md bg-emerald-500/20 px-3 py-2 text-sm text-emerald-300">Site added. Refresh to see it.</p>
+        <p className="rounded-md bg-emerald-500/20 px-3 py-2 text-sm text-emerald-300">Site added.</p>
       )}
       <input type="hidden" name="clientOrganizationId" value={clientId} />
       <div>

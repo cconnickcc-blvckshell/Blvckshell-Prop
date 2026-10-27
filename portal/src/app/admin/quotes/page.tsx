@@ -3,6 +3,8 @@ import { listQuotes } from "@/server/actions/quote-actions";
 import Link from "next/link";
 import { formatQuoteStatus } from "@/lib/format";
 
+export const metadata = { title: "Quotes" };
+
 export default async function AdminQuotesPage() {
   await requireAdmin();
   const quotes = await listQuotes();
@@ -27,7 +29,7 @@ export default async function AdminQuotesPage() {
               <li key={q.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0">
                 <div>
                   <Link
-                    href={`/admin/quotes/${q.id}/walkthrough`}
+                    href={`/admin/quotes/${q.id}`}
                     className="font-medium text-white hover:underline"
                   >
                     {q.site.name}

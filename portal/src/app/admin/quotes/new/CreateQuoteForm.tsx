@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createQuote } from "@/server/actions/quote-actions";
 
-type Policy = { id: string; cityCode: string; effectiveDate: Date; version: number; anchorBillingRateCentsPerHour: number; minimumMonthlyRevenueCents: number; daysValid: number };
+type Policy = { id: string; cityCode: string; effectiveDate: string; version: number; anchorBillingRateCentsPerHour: number; minimumMonthlyRevenueCents: number; daysValid: number };
 type Site = { id: string; name: string; address: string };
 
 export default function CreateQuoteForm({

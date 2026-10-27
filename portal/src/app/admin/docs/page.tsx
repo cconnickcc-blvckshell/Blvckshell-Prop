@@ -2,6 +2,8 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { getChecklistSlugs, getSopSlugs } from "@/lib/docs";
 import Link from "next/link";
 
+export const metadata = { title: "Docs" };
+
 export default async function AdminDocsPage() {
   await requireAdmin();
 

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "../actions";
 import ClientForm from "./ClientForm";
 
+export const metadata = { title: "New client" };
+
 export default async function NewClientPage() {
   await requireAdmin();
 

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import NewInvoiceForm from "./NewInvoiceForm";
 
+export const metadata = { title: "New invoice" };
+
 export default async function NewInvoicePage() {
   await requireAdmin();
   const clients = await prisma.clientOrganization.findMany({

@@ -1,5 +1,8 @@
 import { requireAdmin } from "@/server/guards/rbac";
+import { formatDateTime } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
+
+export const metadata = { title: "Leads" };
 
 export default async function AdminLeadsPage() {
   await requireAdmin();
@@ -38,13 +41,7 @@ export default async function AdminLeadsPage() {
                 {leads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-zinc-800/30 transition-colors">
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-300">
-                      {new Date(lead.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {formatDateTime(lead.createdAt)}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-white">{lead.name}</td>
                     <td className="px-4 py-3 text-sm text-zinc-300">

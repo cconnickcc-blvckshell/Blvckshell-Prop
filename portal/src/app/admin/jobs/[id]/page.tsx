@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import JobAdminActions from "@/components/admin/JobAdminActions";
 import JobPreflightPanel from "@/components/admin/JobPreflightPanel";
-import { formatJobStatus, formatChecklistRunStatus } from "@/lib/format";
+import { formatDateTime, formatJobStatus, formatChecklistRunStatus } from "@/lib/format";
+
+export const metadata = { title: "Job" };
 
 export default async function AdminJobDetailPage({
   params,
@@ -136,7 +138,7 @@ export default async function AdminJobDetailPage({
     <div className="w-full space-y-6">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-sm text-zinc-500">
-          <Link href="/admin/clients" className="hover:text-zinc-300">Locations</Link>
+          <Link href="/admin/clients" className="hover:text-zinc-300">Clients</Link>
           <span>/</span>
           <Link href={`/admin/clients/${job.site.clientOrganization.id}`} className="hover:text-zinc-300">
             {job.site.clientOrganization.name}
@@ -154,7 +156,7 @@ export default async function AdminJobDetailPage({
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{job.site.name}</h1>
           <p className="text-zinc-400">{job.site.address}</p>
           <p className="mt-1 text-sm text-zinc-500">
-            Scheduled: {new Date(job.scheduledStart).toLocaleString()} • Payout: $
+            Scheduled: {formatDateTime(job.scheduledStart)} • Payout: $
             {(job.payoutAmountCents / 100).toFixed(2)}
           </p>
         </div>
@@ -205,10 +207,10 @@ export default async function AdminJobDetailPage({
               </span>
               <span>Completed by: {latestRun.completedByWorker.user.name}</span>
               {latestRun.submittedAt && (
-                <span>Submitted: {new Date(latestRun.submittedAt).toLocaleString()}</span>
+                <span>Submitted: {formatDateTime(latestRun.submittedAt)}</span>
               )}
               {latestRun.approvedAt && (
-                <span>Approved: {new Date(latestRun.approvedAt).toLocaleString()}</span>
+                <span>Approved: {formatDateTime(latestRun.approvedAt)}</span>
               )}
               <span>Template v{latestRun.templateVersion}</span>
             </div>
@@ -293,7 +295,7 @@ export default async function AdminJobDetailPage({
             <h2 className="mb-4 text-lg font-semibold text-white">Completion</h2>
             <p className="text-sm text-zinc-300">
               Completed by: {job.completion.completedByWorker.user.name} on{" "}
-              {new Date(job.completion.completedAt).toLocaleString()}
+              {formatDateTime(job.completion.completedAt)}
             </p>
             {job.completion.notes && (
               <p className="mt-2 text-sm text-zinc-400">Notes: {job.completion.notes}</p>

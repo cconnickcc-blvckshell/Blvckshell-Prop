@@ -1,6 +1,9 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import BulkResolveIncidentsPanel from "@/components/admin/BulkResolveIncidentsPanel";
+import { formatDateTime, formatIncidentType } from "@/lib/format";
+
+export const metadata = { title: "Incidents" };
 
 export default async function IncidentsPage() {
   await requireAdmin();
@@ -17,7 +20,13 @@ export default async function IncidentsPage() {
     orderBy: { reportedAt: "desc" },
     take: 50,
   });
-  const incidentItems = incidents.map((i) => ({ id: i.id, resolvedAt: i.resolvedAt }));
+  const incidentItems = incidents.map((incident) => ({
+    id: incident.id,
+    resolvedAt: incident.resolvedAt ? incident.resolvedAt.toISOString() : null,
+    siteName: incident.site.name,
+    typeLabel: formatIncidentType(incident.type),
+    reportedAtLabel: formatDateTime(incident.reportedAt),
+  }));
 
   const typeColor: Record<string, string> = {
     SAFETY: "bg-red-500/20 text-red-300 border-red-500/40",
@@ -65,7 +74,7 @@ export default async function IncidentsPage() {
               {incidents.map((inc) => (
                 <tr key={inc.id} className="hover:bg-zinc-800/30 transition-colors">
                   <td className="whitespace-nowrap px-4 py-4 text-sm text-zinc-300 sm:px-6">
-                    {new Date(inc.reportedAt).toLocaleString()}
+                    {formatDateTime(inc.reportedAt)}
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-white sm:px-6">
                     {inc.site.name}
@@ -86,9 +95,7 @@ export default async function IncidentsPage() {
                     {inc.description}
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-sm text-zinc-400 sm:px-6">
-                    {inc.resolvedAt
-                      ? new Date(inc.resolvedAt).toLocaleDateString()
-                      : "—"}
+                    {inc.resolvedAt ? formatDateTime(inc.resolvedAt) : "—"}
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,8 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import Link from "next/link";
 
+export const metadata = { title: "Business plan" };
+
 export default async function BusinessPlanPage() {
   await requireAdmin();
 

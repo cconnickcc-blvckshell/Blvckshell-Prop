@@ -14,6 +14,8 @@ function pctColor(current: number, previous: number): string {
   return current >= previous ? "text-emerald-400" : "text-red-400";
 }
 
+export const metadata = { title: "Analytics" };
+
 export default async function AdminAnalyticsPage() {
   await requireAdmin();
 

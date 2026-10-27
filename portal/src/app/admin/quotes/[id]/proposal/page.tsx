@@ -4,6 +4,8 @@ import { getQuoteForProposal } from "@/server/actions/quote-actions";
 import Link from "next/link";
 import QuoteProposalClient from "./QuoteProposalClient";
 
+export const metadata = { title: "Proposal" };
+
 export default async function QuoteProposalPage({
   params,
 }: {

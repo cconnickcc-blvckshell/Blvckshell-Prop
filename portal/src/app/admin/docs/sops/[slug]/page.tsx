@@ -3,6 +3,8 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { getSopSlugs, getSopContent } from "@/lib/docs";
 import DocView from "../../DocView";
 
+export const metadata = { title: "SOP" };
+
 export default async function SopDocPage({ params }: { params: { slug: string } }) {
   await requireAdmin();
   const slug = decodeURIComponent(params.slug);

@@ -4,6 +4,8 @@ import { getActiveRateCard } from "@/server/actions/rate-card-actions";
 import PricingPolicyEditor from "./PricingPolicyEditor";
 import RateCardEditor from "@/components/admin/RateCardEditor";
 
+export const metadata = { title: "Pricing" };
+
 export default async function PricingPolicyPage() {
   await requireAdmin();
 

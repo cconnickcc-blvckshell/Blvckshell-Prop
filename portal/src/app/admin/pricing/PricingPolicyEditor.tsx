@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updatePricingPolicy, createPricingPolicy } from "@/server/actions/pricing-policy-actions";
+import { formatCalendarDate } from "@/lib/format";
 
 type Policy = {
   id: string;
@@ -66,7 +67,7 @@ export default function PricingPolicyEditor({ policies }: { policies: Policy[] }
   const [editValues, setEditValues] = useState<Record<string, string>>({});
   const [showCreate, setShowCreate] = useState(false);
   const [createValues, setCreateValues] = useState<Record<string, string>>({
-    cityCode: "YYZ",
+    cityCode: "YQG",
     effectiveDate: new Date().toISOString().slice(0, 10),
     anchorBillingRateCentsPerHour: "45.00",
     minimumMonthlyRevenueCents: "500.00",
@@ -149,7 +150,7 @@ export default function PricingPolicyEditor({ policies }: { policies: Policy[] }
               <h3 className="text-lg font-semibold text-white">
                 {policy.cityCode}
                 <span className="ml-2 text-sm font-normal text-zinc-500">
-                  v{policy.version} · {new Date(policy.effectiveDate).toLocaleDateString()}
+                  v{policy.version} · {formatCalendarDate(policy.effectiveDate)}
                 </span>
               </h3>
             </div>

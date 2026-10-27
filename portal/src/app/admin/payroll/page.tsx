@@ -2,7 +2,9 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import PayrollActions from "./PayrollActions";
-import { formatTimeEntryStatus } from "@/lib/format";
+import { formatCalendarDate, formatTimeEntryStatus } from "@/lib/format";
+
+export const metadata = { title: "Payroll" };
 
 export default async function PayrollPage() {
   await requireAdmin();
@@ -118,7 +120,7 @@ export default async function PayrollPage() {
                     {entry.worker.user.name}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
-                    {new Date(entry.date).toLocaleDateString()}
+                    {formatCalendarDate(entry.date)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-zinc-300">
                     {Math.floor(entry.regularMinutes / 60)}h {entry.regularMinutes % 60}m

@@ -3,6 +3,8 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { getChecklistSlugs, getChecklistContent } from "@/lib/docs";
 import DocView from "../../DocView";
 
+export const metadata = { title: "Checklist" };
+
 export default async function ChecklistDocPage({ params }: { params: { slug: string } }) {
   await requireAdmin();
   const slug = decodeURIComponent(params.slug);

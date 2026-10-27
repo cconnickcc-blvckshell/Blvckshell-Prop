@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import FilterBar from "@/components/admin/FilterBar";
 
+export const metadata = { title: "Clients" };
+
 export default async function AdminClientsPage({
   searchParams,
 }: {

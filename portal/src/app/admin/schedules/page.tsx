@@ -2,6 +2,8 @@ import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import ScheduleManager from "./ScheduleManager";
 
+export const metadata = { title: "Schedules" };
+
 export default async function AdminSchedulesPage() {
   await requireAdmin();
 

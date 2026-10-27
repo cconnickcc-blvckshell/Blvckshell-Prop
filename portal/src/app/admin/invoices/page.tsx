@@ -5,6 +5,9 @@ import BulkGenerateDraftsPanel from "@/components/admin/BulkGenerateDraftsPanel"
 import FilterBar from "@/components/admin/FilterBar";
 import ExportCSVButton from "@/components/admin/ExportCSVButton";
 import type { InvoiceStatus } from "@prisma/client";
+import { formatCalendarDate } from "@/lib/format";
+
+export const metadata = { title: "Invoices" };
 
 export default async function AdminInvoicesPage({
   searchParams,
@@ -140,8 +143,7 @@ export default async function AdminInvoicesPage({
                     {inv.client.name}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
-                    {new Date(inv.periodStart).toLocaleDateString()} –{" "}
-                    {new Date(inv.periodEnd).toLocaleDateString()}
+                    {formatCalendarDate(inv.periodStart)} – {formatCalendarDate(inv.periodEnd)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span

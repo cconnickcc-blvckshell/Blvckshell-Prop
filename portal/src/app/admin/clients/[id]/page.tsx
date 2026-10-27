@@ -5,6 +5,8 @@ import Link from "next/link";
 import AddSiteForm from "./AddSiteForm";
 import ChecklistManager from "./ChecklistManager";
 
+export const metadata = { title: "Client" };
+
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   await requireAdmin();
 

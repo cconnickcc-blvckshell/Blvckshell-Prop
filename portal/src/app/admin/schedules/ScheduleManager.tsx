@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatDateTime } from "@/lib/format";
 import { useRouter } from "next/navigation";
 import {
   createRecurringSchedule,
@@ -256,7 +257,7 @@ export default function ScheduleManager({
                     </p>
                     {s.workerName && <p className="text-xs text-zinc-500">Worker: {s.workerName}</p>}
                     {s.lastGeneratedDate && (
-                      <p className="text-xs text-zinc-600">Last generated: {new Date(s.lastGeneratedDate).toLocaleDateString()}</p>
+                      <p className="text-xs text-zinc-600">Last generated: {formatDateTime(s.lastGeneratedDate)}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">

@@ -4,6 +4,8 @@ import Link from "next/link";
 import BulkWorkOrderPanel from "@/components/admin/BulkWorkOrderPanel";
 import { formatWorkOrderStatus } from "@/lib/format";
 
+export const metadata = { title: "Work orders" };
+
 export default async function WorkOrdersPage() {
   await requireAdmin();
 

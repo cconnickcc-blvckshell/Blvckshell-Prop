@@ -3,9 +3,11 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import BulkJobActionsPanel from "@/components/admin/BulkJobActionsPanel";
 import { runFlagOverdueApprovals } from "@/server/actions/bulk-actions";
-import { formatJobStatus } from "@/lib/format";
+import { formatDateTime, formatJobStatus } from "@/lib/format";
 import FilterBar from "@/components/admin/FilterBar";
 import ExportCSVButton from "@/components/admin/ExportCSVButton";
+
+export const metadata = { title: "Jobs" };
 
 export default async function AdminJobsPage({
   searchParams,
@@ -160,7 +162,7 @@ export default async function AdminJobsPage({
                     <div className="text-xs text-zinc-500">{job.site.address}</div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
-                    {new Date(job.scheduledStart).toLocaleString()}
+                    {formatDateTime(job.scheduledStart)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-300">
                     {assignedLabel(job)}
@@ -201,7 +203,7 @@ export default async function AdminJobsPage({
                   {job.site.name}
                 </Link>
                 <p className="text-xs text-zinc-500">{job.site.address}</p>
-                <p className="text-sm text-zinc-400">{new Date(job.scheduledStart).toLocaleString()}</p>
+                <p className="text-sm text-zinc-400">{formatDateTime(job.scheduledStart)}</p>
                 <p className="text-sm text-zinc-300">{assignedLabel(job)}</p>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span

@@ -68,10 +68,13 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-CA", {
+  return new Date(dateStr).toLocaleString("en-CA", {
+    timeZone: "America/Toronto",
     year: "numeric",
     month: "short",
     day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 

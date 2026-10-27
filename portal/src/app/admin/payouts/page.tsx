@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import CreatePayoutBatchForm from "@/components/admin/CreatePayoutBatchForm";
 import MarkBatchPaidButton from "@/components/admin/MarkBatchPaidButton";
-import { formatPayoutStatus } from "@/lib/format";
+import { formatCalendarDate, formatDateTime, formatPayoutStatus } from "@/lib/format";
+
+export const metadata = { title: "Payouts" };
 
 export default async function PayoutsPage() {
   await requireAdmin();
@@ -188,8 +190,7 @@ export default async function PayoutsPage() {
                         href={`/admin/payouts/batch/${batch.id}`}
                         className="hover:text-emerald-400"
                       >
-                        {new Date(batch.periodStart).toLocaleDateString()} –{" "}
-                        {new Date(batch.periodEnd).toLocaleDateString()}
+                        {formatCalendarDate(batch.periodStart)} – {formatCalendarDate(batch.periodEnd)}
                       </Link>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
@@ -206,7 +207,7 @@ export default async function PayoutsPage() {
                       {(totalCents / 100).toFixed(2)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-400">
-                      {new Date(batch.createdAt).toLocaleDateString()}
+                      {formatDateTime(batch.createdAt)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
                       <Link
@@ -235,8 +236,7 @@ export default async function PayoutsPage() {
                     href={`/admin/payouts/batch/${batch.id}`}
                     className="text-sm font-medium text-white hover:text-emerald-400"
                   >
-                    {new Date(batch.periodStart).toLocaleDateString()} –{" "}
-                    {new Date(batch.periodEnd).toLocaleDateString()}
+                    {formatCalendarDate(batch.periodStart)} – {formatCalendarDate(batch.periodEnd)}
                   </Link>
                   <div className="flex flex-wrap items-center gap-2">
                     <span

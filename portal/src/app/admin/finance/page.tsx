@@ -1,7 +1,9 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { listSiteSnapshots, getSitesForFinance } from "@/server/actions/finance-actions";
 import Link from "next/link";
-import { formatSnapshotStatus } from "@/lib/format";
+import { formatCalendarDate, formatSnapshotStatus } from "@/lib/format";
+
+export const metadata = { title: "Finance" };
 
 export default async function AdminFinancePage() {
   await requireAdmin();
@@ -26,7 +28,7 @@ export default async function AdminFinancePage() {
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <span className="text-white">{s.site.name}</span>
                 <span className="text-zinc-400">
-                  {new Date(s.month).toLocaleDateString("en-CA", { year: "numeric", month: "short" })} v{s.version}
+                  {formatCalendarDate(s.month)} v{s.version}
                 </span>
                 <span
                   className={`rounded-full border px-2 py-0.5 text-xs ${

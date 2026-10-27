@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/guards/rbac";
 import AdminNav from "@/components/admin/AdminNav";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Admin",
+    template: "%s · BLVCKSHELL Admin",
+  },
+};
 
 export default async function AdminLayout({
   children,

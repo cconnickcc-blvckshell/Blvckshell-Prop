@@ -4,6 +4,8 @@ import Link from "next/link";
 import { createJob } from "../actions";
 import CreateJobForm from "./CreateJobForm";
 
+export const metadata = { title: "New job" };
+
 export default async function NewJobPage({
   searchParams,
 }: {

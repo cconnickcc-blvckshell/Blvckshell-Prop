@@ -1,7 +1,7 @@
 import { requireVendorOwner } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { formatJobStatus } from "@/lib/format";
+import { formatDateTime, formatJobStatus } from "@/lib/format";
 
 export default async function VendorJobsPage() {
   const user = await requireVendorOwner();
@@ -14,7 +14,12 @@ export default async function VendorJobsPage() {
   }
 
   const jobs = await prisma.job.findMany({
-    where: { assignedWorkforceAccountId: user.workforceAccountId },
+    where: {
+      OR: [
+        { assignedWorkforceAccountId: user.workforceAccountId },
+        { assignedWorker: { workforceAccountId: user.workforceAccountId } },
+      ],
+    },
     select: {
       id: true,
       scheduledStart: true,
@@ -75,7 +80,7 @@ export default async function VendorJobsPage() {
                     {job.assignedWorker?.user.name ?? "Unassigned"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-zinc-400">
-                    {new Date(job.scheduledStart).toLocaleString()}
+                    {formatDateTime(job.scheduledStart)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span

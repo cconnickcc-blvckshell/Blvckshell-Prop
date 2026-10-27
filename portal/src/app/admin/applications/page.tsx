@@ -1,6 +1,8 @@
 import { listWorkerApplications, listClientSignups } from "@/server/actions/application-actions";
 import ApplicationsManager from "./ApplicationsManager";
 
+export const metadata = { title: "Applications" };
+
 export default async function ApplicationsPage() {
   const [workerApps, clientSignups] = await Promise.all([
     listWorkerApplications(),

@@ -5,6 +5,8 @@ import { getActiveRateCard } from "@/server/actions/rate-card-actions";
 import Link from "next/link";
 import WalkthroughScopeClient from "./WalkthroughScopeClient";
 
+export const metadata = { title: "Walkthrough" };
+
 export default async function QuoteWalkthroughPage({
   params,
 }: {

@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { formatPayoutStatus } from "@/lib/format";
+import { formatCalendarDate, formatPayoutStatus } from "@/lib/format";
+
+export const metadata = { title: "Payout batch" };
 
 export default async function PayoutBatchDetailPage({
   params,
@@ -55,8 +57,7 @@ export default async function PayoutBatchDetailPage({
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">Payout batch</h1>
             <p className="text-zinc-400">
-              {new Date(batch.periodStart).toLocaleDateString()} –{" "}
-              {new Date(batch.periodEnd).toLocaleDateString()}
+              {formatCalendarDate(batch.periodStart)} – {formatCalendarDate(batch.periodEnd)}
             </p>
           </div>
           <span

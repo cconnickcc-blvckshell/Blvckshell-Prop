@@ -8,6 +8,9 @@ import InvoiceStatusActions from "./InvoiceStatusActions";
 import AddContractBaseButton from "./AddContractBaseButton";
 import PaymentPanel from "@/components/admin/PaymentPanel";
 import { listPaymentsForInvoice } from "@/server/actions/payment-actions";
+import { formatCalendarDate, formatDateTime } from "@/lib/format";
+
+export const metadata = { title: "Invoice" };
 
 export default async function InvoiceDetailPage({
   params,
@@ -65,10 +68,9 @@ export default async function InvoiceDetailPage({
             </h1>
             <p className="text-zinc-400">{invoice.client.name}</p>
             <p className="mt-1 text-sm text-zinc-500">
-              Period: {new Date(invoice.periodStart).toLocaleDateString()} –{" "}
-              {new Date(invoice.periodEnd).toLocaleDateString()}
+              Period: {formatCalendarDate(invoice.periodStart)} – {formatCalendarDate(invoice.periodEnd)}
               {invoice.dueAt && (
-                <> • Due: {new Date(invoice.dueAt).toLocaleDateString()}</>
+                <> • Due: {formatCalendarDate(invoice.dueAt)}</>
               )}
             </p>
           </div>
@@ -168,9 +170,9 @@ export default async function InvoiceDetailPage({
                 <div>
                   <p className="font-medium text-white">{job.site.name}</p>
                   <p className="text-xs text-zinc-500">
-                    {new Date(job.scheduledStart).toLocaleString()}
+                    {formatDateTime(job.scheduledStart)}
                     {job.completion?.completedAt &&
-                      ` • Completed ${new Date(job.completion.completedAt).toLocaleDateString()}`}
+                      ` • Completed ${formatDateTime(job.completion.completedAt)}`}
                   </p>
                 </div>
                 {jobIdsOnInvoice.has(job.id) ? (
@@ -249,7 +251,7 @@ export default async function InvoiceDetailPage({
 
       <p className="text-xs text-zinc-500">
         Created by {invoice.createdBy.name} on{" "}
-        {new Date(invoice.createdAt).toLocaleString()}
+        {formatDateTime(invoice.createdAt)}
       </p>
     </div>
   );

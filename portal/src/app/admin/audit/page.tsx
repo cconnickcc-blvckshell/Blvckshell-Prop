@@ -1,5 +1,8 @@
 import { requireAdmin } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
+import { formatDateTime } from "@/lib/format";
+
+export const metadata = { title: "Audit" };
 
 export default async function AdminAuditPage({
   searchParams,
@@ -48,7 +51,7 @@ export default async function AdminAuditPage({
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-zinc-800/30 transition-colors">
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-400">
-                    {new Date(log.createdAt).toLocaleString()}
+                    {formatDateTime(log.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-sm text-zinc-300">
                     {log.actorUser.name}

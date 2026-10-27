@@ -4,6 +4,8 @@ import { getQuote } from "@/server/actions/quote-actions";
 import Link from "next/link";
 import QuotePricingClient from "./QuotePricingClient";
 
+export const metadata = { title: "Quote pricing" };
+
 export default async function QuotePricingPage({
   params,
 }: {
