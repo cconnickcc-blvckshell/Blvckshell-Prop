@@ -18,10 +18,6 @@ export default function QuoteProposalClient({
   const [error, setError] = useState<string | null>(null);
   const canFinalize = hasSnapshot && status === "SENT";
 
-  function handlePrint() {
-    window.print();
-  }
-
   async function handleFinalize() {
     setError(null);
     setPending(true);
@@ -37,13 +33,12 @@ export default function QuoteProposalClient({
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3">
       {error && <p className="w-full text-sm text-red-400">{error}</p>}
-      <button
-        type="button"
-        onClick={handlePrint}
+      <a
+        href={`/api/quotes/${quoteId}/proposal/pdf`}
         className="rounded-lg bg-zinc-700 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-600"
       >
-        Print / Save as PDF
-      </button>
+        Download PDF
+      </a>
       {canFinalize && (
         <button
           type="button"
