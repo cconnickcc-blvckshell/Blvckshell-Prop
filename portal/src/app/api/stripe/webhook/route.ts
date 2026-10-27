@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { queueNotification } from "@/server/actions/notification-actions";
+import { queueNotification } from "@/server/notifications/outbox";
 import type { Prisma } from "@prisma/client";
 
 /**

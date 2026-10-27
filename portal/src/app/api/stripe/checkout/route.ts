@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     where: { id: invoiceId },
     select: {
       id: true,
+      clientId: true,
       invoiceNumber: true,
       status: true,
       totalCents: true,
@@ -43,6 +44,15 @@ export async function POST(req: NextRequest) {
 
   if (!invoice) {
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+  }
+
+  const isAdmin = user.role === "ADMIN" || user.role === "FOUNDER";
+  const ownsInvoice =
+    user.role === "CLIENT" &&
+    !!user.clientOrganizationId &&
+    user.clientOrganizationId === invoice.clientId;
+  if (!isAdmin && !ownsInvoice) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   if (invoice.status !== "Sent") {

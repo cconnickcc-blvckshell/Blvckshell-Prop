@@ -2,12 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { logError } from "@/lib/logger";
+import { requireAdmin } from "@/server/guards/rbac";
 
 /**
  * Recompute quality score for a site based on recent checklist runs.
  * Score = percentage of items that passed in the last 30 days.
  */
 export async function computeSiteQualityScore(siteId: string): Promise<{ score: number; trend: string }> {
+  await requireAdmin();
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
 
@@ -58,6 +60,7 @@ export async function computeSiteQualityScore(siteId: string): Promise<{ score: 
  * Batch recompute all active site quality scores.
  */
 export async function recomputeAllSiteQualityScores() {
+  await requireAdmin();
   const sites = await prisma.site.findMany({
     where: { isActive: true },
     select: { id: true },

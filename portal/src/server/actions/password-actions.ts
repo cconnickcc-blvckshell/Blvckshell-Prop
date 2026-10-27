@@ -5,7 +5,7 @@ import * as bcrypt from "bcryptjs";
 import { requireAdmin, requireAuth } from "@/server/guards/rbac";
 import { prisma } from "@/lib/prisma";
 import { passwordSchema } from "@/lib/validations";
-import { queueNotification } from "@/server/actions/notification-actions";
+import { queueNotification } from "@/server/notifications/outbox";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { logError } from "@/lib/logger";
 import {

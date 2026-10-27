@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { createDraftInvoiceInternal, addJobToInvoiceInternal } from "@/server/actions/invoice-actions";
+import { createDraftInvoiceInternal, addJobToInvoiceInternal } from "@/server/invoices/draft-invoice";
 import type { SessionUser } from "@/server/guards/rbac";
 
 const REASON = "APPROVED_PAYABLE";
