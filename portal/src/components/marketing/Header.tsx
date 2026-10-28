@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import BrandLogo from "@/components/marketing/BrandLogo";
 import MarketingButton from "@/components/marketing/MarketingButton";
+import NavLink from "@/components/ui/NavLink";
 import { contactHref, primaryNav, secondaryNav } from "@/config/marketing-site";
 
 export default function MarketingHeader() {
@@ -38,7 +39,7 @@ export default function MarketingHeader() {
           </MarketingButton>
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <Link
             href="/portal"
             className="rounded-md border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-300"
@@ -48,7 +49,7 @@ export default function MarketingHeader() {
           <button
             type="button"
             onClick={() => setMobileOpen((o) => !o)}
-            className="rounded-md p-2 text-zinc-400 hover:bg-zinc-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)]"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)]"
             aria-expanded={mobileOpen}
             aria-controls="mobile-marketing-nav"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -65,17 +66,12 @@ export default function MarketingHeader() {
       </div>
 
       {mobileOpen ? (
-        <div id="mobile-marketing-nav" className="border-t border-zinc-800 bg-[var(--brand-black)] md:hidden">
+        <div id="mobile-marketing-nav" className="max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-zinc-800 bg-[var(--brand-black)] lg:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col px-4 py-3" aria-label="Primary mobile">
             {primaryNav.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white"
-              >
+              <NavLink key={href} href={href} onClick={() => setMobileOpen(false)}>
                 {label}
-              </Link>
+              </NavLink>
             ))}
             <div className="my-2 border-t border-zinc-800 pt-2">
               {secondaryNav.map(({ href, label }) => (

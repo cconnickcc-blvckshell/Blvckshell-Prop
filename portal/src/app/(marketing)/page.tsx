@@ -33,7 +33,7 @@ export default function HomePage() {
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/55 to-[var(--brand-black)]" />
-        <div className="relative mx-auto flex min-h-[85vh] max-w-6xl flex-col items-center justify-center px-4 py-20 text-center sm:px-6">
+        <div className="relative mx-auto flex min-h-[85vh] max-w-6xl flex-col items-center justify-center px-4 pb-36 pt-20 text-center sm:px-6">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-[var(--brand-gold)]">
             {company.supportingLine}
           </p>

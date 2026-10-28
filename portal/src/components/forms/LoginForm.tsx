@@ -1,7 +1,6 @@
 import Link from "next/link";
-
-const inputClass =
-  "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500";
+import Button from "@/components/ui/Button";
+import Field, { fieldControlClass } from "@/components/ui/Field";
 
 export default function LoginForm({
   callbackUrl,
@@ -35,48 +34,44 @@ export default function LoginForm({
         </div>
       )}
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email address
-        </label>
+      <Field id="email" label="Email address">
         <input
           id="email"
           name="email"
           type="email"
           autoComplete="email"
           required
-          className={inputClass}
+          className={fieldControlClass}
         />
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Password
-        </label>
+      <Field
+        id="password"
+        label="Password"
+        hint={
+          <p className="mt-2 text-right text-sm">
+            <Link href="/forgot-password" className="text-[var(--brand-silver)] hover:text-white">
+              Forgot password?
+            </Link>
+          </p>
+        }
+      >
         <input
           id="password"
           name="password"
           type="password"
           autoComplete="current-password"
           required
-          className={inputClass}
+          className={fieldControlClass}
         />
-        <p className="mt-2 text-right text-sm">
-          <Link href="/forgot-password" className="text-zinc-300 hover:text-white">
-            Forgot password?
-          </Link>
-        </p>
-      </div>
+      </Field>
 
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
       <div>
-        <button
-          type="submit"
-          className="w-full rounded-md bg-gray-900 px-4 py-2 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-        >
+        <Button type="submit" className="w-full">
           Sign in
-        </button>
+        </Button>
       </div>
     </form>
   );
